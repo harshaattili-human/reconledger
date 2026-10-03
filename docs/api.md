@@ -31,7 +31,10 @@ clients should decode amounts as decimals if doing arithmetic. Unknown request f
 are rejected. Identifiers are not trimmed or case-normalized.
 
 The response contains a batch `id`, `businessDate`, `currency`, creation time, counts
-for all five outcomes, and results ordered by reference. Each result has its own
+for all five outcomes, and results ordered by reference using case-sensitive ASCII
+order (the identifiers permit ASCII characters only). Source evidence within each
+side is ordered by record ID under the same rule. This order is independent of the
+database locale. Each result has its own
 `id`, `outcome`, `reviewState`, `version`, optional `resolutionNote`, and original
 left/right records. `Location` points to `/api/batches/{id}`.
 

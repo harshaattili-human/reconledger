@@ -74,6 +74,13 @@ response currently reloads its batch to assemble source evidence; this is accept
 for the 1,000-record bound but should be measured before scaling. Event history is not
 paginated yet and can grow with repeated reviews.
 
+The bounded source and result lists are sorted in Java with the same case-sensitive
+string order as the engine. The first PostgreSQL run exposed why SQL `ORDER BY`
+alone was insufficient: the database's locale put `a-ref` before `A-REF` and `.REF`,
+while H2 used a different order. Sorting the fetched lists makes the API contract
+independent of that setting. A future paginated batch-list API will need an explicit
+database ordering/cursor contract; sorting one page after fetching is not sufficient.
+
 H2 file storage makes the local demo easy to start. PostgreSQL is the next integration
 target; matching SQL syntax alone does not validate its locking or migration behavior.
 

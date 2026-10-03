@@ -63,15 +63,19 @@ public class LedgerRepository {
             (rs, n) -> new BatchView(id, rs.getDate("business_date").toLocalDate(), rs.getString("currency"),
                 rs.getString("created_at"), Map.of(), List.of()), id).stream().findFirst()
             .orElseThrow(() -> ApiException.notFound("Batch not found."));
-        var sources = jdbc.query("SELECT source_side, record_id, reference, amount FROM source_record WHERE batch_id = ? ORDER BY record_id",
+        var sources = jdbc.query("SELECT source_side, record_id, reference, amount FROM source_record WHERE batch_id = ?",
             (rs, n) -> new SourcedRecord(rs.getString("source_side"),
                 new LedgerRecord(rs.getString("record_id"), rs.getString("reference"), rs.getBigDecimal("amount"))), id);
+        // Batches are bounded to 1,000 source rows. Sort here to match the engine's
+        // case-sensitive order without depending on the database's locale/collation.
+        sources.sort(Comparator.comparing(source -> source.record().recordId()));
         var left = byReference(sources, "LEFT");
         var right = byReference(sources, "RIGHT");
-        var results = jdbc.query("SELECT * FROM recon_result WHERE batch_id = ? ORDER BY reference", (rs, n) -> {
+        var results = jdbc.query("SELECT * FROM recon_result WHERE batch_id = ?", (rs, n) -> {
             var stored = result(rs);
             return view(stored, left.getOrDefault(stored.reference(), List.of()), right.getOrDefault(stored.reference(), List.of()));
         }, id);
+        results.sort(Comparator.comparing(ResultView::reference));
         Map<Outcome, Long> counts = new EnumMap<>(Outcome.class);
         for (Outcome outcome : Outcome.values()) counts.put(outcome, 0L);
         results.forEach(r -> counts.merge(r.outcome(), 1L, Long::sum));
