@@ -1,0 +1,19 @@
+{
+  "businessDate": "2026-10-03",
+  "currency": "USD",
+  "leftRecords": [
+    {"recordId": "bank-001", "reference": "INV-100", "amount": "125.50"},
+    {"recordId": "bank-002", "reference": "INV-101", "amount": "80.00"},
+    {"recordId": "bank-003", "reference": "INV-103", "amount": "35.00"},
+    {"recordId": "bank-004", "reference": "INV-104", "amount": "20.00"},
+    {"recordId": "bank-005", "reference": "INV-104", "amount": "20.00"},
+    {"recordId": "bank-006", "reference": "REV-105", "amount": "-15.25"}
+  ],
+  "rightRecords": [
+    {"recordId": "ledger-001", "reference": "INV-100", "amount": "125.50"},
+    {"recordId": "ledger-002", "reference": "INV-101", "amount": "85.00"},
+    {"recordId": "ledger-003", "reference": "INV-102", "amount": "42.00"},
+    {"recordId": "ledger-004", "reference": "INV-104", "amount": "40.00"},
+    {"recordId": "ledger-005", "reference": "REV-105", "amount": "-15.25"}
+  ]
+}
