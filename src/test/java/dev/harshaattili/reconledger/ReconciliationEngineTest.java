@@ -60,6 +60,15 @@ class ReconciliationEngineTest {
             .isInstanceOf(ApiException.class).hasMessageContaining("At least one");
     }
 
+    @Test void rejectsExtremeExponentsBeforeAttemptingDecimalRescaling() {
+        for (String amount : List.of("1E+100000000", "1E-100000000")) {
+            assertThatThrownBy(() -> normalizer.normalize(input(List.of(row("1", "A", amount)), List.of())))
+                .isInstanceOf(ApiException.class);
+        }
+        assertThat(normalizer.normalize(input(List.of(row("1", "A", "0E-100000000")), List.of()))
+            .leftRecords().get(0).amount()).isEqualByComparingTo("0.00");
+    }
+
     @Test void referencesAreCaseSensitiveAndInputsAreNotMutated() {
         var left = List.of(row("1", "ref", "1"));
         var matches = reconcile(left, List.of(row("1", "REF", "1")));

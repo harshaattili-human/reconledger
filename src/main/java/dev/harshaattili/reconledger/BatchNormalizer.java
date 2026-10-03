@@ -29,14 +29,18 @@ public class BatchNormalizer {
             if (!ids.add(record.recordId())) {
                 throw ApiException.badRequest("Record IDs must be unique within the " + side + " side.");
             }
+            // Reject extreme exponents before setScale can allocate a huge power of ten.
+            if (record.amount().abs().compareTo(MAX_AMOUNT) > 0) {
+                throw ApiException.badRequest("Amount exceeds the supported range.");
+            }
+            if (record.amount().stripTrailingZeros().scale() > 2) {
+                throw ApiException.badRequest("Amounts must be exactly representable with two decimal places.");
+            }
             BigDecimal amount;
             try {
                 amount = record.amount().setScale(2, RoundingMode.UNNECESSARY);
             } catch (ArithmeticException ex) {
                 throw ApiException.badRequest("Amounts must be exactly representable with two decimal places.");
-            }
-            if (amount.abs().compareTo(MAX_AMOUNT) > 0) {
-                throw ApiException.badRequest("Amount exceeds the supported range.");
             }
             normalized.add(new LedgerRecord(record.recordId(), record.reference(), amount));
         }
