@@ -83,6 +83,8 @@ are outside this milestone. HTTP body-size enforcement, rate limits and access
 control remain deployment prerequisites. Result counts describe references, not
 source-record counts or an accuracy score.
 
-H2 is the default tested database. A PostgreSQL driver and environment-based profile
-are included for a future portability check; their presence is not proof that the
-PostgreSQL path has been tested. See [next work](docs/roadmap.md).
+H2 is the default local database. The same 29-test suite and packaged-app restart
+checks pass on H2 and PostgreSQL 16 in CI. [The PostgreSQL guide](docs/postgresql.md)
+shows how to repeat the checks with a disposable database; [verification evidence](docs/verification.md)
+records the exact versions, successful run and a collation bug found along the way.
+See [next work](docs/roadmap.md).

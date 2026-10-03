@@ -8,7 +8,7 @@ permissions:
   contents: read
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
@@ -21,3 +21,39 @@ jobs:
         run: ./mvnw --batch-mode --no-transfer-progress verify
       - name: Exercise HTTP demo and persistent restart
         run: python3 scripts/smoke.py
+  verify-postgres:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: reconledger_test
+          POSTGRES_USER: recon_test
+          POSTGRES_PASSWORD: disposable-ci-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U recon_test -d reconledger_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      RECON_TEST_DB_URL: jdbc:postgresql://127.0.0.1:5432/reconledger_test
+      RECON_TEST_DB_USER: recon_test
+      RECON_TEST_DB_PASSWORD: disposable-ci-password
+      RECON_TEST_DB_VENDOR: PostgreSQL
+      RECON_DB_URL: jdbc:postgresql://127.0.0.1:5432/reconledger_test
+      RECON_DB_USER: recon_test
+      RECON_DB_PASSWORD: disposable-ci-password
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Verify invariants on PostgreSQL
+        run: ./mvnw --batch-mode --no-transfer-progress verify
+      - name: Exercise PostgreSQL profile and process restart
+        run: python3 scripts/smoke.py --database postgres

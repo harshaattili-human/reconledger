@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: ${RECON_TEST_DB_URL:jdbc:h2:mem:recon-api-test;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=10000}
+    username: ${RECON_TEST_DB_USER:sa}
+    password: ${RECON_TEST_DB_PASSWORD:}
+recon:
+  test:
+    expected-database: ${RECON_TEST_DB_VENDOR:H2}
