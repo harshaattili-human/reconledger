@@ -17,6 +17,8 @@ Requirements: Java 17 or later, network access for the first Maven download, and
 Python 3 only if you want to run the scripted demo. Maven is supplied by the wrapper.
 
 ```bash
+git clone https://github.com/harshaattili-human/reconledger.git
+cd reconledger
 ./mvnw verify
 java -jar target/reconledger-0.1.0-SNAPSHOT-app.jar
 ```
@@ -38,11 +40,21 @@ one amount mismatch, one missing record on each side, and one duplicate-referenc
 exception. It also checks a safe retry, a conflicting retry, and two review events.
 Each invocation uses a fresh idempotency key and creates a new demonstration batch.
 
+Two cases from [the demo input](examples/mixed-batch.json) illustrate the matching rules:
+
+| Reference | Left amounts | Right amounts | Result |
+| --- | --- | --- | --- |
+| `INV-101` | 80.00 | 85.00 | `AMOUNT_MISMATCH` |
+| `INV-104` | 20.00, 20.00 | 40.00 | `DUPLICATE_REFERENCE` |
+
+The second case stays open for review even though the totals agree. The service
+cannot tell whether those two left records represent a valid split or a duplicate import.
+
 For an automated check that starts and stops its own server in a temporary directory,
 run `python3 scripts/smoke.py` after packaging. It also restarts the process and checks
 that the batch, review history and idempotency key survive.
 
-## Three-minute review
+## Implementation and checks
 
 | Concern | Implementation | Evidence |
 | --- | --- | --- |
@@ -57,7 +69,7 @@ Start with [the design decisions](docs/design.md), then inspect
 [Verification evidence](docs/verification.md) distinguishes checks actually run from
 planned validation. [API examples](docs/api.md) explain the request and error contract.
 
-## What the first milestone supports
+## Supported behavior
 
 - One business date and currency label per batch; at most 500 records on each side.
 - Case-sensitive reference matching with five explicit outcomes.
