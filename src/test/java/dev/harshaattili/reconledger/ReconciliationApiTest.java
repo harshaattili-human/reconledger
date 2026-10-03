@@ -12,27 +12,40 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.http.MediaType;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-@SpringBootTest(properties = {
-    "spring.datasource.url=jdbc:h2:mem:recon-api-test;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=10000"
-})
+@SpringBootTest
+@ActiveProfiles("test")
 @AutoConfigureMockMvc
 class ReconciliationApiTest {
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
     @Autowired JdbcTemplate jdbc;
     @MockitoSpyBean LedgerRepository repository;
+    @Value("${recon.test.expected-database}") String expectedDatabase;
+
+    @Test void usesTheRequestedDatabaseEngine() throws Exception {
+        try (var connection = jdbc.getDataSource().getConnection()) {
+            var metadata = connection.getMetaData();
+            assertThat(metadata.getDatabaseProductName()).isEqualTo(expectedDatabase);
+            System.out.println("Verified database engine: " + metadata.getDatabaseProductName()
+                + " " + metadata.getDatabaseProductVersion());
+        }
+    }
 
     @Test void createsAndFetchesBatchWithSourceTraceability() throws Exception {
         var response = create(key(), sample()).andExpect(status().isCreated())
@@ -63,6 +76,7 @@ class ReconciliationApiTest {
 
     @Test void concurrentRetriesProduceExactlyOneCommittedBatch() throws Exception {
         String key = key();
+        forceInitialLookupCollision(key, 6);
         var responses = concurrently(6, () -> create(key, sample()).andReturn());
         assertThat(responses.stream().map(r -> r.getResponse().getStatus()).toList())
             .containsOnly(200, 201).filteredOn(s -> s == 201).hasSize(1);
@@ -70,6 +84,63 @@ class ReconciliationApiTest {
         for (var response : responses) ids.add(body(response).get("id").asText());
         assertThat(ids).hasSize(1);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM recon_result WHERE batch_id = ?", Integer.class, ids.iterator().next())).isEqualTo(1);
+    }
+
+    @Test void conflictingConcurrentPayloadsCannotShareOneKey() throws Exception {
+        String key = key();
+        forceInitialLookupCollision(key, 2);
+        AtomicInteger request = new AtomicInteger();
+        var responses = concurrently(2, () -> create(key, request.getAndIncrement() == 0 ? sample()
+            : input(List.of(row("other", "OTHER", "12.34")), List.of())).andReturn());
+        assertThat(responses.stream().map(r -> r.getResponse().getStatus()).toList()).containsExactlyInAnyOrder(201, 409);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM recon_batch WHERE idempotency_key = ?", Integer.class, key)).isEqualTo(1);
+        var winner = responses.stream().filter(r -> r.getResponse().getStatus() == 201).findFirst().orElseThrow();
+        mvc.perform(get("/api/batches/" + body(winner).get("id").asText())).andExpect(status().isOk())
+            .andExpect(content().json(winner.getResponse().getContentAsString()));
+    }
+
+    @Test void failedCreatorReleasesTheKeyForTheConcurrentRetry() throws Exception {
+        String key = key();
+        forceInitialLookupCollision(key, 2);
+        AtomicBoolean failFirst = new AtomicBoolean(true);
+        doAnswer(invocation -> {
+            if (failFirst.getAndSet(false)) throw new DataAccessResourceFailureException("injected first creator failure");
+            return invocation.callRealMethod();
+        }).when(repository).insertResults(anyString(), anyList());
+        var responses = concurrently(2, () -> create(key, sample()).andReturn());
+        assertThat(responses.stream().map(r -> r.getResponse().getStatus()).toList()).containsExactlyInAnyOrder(201, 503);
+        var replay = body(create(key, sample()).andExpect(status().isOk()).andReturn());
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM source_record WHERE batch_id = ?", Integer.class, replay.get("id").asText())).isEqualTo(2);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM recon_batch WHERE idempotency_key = ?", Integer.class, key)).isEqualTo(1);
+    }
+
+    @Test void preservesExactDecimalBoundariesThroughTheDatabase() throws Exception {
+        var rows = List.of(row("max", "MAX", "999999999999.99"), row("min", "MIN", "-999999999999.99"),
+            row("penny", "PENNY", "0.01"));
+        var response = body(create(key(), input(rows, rows)).andExpect(status().isCreated()).andReturn());
+        var stored = repository.getBatch(response.get("id").asText());
+        assertThat(stored.counts().get(Outcome.MATCHED)).isEqualTo(3L);
+        assertThat(stored.results().get(0).leftRecords().get(0).amount()).isEqualByComparingTo("999999999999.99");
+        assertThat(stored.results().get(1).leftRecords().get(0).amount()).isEqualByComparingTo("-999999999999.99");
+        assertThat(stored.results().get(2).leftRecords().get(0).amount()).isEqualByComparingTo("0.01");
+    }
+
+    @Test void acceptsTheFullThousandRecordBoundWithoutLosingEvidence() throws Exception {
+        var rows = IntStream.range(0, 500).mapToObj(i -> row("id" + i, "REF" + i, "1.01")).toList();
+        var batch = body(create(key(), input(rows, rows)).andExpect(status().isCreated())
+            .andExpect(jsonPath("$.results.length()").value(500))
+            .andExpect(jsonPath("$.counts.MATCHED").value(500)).andReturn());
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM source_record WHERE batch_id = ?", Integer.class, batch.get("id").asText()))
+            .isEqualTo(1000);
+    }
+
+    @Test void returnsReferencesAndEvidenceInCanonicalCaseSensitiveOrder() throws Exception {
+        var rows = List.of(row("z", "a-ref", "1"), row("a", "A_REF", "1"), row("A", "A-REF", "1"),
+            row("_", ".REF", "1"), row("B", "A_REF", "1"));
+        var response = body(create(key(), input(rows, List.of())).andExpect(status().isCreated()).andReturn());
+        var stored = repository.getBatch(response.get("id").asText());
+        assertThat(stored.results()).extracting(ResultView::reference).containsExactly(".REF", "A-REF", "A_REF", "a-ref");
+        assertThat(stored.results().get(2).leftRecords()).extracting(LedgerRecord::recordId).containsExactly("B", "a");
     }
 
     @Test void reviewLifecycleRecordsEveryTransitionAndReopeningClearsResolution() throws Exception {
@@ -179,6 +250,19 @@ class ReconciliationApiTest {
     private JsonNode body(MvcResult result) throws Exception { return json.readTree(result.getResponse().getContentAsString()); }
     private static String key() { return "test-" + UUID.randomUUID(); }
     private static BatchInput sample() { return input(List.of(row("l1", "REF", "10")), List.of(row("r1", "REF", "11"))); }
+
+    private void forceInitialLookupCollision(String key, int contenders) {
+        CyclicBarrier initialReads = new CyclicBarrier(contenders);
+        AtomicInteger calls = new AtomicInteger();
+        doAnswer(invocation -> {
+            Object found = invocation.callRealMethod();
+            if (calls.getAndIncrement() < contenders) {
+                assertThat((Optional<?>) found).isEmpty();
+                initialReads.await(10, TimeUnit.SECONDS);
+            }
+            return found;
+        }).when(repository).findByKey(key);
+    }
 
     private static <T> List<T> concurrently(int workers, Callable<T> action) throws Exception {
         ExecutorService pool = Executors.newFixedThreadPool(workers);

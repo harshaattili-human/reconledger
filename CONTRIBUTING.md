@@ -4,6 +4,11 @@ Use Java 17 and the checked-in Maven wrapper. Run `./mvnw verify` for behavioral
 changes. Keep changes focused on a user-visible behavior or a concrete engineering
 problem; commit messages should describe that change.
 
+The `test` profile defaults to an isolated H2 in-memory database. To test PostgreSQL,
+follow [the disposable-database setup](docs/postgresql.md). The same API tests must
+run on both engines; do not substitute an H2 compatibility mode for a real PostgreSQL
+run. Use `RECON_TEST_DB_VENDOR=PostgreSQL` so the suite checks the actual engine.
+
 Use synthetic records only. Never add employer code, customer data, secrets, private
 logs or real account identifiers. Local H2 files and Maven build output are ignored.
 
