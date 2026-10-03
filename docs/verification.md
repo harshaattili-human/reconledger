@@ -47,9 +47,17 @@ The packaged application has an explicit `app` classifier so the executable arch
 and plain class archive are distinct. The smoke script starts that actual executable
 twice, uses an isolated temporary file database, and stops both processes afterward.
 
-## Not yet verified
+## Hosted verification
 
-- Hosted GitHub Actions: workflow prepared; publishing access is pending.
+[GitHub Actions run 37159327161](https://github.com/harshaattili-human/reconledger/actions/runs/37159327161)
+passed on October 3, 2026 for source commit
+`e9d1157747844f1db3254228db729a66028a128e`.
+The GitHub-hosted Linux runner used Temurin Java 17.0.20 and the Maven wrapper.
+All 23 tests passed with zero failures, errors or skips. Packaging succeeded, and
+both the real-HTTP demo and persistent restart checks passed. The published source
+tree was compared with the locally tested tree and matched exactly.
+
+## Not yet verified
 - PostgreSQL migrations, transaction behavior and driver path.
 - Windows/macOS startup, container deployment or public hosting.
 - Load, throughput, large histories, real financial records or real-world matching quality.
