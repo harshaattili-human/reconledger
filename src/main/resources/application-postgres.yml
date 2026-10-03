@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: ${RECON_DB_URL}
+    username: ${RECON_DB_USER}
+    password: ${RECON_DB_PASSWORD}

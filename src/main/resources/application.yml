@@ -1,0 +1,21 @@
+server:
+  address: 127.0.0.1
+  port: 8081
+spring:
+  application:
+    name: reconledger
+  datasource:
+    url: jdbc:h2:file:./.local/reconledger;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=10000
+    username: sa
+    password: ""
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
