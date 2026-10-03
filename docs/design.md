@@ -81,8 +81,10 @@ while H2 used a different order. Sorting the fetched lists makes the API contrac
 independent of that setting. A future paginated batch-list API will need an explicit
 database ordering/cursor contract; sorting one page after fetching is not sufficient.
 
-H2 file storage makes the local demo easy to start. PostgreSQL is the next integration
-target; matching SQL syntax alone does not validate its locking or migration behavior.
+H2 file storage makes the local demo easy to start. The same API contract tests and
+packaged-app restart check also run against a real PostgreSQL 16 service in CI.
+The [verification record](verification.md) includes the observed version and the
+initial ordering failure; matching SQL syntax alone was not sufficient evidence.
 
 ## Interview exercise
 

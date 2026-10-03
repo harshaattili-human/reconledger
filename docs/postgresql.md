@@ -57,8 +57,9 @@ database environment variables are set.
 The retry tests hold every contender after its initial key lookup has returned empty.
 Only then can the inserts proceed. This forces the unique-key recovery path instead
 of relying on thread scheduling to create a race. Cases include identical requests,
-different payloads sharing a key, and a first creator that rolls back while another
-request is waiting to insert.
+different payloads sharing a key, and a concurrent retry that succeeds after the
+first creator rolls back. The last case checks the outcome; it does not measure
+how long either transaction waits for a lock.
 
 These checks exercise one database instance and the configured connection pool.
 They do not establish distributed exactly-once delivery, throughput, replica behavior
