@@ -72,9 +72,57 @@ Unlike batch creation, review submissions do not have idempotency keys. After an
 ambiguous network failure, fetch the result and events to determine whether the
 transition committed before deciding to submit another transition.
 
-`GET /api/results/{id}/events` returns the ordered audit event array, or 404 for an
-unknown result. Each event includes sequence, actor, from/to state, resulting version,
-note and UTC timestamp. Matched results start at `NOT_REQUIRED` and cannot be reviewed.
+## Read audit history
+
+`GET /api/results/{id}/events?limit=50&afterSequence=0` returns one page, or 404 for
+an unknown result. Each event includes sequence, result ID, actor, from/to state,
+resulting version, note and UTC timestamp. Matched results cannot be reviewed and
+return an empty page.
+
+| Parameter | Contract |
+| --- | --- |
+| `limit` | Default 50; integer from 1 to 200 |
+| `afterSequence` | Default 0; nonnegative signed 64-bit integer; exclusive lower bound |
+
+Invalid values return HTTP 400 with `application/problem+json`. Omitted or empty
+parameters use their defaults. Sequences are database-wide integers, so gaps are
+normal. Use the returned value; do not calculate it from a page number or row count.
+
+The response is an object with `events` and `nextAfterSequence`:
+
+```json
+{
+  "events": [{
+    "sequence": 12,
+    "resultId": "RESULT_ID",
+    "actor": "demo-reviewer",
+    "fromState": "OPEN",
+    "toState": "IN_REVIEW",
+    "resultingVersion": 1,
+    "note": "Checking the synthetic source file.",
+    "createdAt": "2026-10-04T12:00:00Z"
+  }],
+  "nextAfterSequence": 12
+}
+```
+
+This illustrative `limit=1` response indicates that another event was visible.
+Request the same result ID with `afterSequence=12` to continue. Events are ordered
+by sequence ascending; the cursor identifies the **last returned** event, not the
+extra event fetched to detect another page. A final page has `nextAfterSequence: null`,
+even when it contains exactly `limit` events. An empty page is
+`{"events":[],"nextAfterSequence":null}`.
+
+Each request reads committed history; the page sequence is not a frozen snapshot.
+New reviews can appear on later pages. A null cursor means there were no further
+visible events at that read, not that the result can never receive another review.
+To poll again, retain the last event sequence (or 0 if none) and use it as
+`afterSequence`. Cursors must be kept with their result ID and retained database;
+they are not global change-stream positions or authorization tokens.
+
+**Migration from the initial prototype:** this endpoint previously returned a bare
+array containing all events. Callers must now read `response.events` and follow
+`nextAfterSequence` until null. The demo and restart scripts use the new contract.
 
 ## Health
 

@@ -61,13 +61,20 @@ def main():
             "targetState": state, "expectedVersion": version, "actor": "demo-reviewer", "note": note,
         })
         assert status == 200 and review["version"] == version + 1, (status, review)
-    status, _, events = call(path + "/events")
-    assert status == 200 and len(events) == 2, (status, events)
-    print("Reviewed the amount mismatch; both transitions are recorded in audit history.")
+    status, _, first_page = call(path + "/events?limit=1")
+    assert status == 200 and len(first_page["events"]) == 1, (status, first_page)
+    cursor = first_page["nextAfterSequence"]
+    assert cursor == first_page["events"][-1]["sequence"]
+    status, _, last_page = call(path + f"/events?limit=1&afterSequence={cursor}")
+    assert status == 200 and len(last_page["events"]) == 1, (status, last_page)
+    assert last_page["nextAfterSequence"] is None, last_page
+    events = first_page["events"] + last_page["events"]
+    assert [event["resultingVersion"] for event in events] == [1, 2], events
+    print("Reviewed the mismatch and fetched both audit transitions in separate pages.")
     status, _, fetched = call("/api/batches/" + batch["id"])
     assert status == 200 and fetched["counts"] == batch["counts"]
     receipt = {"batchId": batch["id"], "resultId": exception["id"], "idempotencyKey": key,
-               "counts": batch["counts"], "events": events}
+               "counts": batch["counts"], "events": events, "auditCursor": cursor}
     if args.output:
         args.output.write_text(json.dumps(receipt, indent=2) + "\n")
     print("Demo checks passed. Resolution tracks a review decision; it does not alter transaction records.")

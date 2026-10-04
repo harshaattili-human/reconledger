@@ -1,11 +1,24 @@
 # Verification record
 
-Verified on October 3, 2026: the same 29-test suite passes on H2 and PostgreSQL.
-The packaged application's real-HTTP demo and process-restart checks pass on both.
+The October 3 baseline passed the same 29-test suite on H2 and PostgreSQL.
+The packaged application's real-HTTP demo and process-restart checks passed on both.
 This record describes a local prototype, not deployment, production traffic or
 financial accuracy.
 
-## Current hosted result
+## Audit pagination increment — October 4, 2026
+
+Five additional API tests cover default/maximum page sizes, an exactly full final
+page, cursor replay, equal timestamps, result isolation, sequence gaps, reviews added
+between pages, a page read before a pending transaction commits, rollback after an
+audit insert, and invalid/overflowing query parameters. The maximum-page fixture uses
+205 sequential review transitions on one synthetic result. This is a functional
+boundary check, not a latency or throughput benchmark.
+
+The real-HTTP demo now follows a one-event page cursor, and the smoke runner resumes
+that saved cursor after restarting the application. Local and hosted verification
+of this increment are pending; the completed results below apply to the earlier source.
+
+## October 3 hosted baseline
 
 [GitHub Actions run 37160388559](https://github.com/harshaattili-human/reconledger/actions/runs/37160388559)
 passed for source commit `826c2fd2561e5b28baea3849601371f7d118d377` in
@@ -86,7 +99,7 @@ weakening that assertion.
 
 The first published source, `e9d1157747844f1db3254228db729a66028a128e`, passed 23 tests
 and the H2 restart check in [run 37159327161](https://github.com/harshaattili-human/reconledger/actions/runs/37159327161).
-The current suite adds six cases and strengthens the existing retry test.
+The October 3 PostgreSQL increment added six cases and strengthened the retry test.
 
 The local JVM did not support Mockito self-attachment. Tests use its subclass mock
 maker for the non-final repository, preserving actual JDBC and transaction behavior.
@@ -95,7 +108,7 @@ The executable archive has an explicit `app` classifier, distinct from the plain
 ## Not yet verified
 
 - Windows/macOS startup, application container deployment or public hosting.
-- Load/throughput, long audit histories, database crash recovery, failover or replicas.
+- Load/throughput, large-history query plans, database crash recovery, failover or replicas.
 - Real financial records or real-world matching quality.
 - Authentication, authorization, tenant isolation or tamper-resistant audit storage.
 

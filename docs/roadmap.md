@@ -7,8 +7,8 @@ ordering. See [the evidence](verification.md).
 
 Remaining priorities are planned work, not claims of completed features.
 
-1. Add bounded audit pagination and evaluate a batch-list/filter endpoint with stable
-   ordering. Measure query behavior at the existing 500-per-side input limit first.
+1. Evaluate a batch-list/filter endpoint with stable ordering. Measure query behavior
+   at the existing 500-per-side input limit and with longer review histories first.
 2. Add authenticated reviewer identity and authorization. Define tenant boundaries,
    scoped idempotency keys and access tests before any multi-user deployment.
 3. Enforce request byte limits and rate limits; define retention and database backup
@@ -20,3 +20,8 @@ Before adding fuzzy matching or ML, define a labeled synthetic evaluation set wi
 held-out ambiguous cases and a deterministic baseline. Suggested pairs must retain
 their evidence and require review. Do not use a model score as a reason to hide a
 duplicate-reference exception.
+
+Audit pagination now limits rows in SQL, with an exclusive sequence cursor, a
+200-event maximum and documented live-read semantics. Contract tests cover page
+boundaries, later reviews, equal timestamps, rollback gaps and reads during an
+uncommitted review; the demo resumes a cursor after application restart.

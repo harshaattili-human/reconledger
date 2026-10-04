@@ -75,7 +75,7 @@ planned validation. [API examples](docs/api.md) explain the request and error co
 - Case-sensitive reference matching with five explicit outcomes.
 - Amounts exactly representable to two decimal places, including negative reversals.
 - `Idempotency-Key` replay across process restarts while the database is retained.
-- Review transitions with mandatory notes, optimistic concurrency and an audit trail.
+- Review transitions with mandatory notes, optimistic concurrency and paginated audit history.
 - Flyway schema migrations, JDBC persistence and a local health endpoint.
 
 Resolving an exception records a human-entered review decision. It does **not**
@@ -95,8 +95,12 @@ are outside this milestone. HTTP body-size enforcement, rate limits and access
 control remain deployment prerequisites. Result counts describe references, not
 source-record counts or an accuracy score.
 
-H2 is the default local database. The same 29-test suite and packaged-app restart
-checks pass on H2 and PostgreSQL 16 in CI. [The PostgreSQL guide](docs/postgresql.md)
+H2 is the default local database. CI runs the same contract suite and packaged-app
+restart checks on H2 and PostgreSQL 16. [The PostgreSQL guide](docs/postgresql.md)
 shows how to repeat the checks with a disposable database; [verification evidence](docs/verification.md)
 records the exact versions, successful run and a collation bug found along the way.
 See [next work](docs/roadmap.md).
+
+Audit reads return at most 200 events per page (50 by default). The response is now
+`{events, nextAfterSequence}` instead of the initial prototype's bare array. See
+[pagination and client migration](docs/api.md#read-audit-history).

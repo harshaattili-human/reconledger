@@ -7,6 +7,7 @@ import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
@@ -36,6 +37,11 @@ public class ApiExceptionHandler {
         // Avoid logging request data or returning SQL/schema details to clients.
         LOG.error("Database operation failed ({})", exception.getClass().getSimpleName());
         return problem(HttpStatus.SERVICE_UNAVAILABLE, "Database operation could not be completed. Retry using the same idempotency key or fetch the latest review state.");
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ProblemDetail> invalidParameter(MethodArgumentTypeMismatchException exception) {
+        return problem(HttpStatus.BAD_REQUEST, "Query parameter '" + exception.getName() + "' must be a valid integer within its supported range.");
     }
 
     private ResponseEntity<ProblemDetail> problem(HttpStatus status, String detail) {
