@@ -1,11 +1,40 @@
 # Verification record
 
-Verified on October 3, 2026: the same 29-test suite passes on H2 and PostgreSQL.
-The packaged application's real-HTTP demo and process-restart checks pass on both.
+Verified on October 4, 2026: the same 34-test suite passes on H2 and PostgreSQL.
+The packaged application's real-HTTP demo and saved-cursor restart checks pass on both.
 This record describes a local prototype, not deployment, production traffic or
 financial accuracy.
 
-## Current hosted result
+## Audit pagination increment — October 4, 2026
+
+Five additional API tests cover default/maximum page sizes, an exactly full final
+page, cursor replay, equal timestamps, result isolation, sequence gaps, reviews added
+between pages, a page read before a pending transaction commits, rollback after an
+audit insert, and invalid/overflowing query parameters. The maximum-page fixture uses
+205 sequential review transitions on one synthetic result. This is a functional
+boundary check, not a latency or throughput benchmark.
+
+The real-HTTP demo follows a one-event page cursor, and the smoke runner resumes
+that saved cursor after restarting the application.
+
+[Run 37207651998](https://github.com/harshaattili-human/reconledger/actions/runs/37207651998)
+passed for source `4f24494b28afffd0c8f66a10d83f6141396cd3ff` in
+[pull request #2](https://github.com/harshaattili-human/reconledger/pull/2).
+
+| Database reported by JDBC | Engine tests | API tests | Failures / errors / skips | HTTP demo | Saved cursor after app restart |
+| --- | --- | --- | --- | --- | --- |
+| H2 2.3.232 | 9 passed | 25 passed | 0 / 0 / 0 | Passed | Passed |
+| PostgreSQL 16.15 | 9 passed | 25 passed | 0 / 0 / 0 | Passed | Passed |
+
+These are the same 34 cases on each engine. The runner is Ubuntu 24.04 with Temurin
+Java 17; the workflow retains the Maven/Spring versions listed in the baseline below.
+All 34 tests also passed locally with OpenJDK 17.0.20 after restoring the dependency
+cache. The initial local packaged-app check encountered an invalid generated JAR;
+rebuilding from an empty `target/` directory produced a working archive, and the
+local H2 demo and cursor-resume restart check then passed. No source change was
+needed for that recovery. Hosted verification used fresh build output.
+
+## October 3 hosted baseline
 
 [GitHub Actions run 37160388559](https://github.com/harshaattili-human/reconledger/actions/runs/37160388559)
 passed for source commit `826c2fd2561e5b28baea3849601371f7d118d377` in
@@ -86,7 +115,7 @@ weakening that assertion.
 
 The first published source, `e9d1157747844f1db3254228db729a66028a128e`, passed 23 tests
 and the H2 restart check in [run 37159327161](https://github.com/harshaattili-human/reconledger/actions/runs/37159327161).
-The current suite adds six cases and strengthens the existing retry test.
+The October 3 PostgreSQL increment added six cases and strengthened the retry test.
 
 The local JVM did not support Mockito self-attachment. Tests use its subclass mock
 maker for the non-final repository, preserving actual JDBC and transaction behavior.
@@ -95,7 +124,7 @@ The executable archive has an explicit `app` classifier, distinct from the plain
 ## Not yet verified
 
 - Windows/macOS startup, application container deployment or public hosting.
-- Load/throughput, long audit histories, database crash recovery, failover or replicas.
+- Load/throughput, large-history query plans, database crash recovery, failover or replicas.
 - Real financial records or real-world matching quality.
 - Authentication, authorization, tenant isolation or tamper-resistant audit storage.
 

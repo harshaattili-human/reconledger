@@ -152,9 +152,9 @@ class ReconciliationApiTest {
         review(id, ReviewState.IN_REVIEW, 2, "New evidence requires another check").andExpect(status().isOk())
             .andExpect(jsonPath("$.resolutionNote").doesNotExist());
         mvc.perform(get("/api/results/{id}/events", id)).andExpect(status().isOk())
-            .andExpect(jsonPath("$.length()").value(3))
-            .andExpect(jsonPath("$[0].fromState").value("OPEN"))
-            .andExpect(jsonPath("$[2].resultingVersion").value(3));
+            .andExpect(jsonPath("$.events.length()").value(3))
+            .andExpect(jsonPath("$.events[0].fromState").value("OPEN"))
+            .andExpect(jsonPath("$.events[2].resultingVersion").value(3));
         mvc.perform(get("/api/results/{id}", id)).andExpect(jsonPath("$.leftRecords[0].amount").value(10.0));
     }
 
@@ -163,7 +163,7 @@ class ReconciliationApiTest {
         review(id, ReviewState.RESOLVED, 0, "Skipping review").andExpect(status().isConflict());
         review(id, ReviewState.IN_REVIEW, 0, "Valid review").andExpect(status().isOk());
         review(id, ReviewState.RESOLVED, 0, "Stale browser tab").andExpect(status().isConflict());
-        mvc.perform(get("/api/results/{id}/events", id)).andExpect(jsonPath("$.length()").value(1));
+        mvc.perform(get("/api/results/{id}/events", id)).andExpect(jsonPath("$.events.length()").value(1));
         mvc.perform(get("/api/results/{id}", id)).andExpect(jsonPath("$.reviewState").value("IN_REVIEW"));
     }
 
@@ -171,14 +171,14 @@ class ReconciliationApiTest {
         String id = exceptionId();
         var responses = concurrently(2, () -> review(id, ReviewState.IN_REVIEW, 0, "Concurrent review").andReturn());
         assertThat(responses.stream().map(r -> r.getResponse().getStatus()).toList()).containsExactlyInAnyOrder(200, 409);
-        mvc.perform(get("/api/results/{id}/events", id)).andExpect(jsonPath("$.length()").value(1));
+        mvc.perform(get("/api/results/{id}/events", id)).andExpect(jsonPath("$.events.length()").value(1));
     }
 
     @Test void matchedResultsCannotBeManuallyChanged() throws Exception {
         var batch = body(create(key(), input(List.of(row("l", "REF", "1")), List.of(row("r", "REF", "1")))).andReturn());
         String id = batch.at("/results/0/id").asText();
         review(id, ReviewState.IN_REVIEW, 0, "Unnecessary review").andExpect(status().isConflict());
-        mvc.perform(get("/api/results/{id}/events", id)).andExpect(jsonPath("$.length()").value(0));
+        mvc.perform(get("/api/results/{id}/events", id)).andExpect(jsonPath("$.events.length()").value(0));
     }
 
     @Test void batchFailureRollsBackHeaderAndSourceRecordsAndAllowsRetry() throws Exception {
@@ -200,7 +200,7 @@ class ReconciliationApiTest {
         review(id, ReviewState.IN_REVIEW, 0, "Test atomic update").andExpect(status().isServiceUnavailable());
         mvc.perform(get("/api/results/{id}", id)).andExpect(jsonPath("$.reviewState").value("OPEN"))
             .andExpect(jsonPath("$.version").value(0));
-        mvc.perform(get("/api/results/{id}/events", id)).andExpect(jsonPath("$.length()").value(0));
+        mvc.perform(get("/api/results/{id}/events", id)).andExpect(jsonPath("$.events.length()").value(0));
     }
 
     @Test void rejectsMissingKeyFractionalCentsAndDuplicateIds() throws Exception {
@@ -234,6 +234,122 @@ class ReconciliationApiTest {
         mvc.perform(get("/actuator/health")).andExpect(status().isOk()).andExpect(jsonPath("$.status").value("UP"))
             .andExpect(jsonPath("$.components").doesNotExist());
         mvc.perform(get("/actuator/env")).andExpect(status().isNotFound());
+    }
+
+    @Test void boundsAuditPagesAndStopsAtAnExactlyFullLastPage() throws Exception {
+        String id = exceptionId();
+        for (int version = 0; version < 205; version++) {
+            review(id, version % 2 == 0 ? ReviewState.IN_REVIEW : ReviewState.OPEN, version, "Synthetic review " + version)
+                .andExpect(status().isOk());
+        }
+        var first = body(mvc.perform(get("/api/results/{id}/events", id)).andExpect(status().isOk())
+            .andExpect(jsonPath("$.events.length()").value(50)).andReturn());
+        assertThat(first.get("nextAfterSequence")).isEqualTo(first.at("/events/49/sequence"));
+        var large = body(mvc.perform(get("/api/results/{id}/events", id).param("limit", "200"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.events.length()").value(200)).andReturn());
+        assertThat(large.get("nextAfterSequence")).isEqualTo(large.at("/events/199/sequence"));
+        var last = body(mvc.perform(get("/api/results/{id}/events", id).param("limit", "5")
+            .param("afterSequence", large.get("nextAfterSequence").asText())).andExpect(status().isOk())
+            .andExpect(jsonPath("$.events.length()").value(5))
+            .andExpect(jsonPath("$.events[0].resultingVersion").value(201))
+            .andExpect(jsonPath("$.events[4].resultingVersion").value(205)).andReturn());
+        assertThat(last.get("nextAfterSequence").isNull()).isTrue();
+        var empty = body(mvc.perform(get("/api/results/{id}/events", id)
+            .param("afterSequence", Long.toString(Long.MAX_VALUE))).andExpect(status().isOk())
+            .andExpect(jsonPath("$.events.length()").value(0)).andReturn());
+        assertThat(empty.get("nextAfterSequence").isNull()).isTrue();
+    }
+
+    @Test void resumesAcrossSequenceGapsAndIncludesLaterReviewsWithoutRepeatingEvents() throws Exception {
+        String id = exceptionId();
+        String other = exceptionId();
+        review(id, ReviewState.IN_REVIEW, 0, "First").andExpect(status().isOk());
+        review(other, ReviewState.IN_REVIEW, 0, "Other result").andExpect(status().isOk());
+        review(id, ReviewState.OPEN, 1, "Second").andExpect(status().isOk());
+        review(id, ReviewState.IN_REVIEW, 2, "Third").andExpect(status().isOk());
+        // Equal timestamps must not change ordering or cause a cursor to skip an event.
+        jdbc.update("UPDATE review_event SET created_at = ? WHERE result_id = ?", "2026-10-04T12:00:00Z", id);
+        var first = body(mvc.perform(get("/api/results/{id}/events", id).param("limit", "2"))
+            .andExpect(status().isOk()).andReturn());
+        long cursor = first.get("nextAfterSequence").asLong();
+        assertThat(cursor).isGreaterThan(first.at("/events/0/sequence").asLong() + 1);
+        review(id, ReviewState.OPEN, 3, "Added between pages").andExpect(status().isOk());
+        var second = body(mvc.perform(get("/api/results/{id}/events", id).param("limit", "2")
+            .param("afterSequence", Long.toString(cursor))).andExpect(status().isOk())
+            .andExpect(jsonPath("$.events.length()").value(2))
+            .andExpect(jsonPath("$.events[0].resultingVersion").value(3))
+            .andExpect(jsonPath("$.events[1].resultingVersion").value(4)).andReturn());
+        assertThat(second.get("nextAfterSequence").isNull()).isTrue();
+        for (var page : List.of(first, second)) {
+            for (var event : page.get("events")) assertThat(event.get("resultId").asText()).isEqualTo(id);
+        }
+        var replay = body(mvc.perform(get("/api/results/{id}/events", id).param("limit", "2")
+            .param("afterSequence", Long.toString(cursor))).andExpect(status().isOk()).andReturn());
+        assertThat(replay).isEqualTo(second);
+    }
+
+    @Test void rejectsInvalidAuditPageParametersWithProblemDetails() throws Exception {
+        String id = exceptionId();
+        for (String limit : List.of("0", "-1", "201", "2147483648", "abc", "1.5")) {
+            mvc.perform(get("/api/results/{id}/events", id).param("limit", limit))
+                .andExpect(status().isBadRequest()).andExpect(content().contentTypeCompatibleWith("application/problem+json"));
+        }
+        for (String after : List.of("-1", "9223372036854775808", "abc", "1.5")) {
+            mvc.perform(get("/api/results/{id}/events", id).param("afterSequence", after))
+                .andExpect(status().isBadRequest()).andExpect(content().contentTypeCompatibleWith("application/problem+json"));
+        }
+    }
+
+    @Test void pageReadDuringUncommittedReviewCanResumeAfterCommit() throws Exception {
+        String id = exceptionId();
+        review(id, ReviewState.IN_REVIEW, 0, "Committed first review").andExpect(status().isOk());
+        long cursor = repository.events(id, 0, 1).events().get(0).sequence();
+        CountDownLatch inserted = new CountDownLatch(1);
+        CountDownLatch commit = new CountDownLatch(1);
+        doAnswer(invocation -> {
+            Object value = invocation.callRealMethod();
+            inserted.countDown();
+            if (!commit.await(10, TimeUnit.SECONDS)) throw new IllegalStateException("Timed out waiting to commit");
+            return value;
+        }).when(repository).insertEvent(any(), any(), anyString());
+        ExecutorService worker = Executors.newSingleThreadExecutor();
+        try {
+            var pending = worker.submit(() -> review(id, ReviewState.OPEN, 1, "Pending review").andReturn());
+            assertThat(inserted.await(10, TimeUnit.SECONDS)).isTrue();
+            var before = body(mvc.perform(get("/api/results/{id}/events", id)
+                .param("afterSequence", Long.toString(cursor))).andExpect(status().isOk())
+                .andExpect(jsonPath("$.events.length()").value(0)).andReturn());
+            assertThat(before.get("nextAfterSequence").isNull()).isTrue();
+            commit.countDown();
+            assertThat(pending.get(10, TimeUnit.SECONDS).getResponse().getStatus()).isEqualTo(200);
+            mvc.perform(get("/api/results/{id}/events", id).param("afterSequence", Long.toString(cursor)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.events.length()").value(1))
+                .andExpect(jsonPath("$.events[0].resultingVersion").value(2));
+        } finally {
+            commit.countDown();
+            worker.shutdownNow();
+            worker.awaitTermination(10, TimeUnit.SECONDS);
+        }
+    }
+
+    @Test void rolledBackAuditInsertDoesNotAppearInLaterPages() throws Exception {
+        String id = exceptionId();
+        review(id, ReviewState.IN_REVIEW, 0, "First").andExpect(status().isOk());
+        long cursor = repository.events(id, 0, 1).events().get(0).sequence();
+        doAnswer(invocation -> {
+            invocation.callRealMethod();
+            throw new DataAccessResourceFailureException("injected failure after audit insert");
+        }).when(repository).insertEvent(any(), any(), anyString());
+        review(id, ReviewState.OPEN, 1, "Must roll back").andExpect(status().isServiceUnavailable());
+        doCallRealMethod().when(repository).insertEvent(any(), any(), anyString());
+        review(id, ReviewState.OPEN, 1, "Successful retry").andExpect(status().isOk());
+        var page = body(mvc.perform(get("/api/results/{id}/events", id).param("limit", "1")
+            .param("afterSequence", Long.toString(cursor))).andExpect(status().isOk())
+            .andExpect(jsonPath("$.events.length()").value(1))
+            .andExpect(jsonPath("$.events[0].note").value("Successful retry"))
+            .andExpect(jsonPath("$.events[0].resultingVersion").value(2)).andReturn());
+        assertThat(page.at("/events/0/sequence").asLong()).isGreaterThan(cursor + 1);
+        assertThat(page.get("nextAfterSequence").isNull()).isTrue();
     }
 
     private org.springframework.test.web.servlet.ResultActions create(String key, BatchInput input) throws Exception {

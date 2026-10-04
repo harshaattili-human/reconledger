@@ -4,7 +4,6 @@ import static dev.harshaattili.reconledger.Model.*;
 
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,5 +41,9 @@ public class ReconciliationController {
     }
 
     @GetMapping("/results/{id}/events")
-    public List<AuditEvent> events(@PathVariable String id) { return repository.events(id); }
+    public AuditPage events(@PathVariable String id,
+                            @RequestParam(defaultValue = "0") long afterSequence,
+                            @RequestParam(defaultValue = "50") int limit) {
+        return repository.events(id, afterSequence, limit);
+    }
 }

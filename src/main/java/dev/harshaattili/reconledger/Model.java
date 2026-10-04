@@ -43,4 +43,6 @@ public final class Model {
     public record AuditEvent(long sequence, String resultId, String actor,
                               ReviewState fromState, ReviewState toState,
                               int resultingVersion, String note, String createdAt) {}
+
+    public record AuditPage(List<AuditEvent> events, Long nextAfterSequence) {}
 }

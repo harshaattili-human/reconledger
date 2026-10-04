@@ -112,12 +112,22 @@ public class LedgerRepository {
             current.version() + 1, input.note().strip(), createdAt);
     }
 
-    public List<AuditEvent> events(String id) {
+    public AuditPage events(String id, long afterSequence, int limit) {
+        if (afterSequence < 0 || limit < 1 || limit > 200) {
+            throw ApiException.badRequest("afterSequence must be nonnegative and limit must be between 1 and 200.");
+        }
         getResult(id);
-        return jdbc.query("SELECT * FROM review_event WHERE result_id = ? ORDER BY sequence", (rs, n) ->
+        // Fetch one extra row to detect another page without counting the full history.
+        var rows = jdbc.query("""
+            SELECT * FROM review_event
+            WHERE result_id = ? AND sequence > ? ORDER BY sequence LIMIT ?
+            """, (rs, n) ->
             new AuditEvent(rs.getLong("sequence"), id, rs.getString("actor"),
                 ReviewState.valueOf(rs.getString("from_state")), ReviewState.valueOf(rs.getString("to_state")),
-                rs.getInt("resulting_version"), rs.getString("note"), rs.getString("created_at")), id);
+                rs.getInt("resulting_version"), rs.getString("note"), rs.getString("created_at")), id, afterSequence, limit + 1);
+        boolean hasMore = rows.size() > limit;
+        var events = List.copyOf(rows.subList(0, Math.min(rows.size(), limit)));
+        return new AuditPage(events, hasMore ? events.get(events.size() - 1).sequence() : null);
     }
 
     private StoredResult result(ResultSet rs) throws SQLException {

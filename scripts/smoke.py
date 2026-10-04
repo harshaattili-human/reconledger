@@ -99,12 +99,15 @@ def main():
                 assert status == 200 and batch["counts"] == receipt["counts"]
                 _, result = call("/api/results/" + receipt["resultId"])
                 assert result["version"] == 2 and result["reviewState"] == "RESOLVED"
-                _, events = call("/api/results/" + receipt["resultId"] + "/events")
-                assert events == receipt["events"]
+                events_path = "/api/results/" + receipt["resultId"] + "/events"
+                _, page = call(events_path)
+                assert page["events"] == receipt["events"] and page["nextAfterSequence"] is None
+                _, resumed = call(events_path + f"?limit=1&afterSequence={receipt['auditCursor']}")
+                assert resumed["events"] == receipt["events"][1:] and resumed["nextAfterSequence"] is None
                 payload = json.loads((ROOT / "examples/mixed-batch.json").read_text())
                 status, replay = call("/api/batches", payload, {"Idempotency-Key": receipt["idempotencyKey"]})
                 assert status == 200 and replay["id"] == receipt["batchId"]
-                print(f"Restart check passed ({args.database}): source evidence, review state, audit events and idempotency survived.")
+                print(f"Restart check passed ({args.database}): source evidence, review state, audit cursor and idempotency survived.")
         except Exception:
             print(log_path.read_text()[-8000:], file=sys.stderr)
             raise

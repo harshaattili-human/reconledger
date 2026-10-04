@@ -71,8 +71,36 @@ can happen after rollback. Flyway owns schema creation.
 Batch reads fetch the header, all bounded source rows, and all results in three queries;
 they avoid one source query per result. Records are immutable through this API. A review
 response currently reloads its batch to assemble source evidence; this is acceptable
-for the 1,000-record bound but should be measured before scaling. Event history is not
-paginated yet and can grow with repeated reviews.
+for the 1,000-record bound but should be measured before scaling.
+
+## Bound audit reads in the database
+
+Repeated reviews can grow an event history independently of the source-record limit.
+The events endpoint therefore reads at most `limit + 1` rows, with `limit` capped at
+200. Its query filters by result ID and `sequence > afterSequence`, orders by sequence,
+and applies `LIMIT` in SQL. The existing `(result_id, sequence)` index supports that
+access pattern; no schema migration is required. This avoids loading or counting
+the complete history before returning a page. Query latency at large scale is still
+unmeasured.
+
+The extra row determines whether another page exists. The cursor comes from the
+last row actually returned, so the extra row becomes the first item on the next
+page. Sequence gaps from other results or rolled-back inserts do not matter.
+Timestamps are display information and may be equal; they are not cursors.
+The PostgreSQL documentation explains why a [limited query needs a unique order](https://www.postgresql.org/docs/16/queries-limit.html).
+
+Pages are live reads rather than a cross-request snapshot. Review transactions update
+the result row before inserting an event, so successful writes for one result are
+serialized by that row's optimistic update and lock. This supports a per-result
+sequence cursor; database-wide sequence allocation alone does not establish commit
+order across different results. The API does not offer a global event feed.
+
+A writer may commit after a page reports no further events. Polling clients retain
+the last returned sequence and retry from there. The API returns a page object with
+an explicit nullable continuation cursor, replacing the prototype's unbounded array;
+the [HTTP contract](api.md#read-audit-history) describes the client migration.
+
+## Keep batch ordering independent of database locale
 
 The bounded source and result lists are sorted in Java with the same case-sensitive
 string order as the engine. The first PostgreSQL run exposed why SQL `ORDER BY`
