@@ -1,7 +1,7 @@
 # Verification record
 
-The October 3 baseline passed the same 29-test suite on H2 and PostgreSQL.
-The packaged application's real-HTTP demo and process-restart checks passed on both.
+Verified on October 4, 2026: the same 34-test suite passes on H2 and PostgreSQL.
+The packaged application's real-HTTP demo and saved-cursor restart checks pass on both.
 This record describes a local prototype, not deployment, production traffic or
 financial accuracy.
 
@@ -14,9 +14,25 @@ audit insert, and invalid/overflowing query parameters. The maximum-page fixture
 205 sequential review transitions on one synthetic result. This is a functional
 boundary check, not a latency or throughput benchmark.
 
-The real-HTTP demo now follows a one-event page cursor, and the smoke runner resumes
-that saved cursor after restarting the application. Local and hosted verification
-of this increment are pending; the completed results below apply to the earlier source.
+The real-HTTP demo follows a one-event page cursor, and the smoke runner resumes
+that saved cursor after restarting the application.
+
+[Run 37207651998](https://github.com/harshaattili-human/reconledger/actions/runs/37207651998)
+passed for source `4f24494b28afffd0c8f66a10d83f6141396cd3ff` in
+[pull request #2](https://github.com/harshaattili-human/reconledger/pull/2).
+
+| Database reported by JDBC | Engine tests | API tests | Failures / errors / skips | HTTP demo | Saved cursor after app restart |
+| --- | --- | --- | --- | --- | --- |
+| H2 2.3.232 | 9 passed | 25 passed | 0 / 0 / 0 | Passed | Passed |
+| PostgreSQL 16.15 | 9 passed | 25 passed | 0 / 0 / 0 | Passed | Passed |
+
+These are the same 34 cases on each engine. The runner is Ubuntu 24.04 with Temurin
+Java 17; the workflow retains the Maven/Spring versions listed in the baseline below.
+All 34 tests also passed locally with OpenJDK 17.0.20 after restoring the dependency
+cache. The initial local packaged-app check encountered an invalid generated JAR;
+rebuilding from an empty `target/` directory produced a working archive, and the
+local H2 demo and cursor-resume restart check then passed. No source change was
+needed for that recovery. Hosted verification used fresh build output.
 
 ## October 3 hosted baseline
 
