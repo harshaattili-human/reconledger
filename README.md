@@ -68,6 +68,8 @@ Start with [the design decisions](docs/design.md), then inspect
 [the integration tests](src/test/java/dev/harshaattili/reconledger/ReconciliationApiTest.java).
 [Verification evidence](docs/verification.md) distinguishes checks actually run from
 planned validation. [API examples](docs/api.md) explain the request and error contract.
+The [query characterization](docs/query-characterization.md) explains the larger
+synthetic fixtures, recorded plans and limits of the timing observations.
 
 ## Supported behavior
 

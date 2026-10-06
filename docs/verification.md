@@ -124,7 +124,9 @@ The executable archive has an explicit `app` classifier, distinct from the plain
 ## Not yet verified
 
 - Windows/macOS startup, application container deployment or public hosting.
-- Load/throughput, large-history query plans, database crash recovery, failover or replicas.
+- Load/throughput, database crash recovery, failover or replicas. A synthetic query-
+  characterization check now records bounded-read plans and warm timings, but hosted
+  results must be recorded before treating that check as execution evidence.
 - Real financial records or real-world matching quality.
 - Authentication, authorization, tenant isolation or tamper-resistant audit storage.
 
