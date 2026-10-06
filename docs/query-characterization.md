@@ -3,8 +3,8 @@
 This check records how the two supported databases execute bounded reads at the
 prototype's documented limits. It answers two narrow questions:
 
-1. Does a 200-event audit page from a 10,000-event result history retain the
-   `(result_id, sequence)` index access path?
+1. Does a 200-event audit page from a 10,000-event result history retain an
+   indexed access path?
 2. What work is observed when the service reconstructs a batch containing the
    maximum 500 records on each side?
 
@@ -33,10 +33,15 @@ serialized maximum-batch response size; and warm in-process read timing. The CI 
 print the report for both H2 and PostgreSQL. Use the environment setup in
 [the PostgreSQL guide](postgresql.md) to reproduce that engine locally.
 
-Correct page contents, the final-page boundary and use of `review_event_result` are
-assertions. Timing is deliberately observational: 5 warm-up calls precede 30 maximum-
-batch samples and 40 audit-page samples, then the report records minimum, median,
-p95 and maximum elapsed milliseconds. CI runner timing is not a stable pass/fail gate.
+Correct page contents, the final-page boundary and indexed audit access are assertions.
+H2 must use `review_event_result`. PostgreSQL may choose that composite index or the
+ordered `review_event_pkey`: with this round-robin fixture the primary key can satisfy
+`ORDER BY sequence` while filtering intervening results. The recorded plan makes that
+tradeoff visible instead of treating one planner choice as part of the API contract.
+
+Timing is deliberately observational: 5 warm-up calls precede 30 maximum-batch
+samples and 40 audit-page samples, then the report records minimum, median, p95 and
+maximum elapsed milliseconds. CI runner timing is not a stable pass/fail gate.
 
 ## Interpretation limits
 

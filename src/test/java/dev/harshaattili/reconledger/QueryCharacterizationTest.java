@@ -64,7 +64,7 @@ class QueryCharacterizationTest {
             SELECT * FROM review_event
             WHERE result_id = ? AND sequence > ? ORDER BY sequence LIMIT ?
             """, audit.targetResultId(), midpoint, PAGE_LIMIT + 1);
-        assertThat(String.join("\n", auditPlan).toLowerCase()).contains("review_event_result");
+        assertIndexedAuditPlan(auditPlan, environment.get("product").toString());
         var auditMeasurement = measure(
             () -> repository.events(audit.targetResultId(), midpoint, PAGE_LIMIT), 5, 40);
 
@@ -143,6 +143,18 @@ class QueryCharacterizationTest {
         String prefix = database.equals("PostgreSQL")
             ? "EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT) " : "EXPLAIN ANALYZE ";
         return jdbc.query(prefix + query, (result, row) -> result.getString(1), arguments);
+    }
+
+    private void assertIndexedAuditPlan(List<String> plan, String database) {
+        String text = String.join("\n", plan).toLowerCase();
+        if (database.equals("PostgreSQL")) {
+            assertThat(text).contains("index scan");
+            assertThat(text.contains("review_event_result") || text.contains("review_event_pkey"))
+                .as("PostgreSQL should use either the result/sequence index or ordered primary key")
+                .isTrue();
+            return;
+        }
+        assertThat(text).contains("review_event_result");
     }
 
     private Map<String, Object> databaseEnvironment() {
