@@ -19,6 +19,8 @@ jobs:
           cache: maven
       - name: Compile, run tests and package
         run: ./mvnw --batch-mode --no-transfer-progress verify
+      - name: Show H2 query characterization
+        run: cat target/query-characterization.json
       - name: Exercise HTTP demo and persistent restart
         run: python3 scripts/smoke.py
   verify-postgres:
@@ -55,5 +57,7 @@ jobs:
           cache: maven
       - name: Verify invariants on PostgreSQL
         run: ./mvnw --batch-mode --no-transfer-progress verify
+      - name: Show PostgreSQL query characterization
+        run: cat target/query-characterization.json
       - name: Exercise PostgreSQL profile and process restart
         run: python3 scripts/smoke.py --database postgres

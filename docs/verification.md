@@ -1,9 +1,31 @@
 # Verification record
 
-Verified on October 4, 2026: the same 34-test suite passes on H2 and PostgreSQL.
-The packaged application's real-HTTP demo and saved-cursor restart checks pass on both.
-This record describes a local prototype, not deployment, production traffic or
-financial accuracy.
+Latest verification on October 6, 2026: the same 35-test suite passes on H2 and
+PostgreSQL. The packaged application's real-HTTP demo and saved-cursor restart checks
+pass on both. This record describes a local prototype, not deployment, production
+traffic or financial accuracy.
+
+## Bounded-read characterization — October 6, 2026
+
+One integration test now creates a maximum-size 1,000-source-record batch and three
+10,000-event result histories. It asserts the existing response and cursor contracts,
+requires indexed audit access, records both query plans and writes observational warm
+read timings to `target/query-characterization.json`. See
+[the protocol and results](query-characterization.md).
+
+[Run 37470641915](https://github.com/harshaattili-human/reconledger/actions/runs/37470641915)
+passed 35 tests with no failures, errors or skips on each database at source
+`8049376e00c4f19ee95231212a5c5539b0aa8d7f`. Jobs
+[`112292904399`](https://github.com/harshaattili-human/reconledger/actions/runs/37470641915/job/112292904399)
+and
+[`112292904002`](https://github.com/harshaattili-human/reconledger/actions/runs/37470641915/job/112292904002)
+also passed the H2 and PostgreSQL HTTP demo/restart checks. These are the same 35
+cases on two engines, not 70 distinct tests.
+
+The first PostgreSQL attempt failed only because the new test assumed the planner
+would name the composite result/sequence index. Its actual ordered primary-key scan
+returned the 201-row lookahead after filtering 402 interleaved rows. The assertion and
+documentation now reflect both valid indexed plans; no application query changed.
 
 ## Audit pagination increment — October 4, 2026
 
@@ -124,7 +146,9 @@ The executable archive has an explicit `app` classifier, distinct from the plain
 ## Not yet verified
 
 - Windows/macOS startup, application container deployment or public hosting.
-- Load/throughput, large-history query plans, database crash recovery, failover or replicas.
+- Load/throughput, database crash recovery, failover or replicas. The bounded-read
+  characterization is sequential synthetic evidence, not a concurrent benchmark or
+  service-level objective.
 - Real financial records or real-world matching quality.
 - Authentication, authorization, tenant isolation or tamper-resistant audit storage.
 
