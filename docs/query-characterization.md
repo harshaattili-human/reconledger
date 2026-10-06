@@ -43,6 +43,33 @@ Timing is deliberately observational: 5 warm-up calls precede 30 maximum-batch
 samples and 40 audit-page samples, then the report records minimum, median, p95 and
 maximum elapsed milliseconds. CI runner timing is not a stable pass/fail gate.
 
+## Hosted observation — October 6, 2026
+
+[Run 37470641915](https://github.com/harshaattili-human/reconledger/actions/runs/37470641915)
+executed the same 35 tests against H2 2.3.232 and PostgreSQL 16.15 at source
+`8049376e00c4f19ee95231212a5c5539b0aa8d7f`. Both jobs also passed the packaged
+HTTP demo and application-process restart check. The runner used Temurin Java
+17.0.20.1 on Linux amd64.
+
+| Warm in-process read | Fixture | Samples | H2 median / p95 | PostgreSQL median / p95 |
+| --- | --- | ---: | ---: | ---: |
+| Maximum batch reconstruction | 500 left + 500 right; 500 results | 30 | 1.252 / 2.757 ms | 2.294 / 4.192 ms |
+| Audit page | 200 rows after event 5,000; 3 x 10,000 events | 40 | 0.101 / 0.159 ms | 0.527 / 0.659 ms |
+
+The serialized maximum-batch response was 153,701 bytes on each engine. PostgreSQL's
+batch plans used a bitmap index scan for the 1,000 source rows and an index scan for
+the 500 results. H2 reported its batch constraint indexes.
+
+For the audit page, H2 selected `review_event_result`. PostgreSQL selected the global
+`review_event_pkey`, used the sequence cursor as its index condition, filtered 402
+round-robin rows from the other results, and returned the 201-row lookahead with 17
+shared-buffer hits; its reported `EXPLAIN ANALYZE` execution time was 0.091 ms.
+
+The first PostgreSQL run failed because the test required the composite index by name,
+even though the plan was already indexed and bounded. The corrected assertion accepts
+either valid PostgreSQL index choice while still rejecting a sequential scan. This is
+a test-contract correction, not an application performance fix.
+
 ## Interpretation limits
 
 This is a single-process, sequential micro-measurement on generated data. It does
