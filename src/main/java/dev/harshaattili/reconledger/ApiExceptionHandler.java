@@ -41,7 +41,9 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ProblemDetail> invalidParameter(MethodArgumentTypeMismatchException exception) {
-        return problem(HttpStatus.BAD_REQUEST, "Query parameter '" + exception.getName() + "' must be a valid integer within its supported range.");
+        String expected = exception.getRequiredType() == java.time.LocalDate.class
+            ? "an ISO date (yyyy-MM-dd)" : "an integer within its supported range";
+        return problem(HttpStatus.BAD_REQUEST, "Query parameter '" + exception.getName() + "' must be " + expected + ".");
     }
 
     private ResponseEntity<ProblemDetail> problem(HttpStatus status, String detail) {

@@ -1,9 +1,36 @@
 # Verification record
 
-Latest verification on October 6, 2026: the same 35-test suite passes on H2 and
+Latest verification on October 7, 2026: the same 42-test suite passes on H2 and
 PostgreSQL. The packaged application's real-HTTP demo and saved-cursor restart checks
 pass on both. This record describes a local prototype, not deployment, production
 traffic or financial accuracy.
+
+## Batch browsing and retained-data migration — October 7, 2026
+
+[Run 37627505058](https://github.com/harshaattili-human/reconledger/actions/runs/37627505058)
+passed at source `54a707aec5e4472899323e515b9b97bd72332e35` in
+[PR #4](https://github.com/harshaattili-human/reconledger/pull/4). Both H2 2.3.232
+and PostgreSQL 16.15 passed the same 42 cases: 9 engine, 25 existing API, 6 batch-list
+API, 1 migration and 1 query-characterization case. There were no failures, errors or
+skips. The Java 17/Ubuntu 24.04 jobs also passed both packaged HTTP demos and process
+restart checks, including discovery through the filtered list and retained summaries.
+
+The six new API cases cover 105 synthetic batches, default/maximum page bounds,
+an exactly full last page, cursor replay, identical timestamps, combined filters,
+no matches, header-only fields, idempotent replay, later inserts, rollback gaps and
+invalid/overflowing parameters. A barrier holds a batch transaction after its sequence
+has been allocated, lets a reader pass that position, then commits it. The test
+demonstrates why a first-page refresh is required to discover that late commit.
+
+The migration case creates V1 in a randomly named test schema, stores two synthetic
+batch headers plus source/result/audit evidence, applies V2 and compares the retained
+values. It checks unique positive sequences and that subsequent inserts advance past
+the assigned values. The temporary schema is removed after the check. This verifies
+the migration on populated fixtures, not online migration or backup recovery at scale.
+
+Local whitespace, Python syntax and documentation-link checks passed. Maven's local
+dependency cache was unavailable, so compilation and database execution were verified
+through hosted CI. No new local database run or batch-list latency result is claimed.
 
 ## Bounded-read characterization — October 6, 2026
 

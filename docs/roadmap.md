@@ -7,9 +7,9 @@ ordering. See [the evidence](verification.md).
 
 Remaining priorities are planned work, not claims of completed features.
 
-1. Evaluate a batch-list/filter endpoint with stable ordering. Query characterization
-   at the existing 500-per-side limit and a 10,000-event result history is implemented;
-   use its evidence before choosing the list endpoint's database cursor contract.
+1. Characterize batch-list plans under sparse filters and larger batch counts before
+   making latency claims. The header-only list now uses descending numeric keyset
+   pagination, with exact date/currency filters and a 100-row maximum.
 2. Add authenticated reviewer identity and authorization. Define tenant boundaries,
    scoped idempotency keys and access tests before any multi-user deployment.
 3. Enforce request byte limits and rate limits; define retention and database backup

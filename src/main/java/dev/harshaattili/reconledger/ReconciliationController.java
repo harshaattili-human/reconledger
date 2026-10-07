@@ -4,6 +4,8 @@ import static dev.harshaattili.reconledger.Model.*;
 
 import jakarta.validation.Valid;
 import java.net.URI;
+import java.time.LocalDate;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +33,14 @@ public class ReconciliationController {
 
     @GetMapping("/batches/{id}")
     public BatchView batch(@PathVariable String id) { return repository.getBatch(id); }
+
+    @GetMapping("/batches")
+    public BatchPage batches(@RequestParam(required = false) Long beforeSequence,
+                              @RequestParam(defaultValue = "50") int limit,
+                              @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate businessDate,
+                              @RequestParam(required = false) String currency) {
+        return repository.batches(beforeSequence, limit, businessDate, currency);
+    }
 
     @GetMapping("/results/{id}")
     public ResultView result(@PathVariable String id) { return repository.getResultView(id); }

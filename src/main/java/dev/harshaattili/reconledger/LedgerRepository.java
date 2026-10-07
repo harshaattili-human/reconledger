@@ -4,6 +4,7 @@ import static dev.harshaattili.reconledger.Model.*;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -43,6 +44,39 @@ public class LedgerRepository {
                 ps.setString(4, record.reference());
                 ps.setBigDecimal(5, record.amount());
             });
+    }
+
+    public BatchPage batches(Long beforeSequence, int limit, LocalDate businessDate, String currency) {
+        if ((beforeSequence != null && beforeSequence < 1) || limit < 1 || limit > 100) {
+            throw ApiException.badRequest("beforeSequence must be positive and limit must be between 1 and 100.");
+        }
+        if (currency != null && !currency.matches("[A-Z]{3}")) {
+            throw ApiException.badRequest("currency must contain exactly three uppercase letters.");
+        }
+        StringBuilder sql = new StringBuilder("""
+            SELECT id, list_sequence, business_date, currency, created_at FROM recon_batch WHERE 1 = 1
+            """);
+        List<Object> parameters = new ArrayList<>();
+        if (beforeSequence != null) {
+            sql.append(" AND list_sequence < ?");
+            parameters.add(beforeSequence);
+        }
+        if (businessDate != null) {
+            sql.append(" AND business_date = ?");
+            parameters.add(java.sql.Date.valueOf(businessDate));
+        }
+        if (currency != null) {
+            sql.append(" AND currency = ?");
+            parameters.add(currency);
+        }
+        sql.append(" ORDER BY list_sequence DESC LIMIT ?");
+        parameters.add(limit + 1);
+        var rows = jdbc.query(sql.toString(), (rs, n) -> new BatchSummary(rs.getString("id"),
+            rs.getLong("list_sequence"), rs.getDate("business_date").toLocalDate(),
+            rs.getString("currency"), rs.getString("created_at")), parameters.toArray());
+        boolean hasMore = rows.size() > limit;
+        var batches = List.copyOf(rows.subList(0, Math.min(rows.size(), limit)));
+        return new BatchPage(batches, hasMore ? batches.get(batches.size() - 1).sequence() : null);
     }
 
     public void insertResults(String batchId, List<Match> matches) {

@@ -106,8 +106,25 @@ The bounded source and result lists are sorted in Java with the same case-sensit
 string order as the engine. The first PostgreSQL run exposed why SQL `ORDER BY`
 alone was insufficient: the database's locale put `a-ref` before `A-REF` and `.REF`,
 while H2 used a different order. Sorting the fetched lists makes the API contract
-independent of that setting. A future paginated batch-list API will need an explicit
-database ordering/cursor contract; sorting one page after fetching is not sufficient.
+independent of that setting. Batch-list pages instead use a database numeric sequence;
+sorting one page after fetching would not provide a consistent cursor contract.
+
+## Browse headers without loading every batch
+
+The batch list uses an immutable database-generated `list_sequence` and descending
+keyset pagination (`list_sequence < beforeSequence`). V2 adds a unique sequence index
+and a `(business_date, currency, list_sequence)` index for the combined exact filters.
+The query reads only headers, applies filters before `LIMIT`, and fetches one extra
+row for continuation. It avoids loading up to 1,000 source rows for each listed batch
+or running a total-count query. Sparse filters may still scan many rows; a bounded
+response does not establish bounded database work or a latency guarantee.
+
+The sequence removes string-collation and timestamp-tie ambiguity. It does not order
+commits across batches: an earlier allocation may commit late and require a first-page
+refresh. The API deliberately makes no snapshot or synchronization-feed promise.
+PostgreSQL documents [sequence allocation and rollback gaps](https://www.postgresql.org/docs/16/functions-sequence.html).
+The migration test checks V1 data survives V2 on each engine; existing rows get an
+unspecified sequence order, so the list does not claim historical chronology.
 
 H2 file storage makes the local demo easy to start. The same API contract tests and
 packaged-app restart check also run against a real PostgreSQL 16 service in CI.

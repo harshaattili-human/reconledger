@@ -78,6 +78,7 @@ synthetic fixtures, recorded plans and limits of the timing observations.
 - Amounts exactly representable to two decimal places, including negative reversals.
 - `Idempotency-Key` replay across process restarts while the database is retained.
 - Review transitions with mandatory notes, optimistic concurrency and paginated audit history.
+- Paginated batch summaries with exact business-date and currency filters.
 - Flyway schema migrations, JDBC persistence and a local health endpoint.
 
 Resolving an exception records a human-entered review decision. It does **not**

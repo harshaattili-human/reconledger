@@ -36,6 +36,11 @@ public final class Model {
 
     public record CreateResult(BatchView batch, boolean replayed) {}
 
+    public record BatchSummary(String id, long sequence, LocalDate businessDate,
+                               String currency, String createdAt) {}
+
+    public record BatchPage(List<BatchSummary> batches, Long nextBeforeSequence) {}
+
     public record ReviewInput(@NotNull ReviewState targetState, @NotNull @Min(0) Integer expectedVersion,
                                @NotBlank @Size(max = 80) String actor,
                                @NotBlank @Size(max = 500) String note) {}
