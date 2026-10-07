@@ -73,8 +73,16 @@ def main():
     print("Reviewed the mismatch and fetched both audit transitions in separate pages.")
     status, _, fetched = call("/api/batches/" + batch["id"])
     assert status == 200 and fetched["counts"] == batch["counts"]
+    list_path = f"/api/batches?businessDate={payload['businessDate']}&currency={payload['currency']}&limit=100"
+    status, _, listed = call(list_path)
+    assert status == 200, (status, listed)
+    summary = next(item for item in listed["batches"] if item["id"] == batch["id"])
+    assert set(summary) == {"id", "sequence", "businessDate", "currency", "createdAt"}
+    assert summary["businessDate"] == batch["businessDate"] and summary["currency"] == batch["currency"]
+    print("Found the import through the filtered batch list.")
     receipt = {"batchId": batch["id"], "resultId": exception["id"], "idempotencyKey": key,
-               "counts": batch["counts"], "events": events, "auditCursor": cursor}
+               "counts": batch["counts"], "events": events, "auditCursor": cursor,
+               "batchListPath": list_path, "batchSummary": summary}
     if args.output:
         args.output.write_text(json.dumps(receipt, indent=2) + "\n")
     print("Demo checks passed. Resolution tracks a review decision; it does not alter transaction records.")

@@ -97,6 +97,9 @@ def main():
                 start(log)
                 status, batch = call("/api/batches/" + receipt["batchId"])
                 assert status == 200 and batch["counts"] == receipt["counts"]
+                status, listed = call(receipt["batchListPath"])
+                assert status == 200
+                assert next(item for item in listed["batches"] if item["id"] == receipt["batchId"]) == receipt["batchSummary"]
                 _, result = call("/api/results/" + receipt["resultId"])
                 assert result["version"] == 2 and result["reviewState"] == "RESOLVED"
                 events_path = "/api/results/" + receipt["resultId"] + "/events"

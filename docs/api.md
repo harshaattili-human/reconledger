@@ -51,6 +51,48 @@ left/right records. `Location` points to `/api/batches/{id}`.
 `GET /api/batches/{id}` and `GET /api/results/{id}` return 200 or 404. IDs come from
 creation responses; missing IDs do not create resources.
 
+## Browse batches
+
+`GET /api/batches?limit=50&businessDate=2026-10-03&currency=USD` returns batch
+summaries in descending sequence order. All filters are optional; combine date and
+currency to narrow the list. Open a summary's `id` with `GET /api/batches/{id}` for
+the full source evidence and results.
+
+| Parameter | Contract |
+| --- | --- |
+| `limit` | Default 50; integer from 1 to 100 |
+| `beforeSequence` | Optional positive signed 64-bit integer; exclusive upper bound |
+| `businessDate` | Optional exact ISO local date (`yyyy-MM-dd`) |
+| `currency` | Optional exact three-uppercase-letter label; no case normalization |
+
+The response is `{batches, nextBeforeSequence}`. Each summary contains `id`,
+`sequence`, `businessDate`, `currency`, and `createdAt`. It omits source rows,
+results, counts, fingerprints and idempotency keys. Filtering and ordering occur
+in SQL before fetching at most `limit + 1` headers.
+
+If another row is visible, `nextBeforeSequence` is the last returned sequence.
+Pass it as `beforeSequence` with the **same filters** to continue toward older
+allocations. Null means no further matching row was visible at this read, including
+an exactly full final page; no matches returns `{ "batches": [], "nextBeforeSequence": null }`.
+Keep 64-bit cursor values exact when decoding JSON; do not round them through a
+JavaScript `Number` beyond its safe integer range. A cursor is not an authorization token.
+
+Sequence order is allocation order, not business-date, timestamp or commit order.
+Equal creation timestamps, UUID collation and rolled-back sequence gaps do not affect
+page boundaries. Newly allocated batches appear when refreshing the first page.
+Pages are live reads: a transaction can allocate an ID and commit after a client has
+already passed that position. Refresh from the first page to discover it; this endpoint
+is a browsing API, not a complete synchronization feed or frozen snapshot.
+
+Invalid parameters return HTTP 400 with problem details. Empty `limit` uses 50;
+empty `beforeSequence` or `businessDate` is treated as omitted. An empty currency
+is invalid. No-match filters return 200, not 404.
+
+Flyway migration V2 assigns sequences to existing batches while retaining their IDs
+and evidence. Their assigned order is unspecified and does not reconstruct historical
+creation order. Back up a retained database before upgrading; this schema migration
+is not an online/no-lock migration guarantee.
+
 ## Record a review transition
 
 ```bash
