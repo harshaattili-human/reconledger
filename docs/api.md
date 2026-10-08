@@ -93,6 +93,10 @@ and evidence. Their assigned order is unspecified and does not reconstruct histo
 creation order. Back up a retained database before upgrading; this schema migration
 is not an online/no-lock migration guarantee.
 
+V3 adds a currency/sequence index for currency-only browsing; the response and
+cursor contract are unchanged. Retained databases need the same backup and migration
+planning as other schema upgrades.
+
 ## Record a review transition
 
 ```bash

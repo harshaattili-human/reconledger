@@ -1,12 +1,14 @@
 # Query characterization
 
 This check records how the two supported databases execute bounded reads at the
-prototype's documented limits. It answers two narrow questions:
+prototype's documented limits. It answers three narrow questions:
 
 1. Does a 200-event audit page from a 10,000-event result history retain an
    indexed access path?
 2. What work is observed when the service reconstructs a batch containing the
    maximum 500 records on each side?
+3. How much scan work is needed for a batch page when rare matches are older
+   than most nonmatching batches?
 
 `QueryCharacterizationTest` creates only synthetic rows. Its audit fixture has three
 results with 10,000 events each, inserted round-robin so the global sequence contains
@@ -69,6 +71,58 @@ The first PostgreSQL run failed because the test required the composite index by
 even though the plan was already indexed and bounded. The corrected assertion accepts
 either valid PostgreSQL index choice while still rejecting a sequential scan. This is
 a test-contract correction, not an application performance fix.
+
+## Sparse batch filters — October 8, 2026
+
+The list fixture inserts 20,000 synthetic headers directly through JDBC, with no
+source or result rows. It isolates header browsing, not valid full-batch creation or
+ingestion throughput. The first 200 allocations share date `2090-01-01` and currency
+`XTS`; the next 19,800 use the following date and `USD`. Other suite fixtures remain
+in the database, so 20,000 is the added fixture size, not the total table cardinality.
+The fixture removes its own headers afterward and refreshes database statistics
+before measuring.
+
+For date-only, currency-only and combined filters, the check compares two 100-row
+pages against the full descending sequence list. It verifies the lookahead cursor
+and exactly-full final page. A combined date/`ZZZ` filter checks no matches. The
+report records equivalent SQL plans for first and continuation reads and 30 warm
+first-page repository calls after five warmups. It does not assert an index name or
+timing threshold. These are repeated warm calls; elapsed time alone should not be
+read as evidence of reduced scan work. The plans record scan work separately.
+
+Before V3, [run 37783586177](https://github.com/harshaattili-human/reconledger/actions/runs/37783586177)
+at source `dc88b0274a05f7f56f5cd9f0f334026d715d72a7` passed all 42 cases on each
+engine and both HTTP/restart checks. PostgreSQL's currency-only first page used a
+backward `recon_batch_list_sequence` scan, removed 19,800 rows by filter and used
+682 shared-buffer hits to return 101 rows including lookahead. H2 reported a scan
+count of 19,901. The combined filter already used the date/currency/sequence index.
+
+V3 adds `(currency, list_sequence)` to support the independently optional currency
+filter. This costs another index entry on each batch insertion and additional disk
+space. It does not change the API, ordering or cursor semantics. Index creation is
+an ordinary Flyway migration, not a promise of lock-free online deployment.
+
+After V3, [run 37783840468](https://github.com/harshaattili-human/reconledger/actions/runs/37783840468)
+at `0580d527154a6333ac24bc27d9831caa026dbe24` passed the same 42 tests on each
+engine, including retained-data migration, plus both packaged HTTP/restart checks.
+Both runs used H2 2.3.232, PostgreSQL 16.15, Java 17.0.20.1 and Linux amd64.
+
+| Currency-only first page, 100 rows plus lookahead | Before V3 | After V3 |
+| --- | ---: | ---: |
+| PostgreSQL EXPLAIN shared-buffer hits | 682 | 6 |
+| PostgreSQL EXPLAIN rows removed by filter | 19,800 | No filter node |
+| PostgreSQL EXPLAIN execution time | 3.052 ms | 0.065 ms |
+| H2 EXPLAIN scan count | 19,901 | 201 |
+| PostgreSQL repository calls, median / p95 | 3.306 / 6.148 ms | 5.741 / 6.053 ms |
+| H2 repository calls, median / p95 | 0.170 / 0.218 ms | 0.162 / 0.196 ms |
+
+PostgreSQL used the new currency/sequence index for both pages; H2 also selected it.
+The explicit EXPLAIN plans show reduced scan work on this distribution. The repeated
+repository timings do **not** establish a latency improvement: PostgreSQL's median
+rose in the separate after run. Driver/prepared-plan behavior, pool effects and runner
+variation were not isolated. Those observations remain in the report instead of
+being replaced with only the favorable EXPLAIN time. A follow-up should compare the
+actual prepared execution plans and repeated trials before making latency claims.
 
 ## Interpretation limits
 
