@@ -71,6 +71,7 @@ class QueryCharacterizationTest {
         Map<String, Object> report = new LinkedHashMap<>();
         report.put("scope", "synthetic query characterization; not a load test or service-level objective");
         report.put("database", environment);
+        report.put("batchBrowsing", characterizeBatchBrowsing());
         report.put("maximumBatch", Map.of(
             "leftRecords", 500,
             "rightRecords", 500,
@@ -99,6 +100,82 @@ class QueryCharacterizationTest {
             .toList();
         var input = new BatchInput(LocalDate.of(2026, 10, 6), "USD", rows, rows);
         return service.create("query-batch-" + UUID.randomUUID(), input).batch();
+    }
+
+    private List<Map<String, Object>> characterizeBatchBrowsing() {
+        // Headers only: this fixture isolates list-query work, not batch creation throughput.
+        int count = 20_000;
+        LocalDate rareDate = LocalDate.of(2090, 1, 1);
+        LocalDate commonDate = rareDate.plusDays(1);
+        String prefix = "list-plan-" + UUID.randomUUID();
+        List<Object[]> rows = new ArrayList<>(count);
+        for (int index = 0; index < count; index++) {
+            rows.add(new Object[] {UUID.randomUUID().toString(), prefix + "-" + index,
+                "0".repeat(64), java.sql.Date.valueOf(index < 200 ? rareDate : commonDate),
+                index < 200 ? "XTS" : "USD", "2026-10-08T12:00:00Z"});
+        }
+        try {
+            jdbc.batchUpdate("""
+                INSERT INTO recon_batch(id, idempotency_key, fingerprint, business_date, currency, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """, rows);
+            jdbc.execute(databaseEnvironment().get("product").equals("PostgreSQL")
+                ? "ANALYZE recon_batch" : "ANALYZE TABLE recon_batch");
+            List<Map<String, Object>> observations = new ArrayList<>();
+            for (String filter : List.of("date", "currency", "combined", "no-match")) {
+                LocalDate date = filter.equals("currency") ? null : rareDate;
+                String currency = filter.equals("date") ? null : filter.equals("no-match") ? "ZZZ" : "XTS";
+                String where = " WHERE 1 = 1";
+                List<Object> arguments = new ArrayList<>();
+                if (date != null) {
+                    where += " AND business_date = ?";
+                    arguments.add(java.sql.Date.valueOf(date));
+                }
+                if (currency != null) {
+                    where += " AND currency = ?";
+                    arguments.add(currency);
+                }
+                String projection = "SELECT id, list_sequence, business_date, currency, created_at FROM recon_batch";
+                var expected = jdbc.query("SELECT list_sequence FROM recon_batch" + where
+                    + " ORDER BY list_sequence DESC", (rs, n) -> rs.getLong(1), arguments.toArray());
+                assertThat(expected).hasSize(filter.equals("no-match") ? 0 : 200);
+                var page = repository.batches(null, 100, date, currency);
+                assertThat(page.batches().stream().map(BatchSummary::sequence).toList())
+                    .isEqualTo(expected.subList(0, Math.min(100, expected.size())));
+                List<Object> planArguments = new ArrayList<>(arguments);
+                planArguments.add(101);
+                var observation = new LinkedHashMap<String, Object>();
+                observation.put("filter", filter);
+                observation.put("fixtureHeaders", count);
+                observation.put("matchingHeaders", expected.size());
+                observation.put("distribution", "all 200 rare matches precede 19,800 common allocations");
+                observation.put("firstPagePlan", explain(projection + where
+                    + " ORDER BY list_sequence DESC LIMIT ?", planArguments.toArray()));
+                observation.put("firstPageWarmMilliseconds", measure(
+                    () -> repository.batches(null, 100, date, currency), 5, 30));
+                if (!expected.isEmpty()) {
+                    long cursor = page.batches().get(99).sequence();
+                    assertThat(page.nextBeforeSequence()).isEqualTo(cursor);
+                    var last = repository.batches(cursor, 100, date, currency);
+                    assertThat(last.batches().stream().map(BatchSummary::sequence).toList())
+                        .isEqualTo(expected.subList(100, 200));
+                    assertThat(last.nextBeforeSequence()).isNull();
+                    List<Object> continuationArguments = new ArrayList<>(arguments);
+                    continuationArguments.add(cursor);
+                    continuationArguments.add(101);
+                    observation.put("continuationPlan", explain(projection + where
+                        + " AND list_sequence < ? ORDER BY list_sequence DESC LIMIT ?",
+                        continuationArguments.toArray()));
+                } else {
+                    assertThat(page.nextBeforeSequence()).isNull();
+                }
+                observations.add(observation);
+            }
+            return observations;
+        } finally {
+            jdbc.batchUpdate("DELETE FROM recon_batch WHERE id = ?",
+                rows.stream().map(row -> new Object[] {row[0]}).toList());
+        }
     }
 
     private AuditFixture createLongHistories() {
