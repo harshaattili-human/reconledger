@@ -7,11 +7,11 @@ ordering. See [the evidence](verification.md).
 
 Remaining priorities are planned work, not claims of completed features.
 
-1. Extend batch-list characterization to additional distributions and concurrent
-   writes and inspect prepared execution plans before making latency claims. The
-   20,000-header older-match fixture exposed
-   a currency-only scan; V3 adds a currency/sequence index. See the
-   [plans and limitations](query-characterization.md).
+1. Compare query/planning alternatives across rare and common currencies, page sizes
+   and concurrent writes before changing runtime settings. The
+   [prepared-plan probe](prepared-plans.md) reproduced an automatic generic plan
+   scanning past 19,800 nonmatches even with V3's currency/sequence index present.
+   Keep planning overhead and index write/storage costs in the comparison.
 2. Add authenticated reviewer identity and authorization. Define tenant boundaries,
    scoped idempotency keys and access tests before any multi-user deployment.
 3. Enforce request byte limits and rate limits; define retention and database backup
