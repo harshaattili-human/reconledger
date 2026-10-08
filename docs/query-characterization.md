@@ -124,6 +124,11 @@ variation were not isolated. Those observations remain in the report instead of
 being replaced with only the favorable EXPLAIN time. A follow-up should compare the
 actual prepared execution plans and repeated trials before making latency claims.
 
+The follow-up [prepared-plan investigation](prepared-plans.md) reproduced an
+automatic switch to a generic global-sequence scan after repeated executions on
+one connection. It explains a mechanism consistent with the discrepancy without
+claiming to reconstruct the earlier pool's complete statement history.
+
 ## Interpretation limits
 
 This is a single-process, sequential micro-measurement on generated data. It does

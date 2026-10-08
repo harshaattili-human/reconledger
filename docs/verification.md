@@ -7,6 +7,13 @@ traffic or financial accuracy.
 
 ## Sparse batch filters — October 8, 2026
 
+The follow-up [run 37785169114](https://github.com/harshaattili-human/reconledger/actions/runs/37785169114)
+at `c73eb4433e8b7c3807c332e9ac7012df163f2cbc` also passed the same 42 cases per
+engine and both packaged HTTP/restart checks. The existing characterization now
+adds a PostgreSQL-only diagnostic for 20 executions in each of three planning modes.
+It checks every page, records driver-created statement types and plan counters, and
+restores the connection's original setting. Read the [observed generic-plan switch](prepared-plans.md).
+
 [Run 37783840468](https://github.com/harshaattili-human/reconledger/actions/runs/37783840468)
 passed at `0580d527154a6333ac24bc27d9831caa026dbe24` on H2 2.3.232 and
 PostgreSQL 16.15, including all 42 cases and both HTTP/application-restart checks.
