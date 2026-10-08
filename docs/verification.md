@@ -1,9 +1,24 @@
 # Verification record
 
-Latest verification on October 7, 2026: the same 42-test suite passes on H2 and
+Latest verification on October 8, 2026: the same 42-test suite passes on H2 and
 PostgreSQL. The packaged application's real-HTTP demo and saved-cursor restart checks
 pass on both. This record describes a local prototype, not deployment, production
 traffic or financial accuracy.
+
+## Sparse batch filters — October 8, 2026
+
+[Run 37783840468](https://github.com/harshaattili-human/reconledger/actions/runs/37783840468)
+passed at `0580d527154a6333ac24bc27d9831caa026dbe24` on H2 2.3.232 and
+PostgreSQL 16.15, including all 42 cases and both HTTP/application-restart checks.
+The existing characterization case now adds 20,000 headers and checks rare date,
+currency, combined and no-match filters. The migration case upgrades retained V1
+evidence through the latest migration, now V3.
+
+The currency-only first-page plan previously scanned past 19,800 nonmatching rows.
+V3 adds a currency/sequence index. [Before/after evidence](query-characterization.md)
+records reduced plan scan work and the unfavorable PostgreSQL repository timing
+alongside it. No general latency or throughput improvement is claimed. Compilation
+and database execution were hosted; local Maven lacked the parent POM cache.
 
 ## Batch browsing and retained-data migration — October 7, 2026
 

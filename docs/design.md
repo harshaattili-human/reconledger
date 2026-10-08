@@ -119,6 +119,11 @@ row for continuation. It avoids loading up to 1,000 source rows for each listed 
 or running a total-count query. Sparse filters may still scan many rows; a bounded
 response does not establish bounded database work or a latency guarantee.
 
+Sparse-filter characterization found that a currency-only first page scanned past
+19,800 nonmatching headers because currency is not the leading column of that index.
+V3 adds `(currency, list_sequence)` for this supported filter. It adds write/storage
+cost; the [before/after plans](query-characterization.md) explain the evidence.
+
 The sequence removes string-collation and timestamp-tie ambiguity. It does not order
 commits across batches: an earlier allocation may commit late and require a first-page
 refresh. The API deliberately makes no snapshot or synchronization-feed promise.

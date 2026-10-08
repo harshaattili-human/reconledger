@@ -7,9 +7,11 @@ ordering. See [the evidence](verification.md).
 
 Remaining priorities are planned work, not claims of completed features.
 
-1. Characterize batch-list plans under sparse filters and larger batch counts before
-   making latency claims. The header-only list now uses descending numeric keyset
-   pagination, with exact date/currency filters and a 100-row maximum.
+1. Extend batch-list characterization to additional distributions and concurrent
+   writes and inspect prepared execution plans before making latency claims. The
+   20,000-header older-match fixture exposed
+   a currency-only scan; V3 adds a currency/sequence index. See the
+   [plans and limitations](query-characterization.md).
 2. Add authenticated reviewer identity and authorization. Define tenant boundaries,
    scoped idempotency keys and access tests before any multi-user deployment.
 3. Enforce request byte limits and rate limits; define retention and database backup
