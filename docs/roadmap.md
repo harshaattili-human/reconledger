@@ -7,12 +7,12 @@ ordering. See [the evidence](verification.md).
 
 Remaining priorities are planned work, not claims of completed features.
 
-1. Compare mixed currency/page-size histories on the same prepared statement,
-   including different initial parameter orders, before choosing a runtime mitigation.
-   The [isolated matrix](prepared-plans.md) found automatic custom plans for rare
-   pages of 1 and 50, but a generic scan for 100; common pages stayed cheap.
-   Concurrent writes, planning overhead and index write/storage costs remain outside
-   the current sequential measurements.
+1. Evaluate a query-scoped mitigation for currency browsing against the existing
+   automatic-planning baseline. The [mixed-history probe](mixed-prepared-plans.md)
+   found that a large rare-currency primer leaves later small pages on a generic
+   scan; common or small-page primers kept the identical mixed tail custom.
+   Preserve bound parameters and pooled-session settings. Concurrent writes,
+   different allocation distributions and planning/index costs remain unmeasured.
 2. Add authenticated reviewer identity and authorization. Define tenant boundaries,
    scoped idempotency keys and access tests before any multi-user deployment.
 3. Enforce request byte limits and rate limits; define retention and database backup
