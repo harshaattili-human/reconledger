@@ -7,11 +7,12 @@ ordering. See [the evidence](verification.md).
 
 Remaining priorities are planned work, not claims of completed features.
 
-1. Compare query/planning alternatives across rare and common currencies, page sizes
-   and concurrent writes before changing runtime settings. The
-   [prepared-plan probe](prepared-plans.md) reproduced an automatic generic plan
-   scanning past 19,800 nonmatches even with V3's currency/sequence index present.
-   Keep planning overhead and index write/storage costs in the comparison.
+1. Compare mixed currency/page-size histories on the same prepared statement,
+   including different initial parameter orders, before choosing a runtime mitigation.
+   The [isolated matrix](prepared-plans.md) found automatic custom plans for rare
+   pages of 1 and 50, but a generic scan for 100; common pages stayed cheap.
+   Concurrent writes, planning overhead and index write/storage costs remain outside
+   the current sequential measurements.
 2. Add authenticated reviewer identity and authorization. Define tenant boundaries,
    scoped idempotency keys and access tests before any multi-user deployment.
 3. Enforce request byte limits and rate limits; define retention and database backup

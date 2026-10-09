@@ -7,6 +7,14 @@ traffic or financial accuracy.
 
 ## Sparse batch filters — October 8, 2026
 
+[Run 37869485412](https://github.com/harshaattili-human/reconledger/actions/runs/37869485412)
+at `16d7ba574324bfb180f591a473de5fc07223b14f` passed 42 cases on each database
+and both packaged HTTP/restart checks. The PostgreSQL diagnostic now covers two
+currencies, three page sizes and three planning modes, with 20 correctness-checked
+executions per combination. The [matrix results](prepared-plans.md) distinguish
+small-page custom plans from the large rare-page generic scan. Runtime settings
+remain unchanged; mixed statement histories and concurrent writes are not measured.
+
 The follow-up [run 37785169114](https://github.com/harshaattili-human/reconledger/actions/runs/37785169114)
 at `c73eb4433e8b7c3807c332e9ac7012df163f2cbc` also passed the same 42 cases per
 engine and both packaged HTTP/restart checks. The existing characterization now
