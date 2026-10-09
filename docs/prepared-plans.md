@@ -126,6 +126,9 @@ these isolated histories cannot establish that behavior. Concurrent writes and
 index maintenance costs remain unmeasured. Local Maven execution was blocked by
 an uncached parent POM; compilation and database execution evidence came from CI.
 
+The follow-up [mixed-request probe](mixed-prepared-plans.md) tests shared statement
+history with different initial requests.
+
 ## Limits
 
 This isolates one connection and one allocation distribution, with a fixed currency,

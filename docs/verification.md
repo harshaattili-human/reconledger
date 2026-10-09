@@ -1,9 +1,20 @@
 # Verification record
 
-Latest verification on October 8, 2026: the same 42-test suite passes on H2 and
+Latest verification on October 9, 2026: the same 42-test suite passes on H2 and
 PostgreSQL. The packaged application's real-HTTP demo and saved-cursor restart checks
 pass on both. This record describes a local prototype, not deployment, production
 traffic or financial accuracy.
+
+## Mixed prepared requests — October 9, 2026
+
+[Run 37935894837](https://github.com/harshaattili-human/reconledger/actions/runs/37935894837)
+at `d598b062dc38257b80881e7a4fd80a7dea39b4b7` passed all 42 tests on each
+engine and both packaged HTTP/application-restart checks. The PostgreSQL-only
+probe extends the existing characterization with six statement histories and 168
+correctness-checked calls. Per-call counters show how different initial requests
+changed plan selection for an identical mixed tail. See the
+[protocol, results and limits](mixed-prepared-plans.md). No runtime setting changed;
+this is sequential synthetic evidence, not a concurrent load test.
 
 ## Sparse batch filters — October 8, 2026
 
