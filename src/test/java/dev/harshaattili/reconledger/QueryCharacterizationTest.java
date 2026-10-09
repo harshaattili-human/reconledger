@@ -155,7 +155,7 @@ class QueryCharacterizationTest {
                     () -> repository.batches(null, 100, date, currency), 5, 30));
                 if (filter.equals("currency") && databaseEnvironment().get("product").equals("PostgreSQL")) {
                     observation.put("preparedExecution", PreparedPlanProbe.inspect(
-                        jdbc.getDataSource(), expected.subList(0, 101)));
+                        jdbc.getDataSource()));
                 }
                 if (!expected.isEmpty()) {
                     long cursor = page.batches().get(99).sequence();
