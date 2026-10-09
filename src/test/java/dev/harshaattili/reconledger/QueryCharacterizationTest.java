@@ -156,6 +156,7 @@ class QueryCharacterizationTest {
                 if (filter.equals("currency") && databaseEnvironment().get("product").equals("PostgreSQL")) {
                     observation.put("preparedExecution", PreparedPlanProbe.inspect(
                         jdbc.getDataSource()));
+                    observation.put("mixedPreparedExecution", MixedPreparedPlanProbe.inspect(jdbc.getDataSource()));
                 }
                 if (!expected.isEmpty()) {
                     long cursor = page.batches().get(99).sequence();
