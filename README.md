@@ -74,6 +74,7 @@ synthetic fixtures, recorded plans and limits of the timing observations.
 ## Supported behavior
 
 - One business date and currency label per batch; at most 500 records on each side.
+- JSON request bodies capped at 512 KiB before parsing, including chunked requests.
 - Case-sensitive reference matching with five explicit outcomes.
 - Amounts exactly representable to two decimal places, including negative reversals.
 - `Idempotency-Key` replay across process restarts while the database is retained.
@@ -94,7 +95,7 @@ it to a public network or put real financial/customer records into it.
 Currency is an uppercase three-letter label, not an ISO currency validator. Every
 amount uses two decimal places; currency-specific minor units, FX, fuzzy matching,
 settlement rules, multiple tenants, retention policies, and large-file ingestion
-are outside this milestone. HTTP body-size enforcement, rate limits and access
+are outside this milestone. Request bodies are bounded, but rate limits and access
 control remain deployment prerequisites. Result counts describe references, not
 source-record counts or an accuracy score.
 
