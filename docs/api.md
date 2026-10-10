@@ -3,6 +3,22 @@
 Base URL: `http://127.0.0.1:8081`. Requests and responses use JSON; validation and
 domain errors use Spring `ProblemDetail` (`application/problem+json`).
 
+## Request body limit
+
+Batch creation and review requests accept at most **524,288 bytes (512 KiB)**,
+including JSON whitespace, encoded field names and values. The bound applies to
+both `Content-Length` and chunked HTTP/1.1 bodies. Larger bodies return 413 with
+problem details before JSON parsing or any database write; a rejected creation does
+not reserve its idempotency key. The same key can be retried with a smaller body.
+Content encoding must be absent or `identity`; gzip and other encodings return 415.
+
+The 500-record-per-side and field-length validation still apply after parsing and
+return 400. Pretty-printed synthetic input with 1,000 records, maximum-length ASCII
+identifiers and boundary decimal values is covered by the HTTP tests. Excessive
+whitespace or escaping may exceed the byte bound even for otherwise valid values.
+This is a body bound for mapped JSON write endpoints, not a rate limit or a total
+process-memory guarantee. See [the implementation and limits](request-bounds.md).
+
 ## Create or replay a batch
 
 ```bash
@@ -44,6 +60,8 @@ left/right records. `Location` points to `/api/batches/{id}`.
 | 200 | Equivalent key/content replay; `Idempotency-Replayed: true` |
 | 400 | Invalid JSON, input bounds, amount, record IDs, or missing/invalid key |
 | 409 | Key already belongs to a different normalized batch |
+| 413 | JSON body exceeds 524,288 bytes; no batch committed |
+| 415 | Unsupported content encoding or media type |
 | 503 | Database operation failed; retry creation with the same key |
 
 ## Fetch a batch or result

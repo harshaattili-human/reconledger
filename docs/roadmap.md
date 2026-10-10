@@ -9,10 +9,14 @@ Remaining priorities are planned work, not claims of completed features.
 
 1. Add authenticated reviewer identity and authorization. Define tenant boundaries,
    scoped idempotency keys and access tests before any multi-user deployment.
-2. Enforce request byte limits and rate limits; define retention and database backup
+2. Enforce rate limits; define retention and database backup
    behavior. Add structured diagnostics that do not log sensitive input values.
 3. Build a small review interface with keyboard navigation, conflict recovery and
    accessible evidence comparison. Keep source corrections separate from review notes.
+
+The JSON write endpoints now enforce a 512 KiB body limit before parsing, with
+fixed-length and chunked HTTP cases. See [request bounds](request-bounds.md) for
+the scope; slow uploads, aggregate concurrency and rate limits still need controls.
 
 The [mixed-history experiment](mixed-prepared-plans.md) now supports a query-scoped
 PostgreSQL mitigation for currency browsing. Bound parameters are retained and no

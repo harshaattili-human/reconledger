@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Verify real HTTP and process restart against H2 or an explicitly supplied test PostgreSQL database."""
 import argparse
+import http.client
 import json
 import os
 from pathlib import Path
@@ -11,6 +12,7 @@ import time
 import urllib.error
 import urllib.request
 import sys
+import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
 JAR = ROOT / "target/reconledger-0.1.0-SNAPSHOT-app.jar"
@@ -42,6 +44,26 @@ def main():
             headers={"Content-Type": "application/json", **(headers or {})})
         with client.open(request, timeout=5) as response:
             return response.status, json.load(response)
+
+    def check_body_limit():
+        payload = json.loads((ROOT / "examples/mixed-batch.json").read_text())
+        encoded = json.dumps(payload).encode()
+        oversized = encoded + b" " * (524289 - len(encoded))
+        key = "body-smoke-" + str(uuid.uuid4())
+        for chunked in (False, True):
+            connection = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
+            try:
+                body = (oversized[i:i + 8192] for i in range(0, len(oversized), 8192)) if chunked else oversized
+                connection.request("POST", "/api/batches", body=body, encode_chunked=chunked,
+                    headers={"Content-Type": "application/json", "Idempotency-Key": key})
+                response = connection.getresponse()
+                problem = json.loads(response.read())
+                assert response.status == 413 and problem["status"] == 413
+            finally:
+                connection.close()
+        status, _ = call("/api/batches", payload, {"Idempotency-Key": key})
+        assert status == 201, "Rejected oversized requests must not reserve the key"
+        print("Body limit check passed: fixed-length and chunked HTTP rejection, then a safe retry.")
 
     with tempfile.TemporaryDirectory(prefix="reconledger-smoke-") as scratch:
         directory = Path(scratch)
@@ -87,6 +109,7 @@ def main():
         try:
             with log_path.open("w") as log:
                 start(log)
+                check_body_limit()
                 receipt_path = directory / "receipt.json"
                 subprocess.run([sys.executable, str(ROOT / "scripts/demo.py"), "--base-url", base,
                                 "--output", str(receipt_path)], check=True, timeout=45)
