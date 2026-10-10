@@ -115,16 +115,55 @@ offline mode, so compilation and database execution were verified in hosted CI.
 
 ## Decision and next check
 
-Keep runtime behavior unchanged in this increment. The result justifies comparing
-a query-scoped mitigation against automatic planning across these histories. Any
-candidate must retain bound parameters, avoid leaking session settings to the pool,
-and preserve result/cursor behavior on both databases. Planning cost, concurrent
-writes and different allocation distributions still need evidence; forcing every
-query on every connection to use custom planning is broader than this finding.
+The October 9 increment kept runtime behavior unchanged and justified comparing a
+query-scoped mitigation against automatic planning. The follow-up below records that
+comparison. Planning cost, concurrent writes and different allocation distributions
+still need evidence; forcing every query on every connection to use custom planning
+remains broader than this finding.
 
 Interview exercise: why did the same XTS/1 request select a custom plan in an
 isolated history but a generic plan after the XTS/100 primer? Explain why running
 EXPLAIN between requests would change the experiment.
+
+## Query-scoped result — October 10, 2026
+
+[Run 38055419493](https://github.com/harshaattili-human/reconledger/actions/runs/38055419493)
+at source `6f912d95dd997002c64b0bdfb37e29ef3ee506d7` passed 43 test cases on
+each database and both packaged HTTP/application-restart checks. The environment
+was PostgreSQL 16.15, pgJDBC 42.7.11, Java 17.0.20.1 and Linux amd64. The added
+unit case checks both the PostgreSQL wrapper and portable JDBC paths.
+
+The expanded probe ran 252 calls: three primers, three modes, and 28 calls per
+history. All result sequences matched. Every one of the 84 query-scoped calls
+remained absent from `pg_prepared_statements`; named-statement histories were still
+observed for the automatic and forced-custom controls.
+
+| XTS/100 primer | Automatic baseline | Forced-custom control | Query-scoped policy |
+| --- | --- | --- | --- |
+| Named plans after 28 calls | 5 custom / 19 generic | 24 custom / 0 generic | None |
+| Nine rare mixed calls, range | 2.942–5.997 ms | 0.223–0.360 ms | 0.255–0.363 ms |
+| Nine rare mixed calls, median | 4.871 ms | 0.287 ms | 0.321 ms |
+| Final XTS/1 EXPLAIN | Global sequence; 677 hits; 19,800 filtered | Currency/sequence; 3 hits | Currency/sequence; 3 hits |
+
+The query-scoped policy also kept the final XTS/1 plan on the currency index after
+the USD/100 and XTS/1 primers. Across those two mixed tails its medians were 0.307 ms
+and 0.346 ms, compared with 0.282 ms and 0.291 ms in automatic mode. This small
+same-run difference is consistent with repeated planning overhead; it is not a
+general latency estimate. For the large rare primer, common-currency calls had
+medians of 0.303 ms automatic and 0.308 ms query-scoped, while the rare-query generic
+scan dominated the automatic history.
+
+The separate final XTS/1 EXPLAIN after the large rare primer reported 0.010 ms
+planning and 2.992 ms execution for its generic baseline, versus 0.070 ms planning
+and 0.021 ms execution for the unnamed query-scoped call. Those are single extra
+executions, not totals across the history. The repository's existing 30-sample rare
+currency page measurement reported median 0.683 ms and p95 0.828 ms in this run;
+it is sequential synthetic observation, not an SLO or production benchmark.
+
+Based on this bounded fixture, the query-scoped policy is retained: it removes the
+observed history-dependent generic scan without changing pooled-session settings.
+It may cost more on distributions where automatic named plans are consistently good.
+Re-evaluate it with representative data before treating the policy as permanent.
 
 ## Limits
 
@@ -133,4 +172,5 @@ fixture. It does not model connection-pool scheduling, concurrent writes, realis
 currency frequency, other filter combinations or long-running plan adaptation.
 It does not isolate planning CPU, index maintenance or storage costs. The fixed
 mode/history order can affect cache warmth and timings. No timing or physical index
-name is a pass/fail gate, and no runtime mitigation is selected by this probe alone.
+name is a pass/fail gate. The selected mitigation is deliberately narrow and remains
+conditional on this evidence rather than a production guarantee.
