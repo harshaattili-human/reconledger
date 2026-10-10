@@ -95,7 +95,10 @@ is not an online/no-lock migration guarantee.
 
 V3 adds a currency/sequence index for currency-only browsing; the response and
 cursor contract are unchanged. Retained databases need the same backup and migration
-planning as other schema upgrades.
+planning as other schema upgrades. PostgreSQL batch-list statements also avoid named
+server preparation so a previous skewed filter does not pin later pages to one generic
+plan. Parameters remain bound; this implementation detail does not alter the HTTP or
+cursor contract. See the [measured query history](mixed-prepared-plans.md).
 
 ## Record a review transition
 

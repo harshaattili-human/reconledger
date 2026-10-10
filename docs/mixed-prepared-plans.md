@@ -21,10 +21,11 @@ Each history starts with ten identical requests, using one of three primers:
 Each then executes this identical six-request sequence three times:
 `USD/100, XTS/100, USD/50, XTS/50, USD/1, XTS/1`.
 Each limit includes one extra fetched row for lookahead. There are 28 calls per
-history: ten primer calls and 18 mixed calls. Each primer runs once in `auto` and
-once in `force_custom_plan`, giving six independent statement histories and 168
-correctness-checked calls. These extend the existing characterization test, not the
-test-case count. The forced mode is a diagnostic control, not an application setting.
+history: ten primer calls and 18 mixed calls. Each primer runs in `auto`,
+`force_custom_plan`, and the query-scoped policy used by the repository. This gives
+nine independent histories and 252 correctness-checked calls. These extend the
+existing characterization test, not the test-case count. Forced custom planning is
+a diagnostic control, not an application setting.
 
 A different fixed SQL comment identifies each history. Within a history the same
 PreparedStatement remains open. Every result sequence list must match an ordered
@@ -40,9 +41,28 @@ inter-request work, so these are instrumented sequential observations, not reque
 latency or throughput measurements.
 
 No EXPLAIN is run between these calls. After all 28 calls, one additional
-`EXPLAIN (ANALYZE, BUFFERS)` executes an XTS limit-1 request. That plan is labeled
-separately and is not retroactively assigned to earlier executions. The original
-session planning mode is restored before returning the connection to the pool.
+`EXPLAIN (ANALYZE, BUFFERS)` executes an XTS limit-1 request. Named histories use
+`EXPLAIN EXECUTE`; the query-scoped history applies the same statement policy to a
+parameterized EXPLAIN and must remain absent from the prepared-statement catalog.
+That plan is labeled separately and is not retroactively assigned to earlier
+executions. The original session planning mode is restored before returning the
+connection to the pool.
+
+## Query-scoped candidate
+
+`BatchBrowseStatementPolicy` unwraps only PostgreSQL batch-list statements to
+pgJDBC's `PGStatement` and sets their prepare threshold to zero. The driver's
+[server-prepare documentation](https://jdbc.postgresql.org/documentation/server-prepare/)
+defines zero as disabling server-side named preparation and shows that the threshold
+can be set on one statement. Other repository statements, connections, and PostgreSQL
+sessions keep their configured defaults. H2 statements do not expose that extension
+and keep the portable JDBC path.
+
+The browse query still uses a `PreparedStatement` with bound values. This avoids the
+generic named-plan history observed for skewed parameters; it does not interpolate
+values into SQL or force a database-wide custom-plan setting. The tradeoff is repeated
+parse/analysis/planning work and loss of other named-statement optimizations for this
+query. The experiment records that cost rather than assuming the mitigation wins.
 
 ## Reproduce
 

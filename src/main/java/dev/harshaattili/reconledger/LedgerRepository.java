@@ -71,9 +71,14 @@ public class LedgerRepository {
         }
         sql.append(" ORDER BY list_sequence DESC LIMIT ?");
         parameters.add(limit + 1);
-        var rows = jdbc.query(sql.toString(), (rs, n) -> new BatchSummary(rs.getString("id"),
+        var rows = jdbc.query(sql.toString(), statement -> {
+            BatchBrowseStatementPolicy.apply(statement);
+            for (int index = 0; index < parameters.size(); index++) {
+                statement.setObject(index + 1, parameters.get(index));
+            }
+        }, (rs, n) -> new BatchSummary(rs.getString("id"),
             rs.getLong("list_sequence"), rs.getDate("business_date").toLocalDate(),
-            rs.getString("currency"), rs.getString("created_at")), parameters.toArray());
+            rs.getString("currency"), rs.getString("created_at")));
         boolean hasMore = rows.size() > limit;
         var batches = List.copyOf(rows.subList(0, Math.min(rows.size(), limit)));
         return new BatchPage(batches, hasMore ? batches.get(batches.size() - 1).sequence() : null);
