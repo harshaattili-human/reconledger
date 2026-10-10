@@ -33,8 +33,17 @@ length is absent or understated. The latter is an input-message unit test, not a
 claim about accepting inconsistent HTTP framing from Tomcat.
 
 The packaged smoke runner also sends fixed-length and chunked overflows, then
-retries the unreserved idempotency key with ordinary input. Hosted results will be
-recorded in [verification](verification.md) after execution.
+retries the unreserved idempotency key with ordinary input.
+
+On October 10, 2026, [run 38060766000](https://github.com/harshaattili-human/reconledger/actions/runs/38060766000)
+passed all 50 cases on each of H2 2.3.232 and PostgreSQL 16.15, including the seven
+new cases above, both packaged body-limit checks and both application-restart
+checks. Source: `78855c7ba9e346864166a6150c72a4ad97db635c`. The HTTP tests used
+the embedded server, not MockMvc; the packaged checks used the executable JAR.
+The runner used Temurin Java 17.0.20.1, Spring Boot 3.5.16 and Tomcat 10.1.55 on
+Ubuntu 24.04/Linux amd64.
+Local Maven lacked the parent POM cache, so Java/database execution was hosted.
+See [verification](verification.md) for the prior checks and reproduction commands.
 
 ## Limits and tradeoff
 

@@ -1,9 +1,26 @@
 # Verification record
 
-Latest verification on October 10, 2026: the same 43-test suite passes on H2 and
+Latest verification on October 10, 2026: the same 50-test suite passes on H2 and
 PostgreSQL. The packaged application's real-HTTP demo and saved-cursor restart checks
 pass on both. This record describes a local prototype, not deployment, production
 traffic or financial accuracy.
+
+## JSON body bounds — October 10, 2026
+
+[Run 38060766000](https://github.com/harshaattili-human/reconledger/actions/runs/38060766000)
+at `78855c7ba9e346864166a6150c72a4ad97db635c` passed 50 tests with no
+failures, errors or skips on each of H2 2.3.232 and PostgreSQL 16.15. These are the
+same cases on two engines. Five new cases send HTTP/1.1 requests to embedded Tomcat;
+two test early rejection and bounded stream consumption. Both packaged smoke jobs
+also passed fixed-length/chunked overflow rejection, a retry using the unreserved
+key, the ordinary demo and application-process restart.
+
+The [request-bounds record](request-bounds.md) explains exact-limit acceptance,
+one-byte overflow, review-state/audit preservation, UTF-8 bytes, compression rejection
+and the maximum 1,000-record input. The limit applies before JSON parsing; it does
+not establish aggregate memory bounds, rate control or slow-client protection.
+Local whitespace, documentation links and Python syntax passed. Maven's local cache
+still lacked the parent POM, so compilation and database execution were hosted.
 
 ## Query-scoped plan policy — October 10, 2026
 
