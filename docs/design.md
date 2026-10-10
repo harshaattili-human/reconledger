@@ -124,6 +124,14 @@ Sparse-filter characterization found that a currency-only first page scanned pas
 V3 adds `(currency, list_sequence)` for this supported filter. It adds write/storage
 cost; the [before/after plans](query-characterization.md) explain the evidence.
 
+Repeated PostgreSQL executions can still choose a generic prepared plan that ignores
+that index for skewed currency data. Batch browsing therefore disables pgJDBC named
+preparation for this query only; values remain bound through `PreparedStatement`.
+This keeps each execution parameter-aware without changing the connection or server
+planning mode. Other queries retain the driver's default prepared-statement behavior.
+See the [mixed-history experiment](mixed-prepared-plans.md) for the measured tradeoff
+and limits. H2 follows the same SQL and response contract without the driver extension.
+
 The sequence removes string-collation and timestamp-tie ambiguity. It does not order
 commits across batches: an earlier allocation may commit late and require a first-page
 refresh. The API deliberately makes no snapshot or synchronization-feed promise.

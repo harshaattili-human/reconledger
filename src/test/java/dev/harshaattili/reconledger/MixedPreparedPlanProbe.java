@@ -32,8 +32,9 @@ final class MixedPreparedPlanProbe {
             try {
                 for (Request primer : List.of(new Request("XTS", 100),
                         new Request("USD", 100), new Request("XTS", 1))) {
-                    for (String mode : List.of("auto", "force_custom_plan")) {
-                        control.execute("SET plan_cache_mode = " + mode);
+                    for (String mode : List.of("auto", "force_custom_plan", "query_scoped_no_server_prepare")) {
+                        control.execute("SET plan_cache_mode = "
+                            + (mode.equals("query_scoped_no_server_prepare") ? "auto" : mode));
                         observations.add(history(connection, primer, mode, expected));
                     }
                 }
@@ -43,7 +44,7 @@ final class MixedPreparedPlanProbe {
         } catch (SQLException error) {
             throw new IllegalStateException("Could not characterize mixed prepared requests", error);
         }
-        assertThat(observations).hasSize(6);
+        assertThat(observations).hasSize(9);
         return observations;
     }
 
@@ -82,6 +83,9 @@ final class MixedPreparedPlanProbe {
         long previousCustom = 0;
         long previousGeneric = 0;
         try (var query = connection.prepareStatement(sql)) {
+            if (mode.equals("query_scoped_no_server_prepare")) {
+                BatchBrowseStatementPolicy.apply(query);
+            }
             for (int index = 0; index < requests.size(); index++) {
                 Request request = requests.get(index);
                 query.setString(1, request.currency());
@@ -138,15 +142,34 @@ final class MixedPreparedPlanProbe {
                 }
                 executions.add(execution);
             }
-            assertThat(statementName).matches("[A-Za-z_][A-Za-z0-9_]*");
             List<String> finalPlan = new ArrayList<>();
-            // Only after all 28 requests: this extra execution cannot affect recorded history.
-            try (var explain = connection.createStatement(); var rows = explain.executeQuery(
-                    "EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT) EXECUTE \"" + statementName + "\"('XTS', 2)")) {
-                while (rows.next()) finalPlan.add(rows.getString(1));
+            if (mode.equals("query_scoped_no_server_prepare")) {
+                assertThat(statementName).as("query-scoped policy must prevent named preparation").isNull();
+                try (var explain = connection.prepareStatement("""
+                        EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
+                        SELECT id, list_sequence, business_date, currency, created_at
+                        FROM recon_batch WHERE 1 = 1 AND currency = ?
+                        ORDER BY list_sequence DESC LIMIT ?
+                        """)) {
+                    BatchBrowseStatementPolicy.apply(explain);
+                    explain.setString(1, "XTS");
+                    explain.setInt(2, 2);
+                    try (var rows = explain.executeQuery()) {
+                        while (rows.next()) finalPlan.add(rows.getString(1));
+                    }
+                }
+            } else {
+                assertThat(statementName).matches("[A-Za-z_][A-Za-z0-9_]*");
+                // Only after all 28 requests: this extra execution cannot affect recorded history.
+                try (var explain = connection.createStatement(); var rows = explain.executeQuery(
+                        "EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT) EXECUTE \"" + statementName
+                            + "\"('XTS', 2)")) {
+                    while (rows.next()) finalPlan.add(rows.getString(1));
+                }
             }
             return Map.of("primerCurrency", primer.currency(), "primerLimit", primer.limit(),
                 "mode", mode, "primerExecutions", 10, "mixedExecutions", 18,
+                "namedStatementObserved", statementName != null,
                 "executions", executions, "finalXtsOneRowPagePlan", finalPlan);
         }
     }

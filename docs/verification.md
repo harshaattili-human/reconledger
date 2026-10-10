@@ -1,9 +1,25 @@
 # Verification record
 
-Latest verification on October 9, 2026: the same 42-test suite passes on H2 and
+Latest verification on October 10, 2026: the same 43-test suite passes on H2 and
 PostgreSQL. The packaged application's real-HTTP demo and saved-cursor restart checks
 pass on both. This record describes a local prototype, not deployment, production
 traffic or financial accuracy.
+
+## Query-scoped plan policy — October 10, 2026
+
+[Run 38055419493](https://github.com/harshaattili-human/reconledger/actions/runs/38055419493)
+at `6f912d95dd997002c64b0bdfb37e29ef3ee506d7` passed 43 cases on each
+database and both packaged HTTP/application-restart checks. The extra unit case
+covers the pgJDBC wrapper and portable statement paths. The PostgreSQL-only probe
+ran 252 correctness-checked calls across automatic, forced-custom and query-scoped
+modes. All 84 query-scoped calls remained unnamed and the final rare query used the
+currency index for each primer. See the [protocol and measured tradeoff](mixed-prepared-plans.md).
+
+Application SQL values remain bound, and no session/server planning setting changed.
+The PostgreSQL dependency is now available at compile time because the application
+uses its statement-level extension; packaging already included the driver. Local
+Maven still lacked its parent POM cache, so compilation and database execution were
+hosted. This is sequential synthetic evidence, not a concurrent throughput result.
 
 ## Mixed prepared requests — October 9, 2026
 
