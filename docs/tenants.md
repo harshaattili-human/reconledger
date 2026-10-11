@@ -39,7 +39,9 @@ application access control, not database row-level security against arbitrary SQ
 ## Idempotency and migration
 
 V4 retains existing headers, records, results and events in the reserved `demo`
-workspace. No old row is automatically assigned to an authenticated customer.
+workspace, including rows written through the previous secured profile. No old row
+is automatically assigned to an authenticated customer. Historical ownership cannot
+be recovered from its self-reported or subject-only actor label.
 The default unauthenticated demo reads/writes only `demo`; switching profiles cannot
 expose authenticated tenants through the existing demo API. Do not use a real-data
 database as a demo database or mistake this for permission to deploy publicly.
