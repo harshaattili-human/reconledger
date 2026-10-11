@@ -1,12 +1,13 @@
-# Authenticated reviews in one workspace
+# Authenticated reviews
 
 The default loopback demo accepts a caller-supplied `actor`. The optional `secured`
 profile verifies bearer JWTs and records the verified `sub` as the reviewer instead.
 It separates reading evidence, creating batches and writing review decisions.
 
-This is one shared workspace. A permitted reader can read every batch, result and
-audit event. There is no tenant membership check, ownership rule or tenant-scoped
-idempotency key. Do not expose the prototype publicly or load real customer data.
+Each token must also carry a valid signed `tenant_id`; data access and idempotency
+keys are scoped to that tenant. See [tenant ownership and migration](tenants.md).
+The issuer must establish membership before signing this claim. Do not expose the
+prototype publicly or load real customer data.
 
 ## Start the profile
 
@@ -30,7 +31,8 @@ The existing demo and restart scripts target that default mode.
 
 Only RS256 signatures are accepted. Tokens must have a matching `iss`, an `aud`
 containing the configured audience, an unexpired `exp`, and a nonblank `sub` of at
-most 80 Java characters with no surrounding whitespace. Spring also validates
+most 80 Java characters with no surrounding whitespace. The `tenant_id` must follow
+the [tenant contract](tenants.md); old tokens without it now return 401. Spring also validates
 `nbf` when present, with its default 60-second clock skew. Use stable opaque subject
 IDs; a display name is not a durable identity. The configured issuer defines the
 subject namespace. Changing issuers against an existing database requires an
@@ -89,14 +91,12 @@ data route, separate scopes, actor spoofing, unchanged state after rejection,
 optimistic conflict, body bounds and session/token transport behavior. A separate
 default-mode HTTP case retains the demo actor contract. See [observed results](verification.md).
 
-The profile does not supply TLS, automatic key rotation/JWKS, revocation, tenant
-isolation, rate limits or tamper-resistant audit storage. A valid stolen bearer token
+The profile does not supply TLS, automatic key rotation/JWKS, revocation, rate limits or tamper-resistant audit storage. A valid stolen bearer token
 is usable until expiry; replacing the pinned public key requires restarting the app.
 Provider integration, key rotation and deployment controls need separate verification.
 
-Next, define tenant membership from trusted identity, scope every read/write and
-idempotency uniqueness constraint, and test cross-tenant access and retries. Adding
-an unchecked tenant header would not establish isolation.
+Tenant scoping trusts signed issuer membership; it does not validate an external
+provider configuration or supply a membership administration system.
 
 References: Spring Security 6.5 [JWT resource servers](https://docs.spring.io/spring-security/reference/6.5/servlet/oauth2/resource-server/jwt.html)
 and [request authorization](https://docs.spring.io/spring-security/reference/6.5/servlet/authorization/authorize-http-requests.html).

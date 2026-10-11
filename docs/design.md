@@ -21,8 +21,8 @@ evaluation and could not silently resolve exceptions.
 
 Input records are sorted by record ID within each side and their decimals normalized.
 A versioned, length-prefixed representation includes business date, currency, side,
-IDs, references, and amounts. Its SHA-256 digest is stored with a globally unique
-idempotency key. The uniqueness scope is this single-user database, not an account.
+IDs, references, and amounts. Its SHA-256 digest is stored with an idempotency key
+that is unique within the tenant. Both lookup and conflict recovery use that scope.
 
 The first request returns 201. An equivalent retry returns 200 with the same batch
 ID and `Idempotency-Replayed: true`. Reusing a key with different content returns 409.
@@ -151,14 +151,14 @@ initial ordering failure; matching SQL syntax alone was not sufficient evidence.
 The optional `secured` profile uses Spring Security JWT validation and explicit
 endpoint scopes. Review JSON cannot choose the actor in this profile. Authorization
 occurs before controller invocation; state and audit writes retain their existing
-transaction. No schema change or tenant boundary is implied: permitted readers share
-all data, and idempotency uniqueness is still global. See the [trust configuration,
-actor migration and limitations](authentication.md).
+transaction. The verified tenant claim scopes batch ownership, reads, updates and
+idempotency. V4 keeps existing data in the reserved demo workspace. See the
+[tenant contract and retained-data migration](tenants.md), and the [trust
+configuration and actor limitations](authentication.md).
 
 ## Interview exercise
 
 Explain why a lookup followed by an insert is insufficient for idempotency. Point to
-the unique constraint and the losing transaction's recovery path. Then propose how
-keys, source records and reviewer identity would be scoped if multiple customers
-shared the service. Implementing that safely requires more than adding a tenant field
-to the request body.
+the unique constraint and the losing transaction's recovery path. Then trace how the tenant
+predicate is retained during losing-insert recovery and why a request body must not
+be allowed to select ownership.

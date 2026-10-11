@@ -1,6 +1,7 @@
 package dev.harshaattili.reconledger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.UUID;
 import javax.sql.DataSource;
@@ -43,8 +44,20 @@ class BatchListMigrationTest {
             assertThat(jdbc.queryForList("SELECT * FROM " + prefix + "source_record")).isEqualTo(sources);
             assertThat(jdbc.queryForList("SELECT * FROM " + prefix + "recon_result")).isEqualTo(results);
             assertThat(jdbc.queryForList("SELECT * FROM " + prefix + "review_event")).isEqualTo(events);
+            assertThat(jdbc.queryForList("SELECT tenant_id FROM " + prefix + "recon_batch", String.class))
+                .containsExactly("demo", "demo");
+            String scopedInsert = "INSERT INTO " + prefix
+                + "recon_batch(id, idempotency_key, fingerprint, business_date, currency, created_at, tenant_id)"
+                + " VALUES (?, 'key-old-a', ?, ?, 'USD', '2026-10-11T12:00:00Z', ?)";
+            jdbc.update(scopedInsert, "tenant-new", "b".repeat(64), java.sql.Date.valueOf("2026-10-11"), "tenant-a");
+            assertThatThrownBy(() -> jdbc.update(scopedInsert, "tenant-duplicate", "b".repeat(64),
+                java.sql.Date.valueOf("2026-10-11"), "tenant-a"))
+                .isInstanceOf(org.springframework.dao.DuplicateKeyException.class);
+            assertThatThrownBy(() -> jdbc.update(scopedInsert, "demo-duplicate", "b".repeat(64),
+                java.sql.Date.valueOf("2026-10-11"), "demo"))
+                .isInstanceOf(org.springframework.dao.DuplicateKeyException.class);
             var sequences = jdbc.queryForList("SELECT list_sequence FROM " + prefix + "recon_batch", Long.class);
-            assertThat(sequences).hasSize(2).doesNotHaveDuplicates().allMatch(sequence -> sequence > 0);
+            assertThat(sequences).hasSize(3).doesNotHaveDuplicates().allMatch(sequence -> sequence > 0);
             jdbc.update("INSERT INTO " + prefix + "recon_batch(id, idempotency_key, fingerprint, business_date, currency, created_at)"
                 + " VALUES ('new', 'key-new', ?, ?, 'USD', '2026-10-07T12:00:00Z')",
                 "b".repeat(64), java.sql.Date.valueOf("2026-10-07"));

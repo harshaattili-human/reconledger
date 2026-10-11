@@ -80,6 +80,7 @@ synthetic fixtures, recorded plans and limits of the timing observations.
 - `Idempotency-Key` replay across process restarts while the database is retained.
 - Review transitions with mandatory notes, optimistic concurrency and paginated audit history.
 - Optional JWT authentication with separate read, batch-create and review scopes.
+- Tenant-scoped data access and idempotency using an issuer-signed tenant claim.
 - Paginated batch summaries with exact business-date and currency filters.
 - Flyway schema migrations, JDBC persistence and a local health endpoint.
 
@@ -91,14 +92,15 @@ turn a mismatch into a match, correct the source data, or certify an amount.
 This is a local prototype, not a deployed financial system. The default server binds
 to loopback. Its default demo has no authentication: `actor` is self-reported. The
 [optional secured profile](docs/authentication.md) verifies JWTs and records their
-subject as reviewer, with endpoint scopes in one shared workspace. Tenant isolation
-is still absent, and audit rows are not tamper-proof against a database administrator.
+subject as reviewer, with endpoint scopes and [tenant ownership](docs/tenants.md)
+from a signed claim. Issuer membership configuration remains an external responsibility,
+and audit rows are not tamper-proof against a database administrator.
 Do not expose it to a public network or put real financial/customer records into it.
 
 Currency is an uppercase three-letter label, not an ISO currency validator. Every
 amount uses two decimal places; currency-specific minor units, FX, fuzzy matching,
-settlement rules, multiple tenants, retention policies, and large-file ingestion
-are outside this milestone. Request bodies are bounded, but rate limits and tenant
+settlement rules, tenant administration, retention policies, and large-file ingestion
+are outside this milestone. Request bodies are bounded, but rate limits and operational
 access controls remain deployment prerequisites. Result counts describe references, not
 source-record counts or an accuracy score.
 
