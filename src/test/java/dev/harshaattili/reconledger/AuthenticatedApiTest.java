@@ -56,6 +56,7 @@ class AuthenticatedApiTest {
     @LocalServerPort int port;
     @Autowired ObjectMapper json;
     @Autowired JdbcTemplate jdbc;
+    @Autowired LedgerRepository repository;
     @Value("${recon.test.expected-database}") String expectedDatabase;
     private final HttpClient client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1)
         .connectTimeout(Duration.ofSeconds(5)).build();
@@ -190,6 +191,107 @@ class AuthenticatedApiTest {
         assertThatThrownBy(() -> config.jwtDecoder(badKey, ISSUER, AUDIENCE)).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test void requiresAnIssuerSuppliedTenantAndIgnoresTenantHeaders() throws Exception {
+        String key = key();
+        for (Object tenant : List.of("", "demo", "Tenant-A", "../other", "x".repeat(65), 42, List.of("tenant-a"))) {
+            String jwt = bearer(sign(claims("reader", "recon:write").claim("tenant_id", tenant), KEY, JWSAlgorithm.RS256));
+            assertThat(call("POST", "/api/batches", BATCH, jwt, key).statusCode()).isEqualTo(401);
+        }
+        String missing = bearer(sign(claims("reader", "recon:write").claim("tenant_id", null), KEY, JWSAlgorithm.RS256));
+        var request = HttpRequest.newBuilder(uri("/api/batches")).header("Authorization", missing)
+            .header("X-Tenant-Id", "tenant-a").GET().build();
+        assertThat(client.send(request, HttpResponse.BodyHandlers.ofString()).statusCode()).isEqualTo(401);
+        assertUnreserved(key);
+        String injected = BATCH.replace("\"currency\":\"USD\"", "\"currency\":\"USD\",\"tenant_id\":\"other\"");
+        assertThat(call("POST", "/api/batches", injected, token("writer", "recon:write"), key).statusCode()).isEqualTo(400);
+        assertUnreserved(key);
+    }
+
+    @Test void isolatesDetailAuditReviewAndFilteredPagesEvenWithKnownForeignIds() throws Exception {
+        String a = "a-" + UUID.randomUUID();
+        String b = "b-" + UUID.randomUUID();
+        String scopes = "recon:read recon:write recon:review";
+        String tokenA = tenantToken(a, scopes);
+        String tokenB = tenantToken(b, scopes);
+        var first = body(call("POST", "/api/batches", BATCH, tokenA, key()));
+        var foreign = body(call("POST", "/api/batches", BATCH, tokenB, key()));
+        var last = body(call("POST", "/api/batches", BATCH, tokenA, key()));
+        String batchId = first.get("id").asText();
+        String id = first.at("/results/0/id").asText();
+        String foreignId = foreign.at("/results/0/id").asText();
+        for (String path : List.of("/api/batches/" + batchId, "/api/results/" + id, "/api/results/" + id + "/events")) {
+            assertThat(call("GET", path, null, tokenB, null).statusCode()).isEqualTo(404);
+            assertThat(call("GET", path, null, tokenA, null).statusCode()).isEqualTo(200);
+        }
+        assertThat(call("POST", "/api/results/" + id + "/reviews", REVIEW, tokenB, null).statusCode()).isEqualTo(404);
+        assertThat(body(call("GET", "/api/results/" + id, null, tokenA, null)).get("version").asInt()).isZero();
+        assertThat(body(call("GET", "/api/results/" + id + "/events", null, tokenA, null)).get("events")).isEmpty();
+        String query = "/api/batches?limit=1&businessDate=2026-10-11&currency=USD";
+        var page = body(call("GET", query, null, tokenA, null));
+        assertThat(page.at("/batches/0/id").asText()).isEqualTo(last.get("id").asText());
+        var next = body(call("GET", query + "&beforeSequence=" + page.get("nextBeforeSequence").asLong(), null, tokenA, null));
+        assertThat(next.at("/batches/0/id").asText()).isEqualTo(batchId);
+        assertThat(next.get("nextBeforeSequence").isNull()).isTrue();
+        var forged = HttpRequest.newBuilder(uri("/api/batches/" + batchId)).header("Authorization", tokenB)
+            .header("X-Tenant-Id", a).GET().build();
+        assertThat(client.send(forged, HttpResponse.BodyHandlers.ofString()).statusCode()).isEqualTo(404);
+        assertThat(call("POST", "/api/results/" + id + "/reviews", REVIEW, tokenA, null).statusCode()).isEqualTo(200);
+        assertThat(body(call("GET", "/api/results/" + foreignId, null, tokenB, null)).get("version").asInt()).isZero();
+        assertThat(body(call("GET", "/api/results/" + id + "/events", null, tokenA, null)).at("/events/0/actor").asText())
+            .isEqualTo("shared-subject");
+    }
+
+    @Test void concurrentRetriesDeduplicateWithinEachTenantButAllowTheSameKeyAcrossTenants() throws Exception {
+        String a = "a-" + UUID.randomUUID();
+        String b = "b-" + UUID.randomUUID();
+        String tokenA = tenantToken(a, "recon:read recon:write");
+        String tokenB = tenantToken(b, "recon:read recon:write");
+        String key = key();
+        String changed = BATCH.replace("10.00", "11.00");
+        var executor = java.util.concurrent.Executors.newFixedThreadPool(6);
+        var start = new java.util.concurrent.CountDownLatch(1);
+        var futures = new java.util.ArrayList<java.util.concurrent.Future<HttpResponse<String>>>();
+        try {
+            for (int index = 0; index < 6; index++) {
+                boolean firstTenant = index % 2 == 0;
+                futures.add(executor.submit(() -> {
+                    start.await();
+                    return call("POST", "/api/batches", firstTenant ? BATCH : changed, firstTenant ? tokenA : tokenB, key);
+                }));
+            }
+            start.countDown();
+            var idsA = new java.util.HashSet<String>();
+            var idsB = new java.util.HashSet<String>();
+            int created = 0;
+            for (int index = 0; index < futures.size(); index++) {
+                var response = futures.get(index).get(20, java.util.concurrent.TimeUnit.SECONDS);
+                assertThat(response.statusCode()).isIn(200, 201);
+                if (response.statusCode() == 201) created++;
+                (index % 2 == 0 ? idsA : idsB).add(body(response).get("id").asText());
+            }
+            assertThat(created).isEqualTo(2);
+            assertThat(idsA).hasSize(1).doesNotContainAnyElementsOf(idsB);
+            assertThat(idsB).hasSize(1);
+            assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM recon_batch WHERE idempotency_key = ?", Integer.class, key))
+                .isEqualTo(2);
+            assertThat(call("POST", "/api/batches", changed, tokenA, key).statusCode()).isEqualTo(409);
+            assertThat(call("POST", "/api/batches", BATCH, tokenB, key).statusCode()).isEqualTo(409);
+        } finally {
+            start.countDown();
+            executor.shutdownNow();
+        }
+    }
+
+    @Test void securedRepositoryDoesNotFallBackToDemoWithoutARequestIdentity() {
+        assertThatThrownBy(() -> repository.batches(null, 1, null, null))
+            .isInstanceOfSatisfying(ApiException.class,
+                failure -> assertThat(failure.status()).isEqualTo(org.springframework.http.HttpStatus.UNAUTHORIZED));
+    }
+
+    private static String tenantToken(String tenant, String scopes) throws Exception {
+        return bearer(sign(claims("shared-subject", scopes).claim("tenant_id", tenant), KEY, JWSAlgorithm.RS256));
+    }
+
     private JsonNode create() throws Exception {
         var response = call("POST", "/api/batches", BATCH, token("creator", "recon:write"), key());
         assertThat(response.statusCode()).isEqualTo(201);
@@ -218,7 +320,7 @@ class AuthenticatedApiTest {
     }
     private static JWTClaimsSet.Builder claims(String subject, String scopes) {
         return new JWTClaimsSet.Builder().issuer(ISSUER).audience(AUDIENCE).subject(subject)
-            .expirationTime(Date.from(Instant.now().plusSeconds(300))).claim("scope", scopes);
+            .expirationTime(Date.from(Instant.now().plusSeconds(300))).claim("scope", scopes).claim("tenant_id", "auth-test");
     }
     private static String sign(JWTClaimsSet.Builder claims, KeyPair key, JWSAlgorithm algorithm) throws Exception {
         var token = new SignedJWT(new JWSHeader(algorithm), claims.build());

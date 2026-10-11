@@ -6,7 +6,8 @@ domain errors use Spring `ProblemDetail` (`application/problem+json`).
 Examples below use the unauthenticated loopback demo. The [secured profile](authentication.md)
 requires bearer tokens with endpoint scopes and derives reviewer identity from `sub`.
 Authentication failures return 401; insufficient scopes return 403. Those security
-filter responses are not MVC problem details. All permitted users share one workspace.
+filter responses are not MVC problem details. Each token needs an issuer-signed `tenant_id`; data and keys are
+scoped to that tenant. See [the tenant contract](tenants.md). Foreign IDs return 404.
 
 ## Request body limit
 
@@ -33,7 +34,7 @@ curl -i -X POST http://127.0.0.1:8081/api/batches \
   --data-binary @examples/mixed-batch.json
 ```
 
-Use a different key for a genuinely new batch. The key is 8–80 characters from
+Use a different key for a genuinely new batch within the current tenant. The key is 8–80 characters from
 letters, digits, `.`, `_`, `:`, `-`. Store it before sending the request so a network
 timeout can be retried safely.
 

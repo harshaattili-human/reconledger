@@ -1,9 +1,41 @@
 # Verification record
 
-Latest verification on October 11, 2026: the same 58-test suite passes on H2 and
+Latest verification on October 11, 2026: the same 63-test suite passes on H2 and
 PostgreSQL. The packaged application's real-HTTP demo and saved-cursor restart checks
 pass on both. This record describes a local prototype, not deployment, production
 traffic or financial accuracy.
+
+## Tenant-scoped access — October 11, 2026
+
+[Run 38147018174](https://github.com/harshaattili-human/reconledger/actions/runs/38147018174)
+at `588c019b64e8f31877b229dc51586075b8c49fca` passed 63 tests with no
+failures, errors or skips on each H2 2.3.232 and PostgreSQL 16.15. Both packaged
+HTTP demos, body-bound checks and application-process restarts also passed. These
+are the same 63 cases on both engines, not 126 distinct cases.
+
+Five added cases exercise invalid/missing tenant claims and forged tenant inputs;
+foreign detail/audit/review IDs and interleaved filtered pages; six simultaneous
+requests using one key across two tenants; missing secured repository context; and
+unauthenticated demo access to private-tenant rows. The concurrent case observed
+exactly one new batch per tenant, with same-tenant replays and changed-payload
+conflicts. It is a correctness case, not a concurrency/load benchmark. The existing
+migration case now verifies retained V1 evidence through V4, default demo ownership,
+cross-tenant key reuse and same-tenant uniqueness. It does not simulate a migration
+crash or establish online migration safety.
+
+H2 job [114492406844](https://github.com/harshaattili-human/reconledger/actions/runs/38147018174/job/114492406844)
+and PostgreSQL job [114492406702](https://github.com/harshaattili-human/reconledger/actions/runs/38147018174/job/114492406702)
+used Java 17.0.20.1, Spring Boot 3.5.16, Tomcat 10.1.55 and Ubuntu 24.04.
+Run `./mvnw verify` with the default test configuration and then the
+[PostgreSQL configuration](postgresql.md). Local whitespace/documentation links
+passed; Java/database execution was hosted because local Maven dependency resolution
+was unavailable in this session.
+
+See [tenant ownership](tenants.md) for the breaking token contract, migration and
+issuer-membership assumptions. These synthetic checks establish the tested API
+boundary, not external provider membership configuration, database row-level security,
+metadata/timing isolation or production readiness. Earlier prepared-plan reports
+characterize unscoped queries; they do not prove latency for the new tenant predicate.
 
 ## Authenticated reviewer profile — October 11, 2026
 
@@ -285,9 +317,9 @@ The executable archive has an explicit `app` classifier, distinct from the plain
   characterization is sequential synthetic evidence, not a concurrent benchmark or
   service-level objective.
 - Real financial records or real-world matching quality.
-- External identity-provider integration, key rotation, tenant isolation or tamper-resistant
-  audit storage. JWT validation and endpoint scopes are covered above; they do not
-  establish tenant access boundaries.
+- External identity-provider membership configuration, key rotation, tenant lifecycle
+  administration or tamper-resistant audit storage. JWT and tenant API checks are
+  covered above; database-level, timing and allocation-metadata isolation are not.
 
 The tests and small synthetic demo verify specific behaviors. They are not a code
 coverage percentage, a benchmark or proof of production readiness.

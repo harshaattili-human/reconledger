@@ -14,7 +14,12 @@ import org.springframework.stereotype.Repository;
 public class LedgerRepository {
     private final JdbcTemplate jdbc;
 
-    public LedgerRepository(JdbcTemplate jdbc) { this.jdbc = jdbc; }
+    private final TenantAccess tenant;
+
+    public LedgerRepository(JdbcTemplate jdbc, TenantAccess tenant) {
+        this.jdbc = jdbc;
+        this.tenant = tenant;
+    }
 
     public record ExistingBatch(String id, String fingerprint) {}
     public record StoredResult(String id, String batchId, String reference, Outcome outcome,
@@ -22,15 +27,15 @@ public class LedgerRepository {
     private record SourcedRecord(String side, LedgerRecord record) {}
 
     public Optional<ExistingBatch> findByKey(String key) {
-        return jdbc.query("SELECT id, fingerprint FROM recon_batch WHERE idempotency_key = ?",
-            (rs, n) -> new ExistingBatch(rs.getString("id"), rs.getString("fingerprint")), key).stream().findFirst();
+        return jdbc.query("SELECT id, fingerprint FROM recon_batch WHERE tenant_id = ? AND idempotency_key = ?",
+            (rs, n) -> new ExistingBatch(rs.getString("id"), rs.getString("fingerprint")), tenant.current(), key).stream().findFirst();
     }
 
     public void insertBatch(String id, String key, String fingerprint, BatchInput input, String createdAt) {
         jdbc.update("""
-            INSERT INTO recon_batch(id, idempotency_key, fingerprint, business_date, currency, created_at)
-            VALUES (?, ?, ?, ?, ?, ?)
-            """, id, key, fingerprint, input.businessDate(), input.currency(), createdAt);
+            INSERT INTO recon_batch(id, idempotency_key, fingerprint, business_date, currency, created_at, tenant_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, id, key, fingerprint, input.businessDate(), input.currency(), createdAt, tenant.current());
         insertRecords(id, "LEFT", input.leftRecords());
         insertRecords(id, "RIGHT", input.rightRecords());
     }
@@ -54,9 +59,10 @@ public class LedgerRepository {
             throw ApiException.badRequest("currency must contain exactly three uppercase letters.");
         }
         StringBuilder sql = new StringBuilder("""
-            SELECT id, list_sequence, business_date, currency, created_at FROM recon_batch WHERE 1 = 1
+            SELECT id, list_sequence, business_date, currency, created_at FROM recon_batch WHERE tenant_id = ?
             """);
         List<Object> parameters = new ArrayList<>();
+        parameters.add(tenant.current());
         if (beforeSequence != null) {
             sql.append(" AND list_sequence < ?");
             parameters.add(beforeSequence);
@@ -98,9 +104,9 @@ public class LedgerRepository {
     }
 
     public BatchView getBatch(String id) {
-        var header = jdbc.query("SELECT business_date, currency, created_at FROM recon_batch WHERE id = ?",
+        var header = jdbc.query("SELECT business_date, currency, created_at FROM recon_batch WHERE id = ? AND tenant_id = ?",
             (rs, n) -> new BatchView(id, rs.getDate("business_date").toLocalDate(), rs.getString("currency"),
-                rs.getString("created_at"), Map.of(), List.of()), id).stream().findFirst()
+                rs.getString("created_at"), Map.of(), List.of()), id, tenant.current()).stream().findFirst()
             .orElseThrow(() -> ApiException.notFound("Batch not found."));
         var sources = jdbc.query("SELECT source_side, record_id, reference, amount FROM source_record WHERE batch_id = ?",
             (rs, n) -> new SourcedRecord(rs.getString("source_side"),
@@ -127,7 +133,10 @@ public class LedgerRepository {
     }
 
     public StoredResult getResult(String id) {
-        return jdbc.query("SELECT * FROM recon_result WHERE id = ?", (rs, n) -> result(rs), id).stream().findFirst()
+        return jdbc.query("""
+            SELECT r.* FROM recon_result r JOIN recon_batch b ON b.id = r.batch_id
+            WHERE r.id = ? AND b.tenant_id = ?
+            """, (rs, n) -> result(rs), id, tenant.current()).stream().findFirst()
             .orElseThrow(() -> ApiException.notFound("Result not found."));
     }
 
@@ -140,7 +149,9 @@ public class LedgerRepository {
         return jdbc.update("""
             UPDATE recon_result SET review_state = ?, version = version + 1, resolution_note = ?
             WHERE id = ? AND version = ?
-            """, target.name(), target == ReviewState.RESOLVED ? note : null, current.id(), current.version()) == 1;
+              AND batch_id IN (SELECT id FROM recon_batch WHERE tenant_id = ?)
+            """, target.name(), target == ReviewState.RESOLVED ? note : null, current.id(), current.version(),
+            tenant.current()) == 1;
     }
 
     public void insertEvent(StoredResult current, ReviewInput input, String createdAt) {

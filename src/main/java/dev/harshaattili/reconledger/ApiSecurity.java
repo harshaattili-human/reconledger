@@ -79,9 +79,10 @@ public class ApiSecurity {
                 var audiences = token.getAudience();
                 if (token.getExpiresAt() == null || audiences == null || !audiences.contains(audience)
                     || subject == null || subject.isBlank() || subject.length() > 80
-                    || !subject.equals(subject.strip())) {
+                    || !subject.equals(subject.strip())
+                    || !TenantAccess.validClaim(token.getClaims().get("tenant_id"))) {
                     return OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token",
-                        "A valid audience, expiry and bounded subject are required", null));
+                        "A valid audience, expiry, subject and tenant are required", null));
                 }
                 return OAuth2TokenValidatorResult.success();
             }));

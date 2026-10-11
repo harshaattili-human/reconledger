@@ -127,6 +127,28 @@ class RequestBodyLimitHttpTest {
             .statusCode()).isEqualTo(200);
     }
 
+    @Test void localDemoCannotReadOrReviewAuthenticatedTenantData() throws Exception {
+        String key = key();
+        var created = body(post("/api/batches", bytes(BATCH), false, key, null));
+        String batchId = created.get("id").asText();
+        String id = created.at("/results/0/id").asText();
+        // Move only this fixture to a private tenant to exercise the demo's read boundary.
+        jdbc.update("UPDATE recon_batch SET tenant_id = 'private-fixture' WHERE id = ?", batchId);
+        for (String path : List.of("/api/batches/" + batchId, "/api/results/" + id, "/api/results/" + id + "/events")) {
+            problem(get(path), 404);
+        }
+        for (var summary : body(get("/api/batches?limit=100")).get("batches")) {
+            assertThat(summary.get("id").asText()).isNotEqualTo(batchId);
+        }
+        String review = "{\"targetState\":\"IN_REVIEW\",\"expectedVersion\":0,\"actor\":\"demo\",\"note\":\"Synthetic check\"}";
+        problem(post("/api/results/" + id + "/reviews", bytes(review), false, null, null), 404);
+        assertThat(jdbc.queryForObject("SELECT version FROM recon_result WHERE id = ?", Integer.class, id)).isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM review_event WHERE result_id = ?", Integer.class, id)).isZero();
+        var own = post("/api/batches", bytes(BATCH), false, key, null);
+        assertThat(own.statusCode()).isEqualTo(201);
+        assertThat(body(own).get("id").asText()).isNotEqualTo(batchId);
+    }
+
     private HttpResponse<String> post(String path, byte[] payload, boolean chunked,
                                       String key, String encoding) throws Exception {
         var publisher = chunked ? HttpRequest.BodyPublishers.ofInputStream(() -> new ByteArrayInputStream(payload))
