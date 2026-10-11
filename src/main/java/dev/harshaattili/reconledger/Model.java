@@ -42,7 +42,7 @@ public final class Model {
     public record BatchPage(List<BatchSummary> batches, Long nextBeforeSequence) {}
 
     public record ReviewInput(@NotNull ReviewState targetState, @NotNull @Min(0) Integer expectedVersion,
-                               @NotBlank @Size(max = 80) String actor,
+                               @Size(max = 80) String actor,
                                @NotBlank @Size(max = 500) String note) {}
 
     public record AuditEvent(long sequence, String resultId, String actor,

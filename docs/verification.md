@@ -1,9 +1,43 @@
 # Verification record
 
-Latest verification on October 10, 2026: the same 50-test suite passes on H2 and
+Latest verification on October 11, 2026: the same 58-test suite passes on H2 and
 PostgreSQL. The packaged application's real-HTTP demo and saved-cursor restart checks
 pass on both. This record describes a local prototype, not deployment, production
 traffic or financial accuracy.
+
+## Authenticated reviewer profile — October 11, 2026
+
+[Run 38145745547](https://github.com/harshaattili-human/reconledger/actions/runs/38145745547)
+at `2ff0def93bae283d3a6086a9006b96152d68635c` passed 58 tests with no
+failures, errors or skips on each database. The eight added cases are six secured
+HTTP cases, one decoder-configuration case and one default-demo actor HTTP case.
+The same 58 cases ran on H2 2.3.232 and PostgreSQL 16.15; this is not 116 distinct
+cases. Both packaged-app demos, body-bound checks and process restarts also passed
+in their existing unauthenticated mode.
+
+The secured cases send actual HTTP/1.1 requests through embedded Tomcat with fresh
+in-memory RSA signing keys and the application's real JWT decoder. They check
+signature/algorithm, issuer, audience, expiry, not-before and bounded subjects;
+all data routes and independent scopes; actor spoofing; unchanged keys/state/audit
+after rejection; successful subject attribution; optimistic conflict; body bounds;
+and header-only, stateless authentication. No identity provider or signing secret
+is contacted or committed. The [authentication guide](authentication.md) gives
+configuration, commands and the single-workspace boundary.
+
+Observed environment: Temurin Java 17.0.20.1, Spring Boot 3.5.16, embedded Tomcat
+10.1.55 and Ubuntu 24.04/Linux amd64. H2 job
+[114488595120](https://github.com/harshaattili-human/reconledger/actions/runs/38145745547/job/114488595120)
+and PostgreSQL job
+[114488595358](https://github.com/harshaattili-human/reconledger/actions/runs/38145745547/job/114488595358)
+contain the results. Reproduce with `./mvnw verify` and the
+[PostgreSQL test configuration](postgresql.md).
+
+Local whitespace and documentation-link checks passed. Local Maven could not
+resolve the uncached parent POM because Maven Central DNS was unavailable;
+compilation and database execution evidence came from hosted CI. This verifies
+synthetic application behavior, not external issuer integration, key rotation,
+tenant isolation, TLS deployment or tamper-resistant audit storage. Historical
+demo actors remain self-reported labels.
 
 ## JSON body bounds — October 10, 2026
 
@@ -251,7 +285,9 @@ The executable archive has an explicit `app` classifier, distinct from the plain
   characterization is sequential synthetic evidence, not a concurrent benchmark or
   service-level objective.
 - Real financial records or real-world matching quality.
-- Authentication, authorization, tenant isolation or tamper-resistant audit storage.
+- External identity-provider integration, key rotation, tenant isolation or tamper-resistant
+  audit storage. JWT validation and endpoint scopes are covered above; they do not
+  establish tenant access boundaries.
 
 The tests and small synthetic demo verify specific behaviors. They are not a code
 coverage percentage, a benchmark or proof of production readiness.

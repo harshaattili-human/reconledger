@@ -3,6 +3,11 @@
 Base URL: `http://127.0.0.1:8081`. Requests and responses use JSON; validation and
 domain errors use Spring `ProblemDetail` (`application/problem+json`).
 
+Examples below use the unauthenticated loopback demo. The [secured profile](authentication.md)
+requires bearer tokens with endpoint scopes and derives reviewer identity from `sub`.
+Authentication failures return 401; insufficient scopes return 403. Those security
+filter responses are not MVC problem details. All permitted users share one workspace.
+
 ## Request body limit
 
 Batch creation and review requests accept at most **524,288 bytes (512 KiB)**,
@@ -129,8 +134,10 @@ curl -i -X POST http://127.0.0.1:8081/api/results/RESULT_ID/reviews \
 Replace `RESULT_ID` with an exception result's ID. A successful transition returns
 200 and the updated result with an incremented version. A valid transition and a
 current `expectedVersion` are both required. Notes are mandatory for every transition
-(1–500 characters after the nonblank check); actor is a self-reported label up to
-80 characters. Leading and trailing whitespace is stripped before storage. Resolving
+(1–500 characters after the nonblank check). In the default demo, actor is a
+self-reported nonblank label up to 80 characters. In `secured` mode, omit actor
+(or send null); a supplied non-null actor returns 400 and the verified token subject
+is stored instead. Leading and trailing whitespace is stripped before storage. Resolving
 requires `IN_REVIEW` first. See [the state table](design.md).
 
 A stale version or disallowed transition returns 409. Fetch the latest result and

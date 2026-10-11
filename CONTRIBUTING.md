@@ -9,6 +9,10 @@ follow [the disposable-database setup](docs/postgresql.md). The same API tests m
 run on both engines; do not substitute an H2 compatibility mode for a real PostgreSQL
 run. Use `RECON_TEST_DB_VENDOR=PostgreSQL` so the suite checks the actual engine.
 
+The secured-profile HTTP tests generate ephemeral RSA keys and synthetic JWTs;
+no external issuer or private key file is needed. Keep default-demo tests as well as
+authenticated tests. A rejected token, scope or actor must leave state unchanged.
+
 Use synthetic records only. Never add employer code, customer data, secrets, private
 logs or real account identifiers. Local H2 files and Maven build output are ignored.
 

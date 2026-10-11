@@ -113,6 +113,20 @@ class RequestBodyLimitHttpTest {
             "currency", "USD", "leftRecords", tooMany, "rightRecords", List.of())), true, key(), null), 400);
     }
 
+    @Test void localDemoStillRequiresASelfReportedActor() throws Exception {
+        String id = body(post("/api/batches", bytes(BATCH), false, key(), null)).at("/results/0/id").asText();
+        var review = json.createObjectNode().put("targetState", "IN_REVIEW")
+            .put("expectedVersion", 0).put("note", "Checking synthetic evidence.");
+        problem(post("/api/results/" + id + "/reviews", json.writeValueAsBytes(review), false, null, null), 400);
+        review.put("actor", " ");
+        problem(post("/api/results/" + id + "/reviews", json.writeValueAsBytes(review), false, null, null), 400);
+        assertThat(body(get("/api/results/" + id)).get("version").asInt()).isZero();
+        assertThat(body(get("/api/results/" + id + "/events")).get("events")).isEmpty();
+        review.put("actor", "demo-reviewer");
+        assertThat(post("/api/results/" + id + "/reviews", json.writeValueAsBytes(review), false, null, null)
+            .statusCode()).isEqualTo(200);
+    }
+
     private HttpResponse<String> post(String path, byte[] payload, boolean chunked,
                                       String key, String encoding) throws Exception {
         var publisher = chunked ? HttpRequest.BodyPublishers.ofInputStream(() -> new ByteArrayInputStream(payload))

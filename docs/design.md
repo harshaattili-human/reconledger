@@ -59,7 +59,9 @@ after the update to verify that both state and version roll back.
 Reopening removes the current resolution note, while the previous note remains in
 the audit history. Audit events have a database sequence and per-result version;
 timestamps alone are not used as ordering guarantees. Sequence gaps after a rollback
-are harmless. The actor string is a demo label, not an authenticated identity.
+are harmless. In the default mode the actor string is a self-reported demo label.
+The [secured profile](authentication.md) instead uses the verified JWT subject;
+existing demo rows remain unverified labels.
 
 ## Keep infrastructure small and explicit
 
@@ -143,6 +145,15 @@ H2 file storage makes the local demo easy to start. The same API contract tests 
 packaged-app restart check also run against a real PostgreSQL 16 service in CI.
 The [verification record](verification.md) includes the observed version and the
 initial ordering failure; matching SQL syntax alone was not sufficient evidence.
+
+## Authentication boundary
+
+The optional `secured` profile uses Spring Security JWT validation and explicit
+endpoint scopes. Review JSON cannot choose the actor in this profile. Authorization
+occurs before controller invocation; state and audit writes retain their existing
+transaction. No schema change or tenant boundary is implied: permitted readers share
+all data, and idempotency uniqueness is still global. See the [trust configuration,
+actor migration and limitations](authentication.md).
 
 ## Interview exercise
 

@@ -7,6 +7,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,10 +15,13 @@ import org.springframework.web.bind.annotation.*;
 public class ReconciliationController {
     private final ReconciliationService service;
     private final LedgerRepository repository;
+    private final ReviewIdentity reviewIdentity;
 
-    public ReconciliationController(ReconciliationService service, LedgerRepository repository) {
+    public ReconciliationController(ReconciliationService service, LedgerRepository repository,
+                                    ReviewIdentity reviewIdentity) {
         this.service = service;
         this.repository = repository;
+        this.reviewIdentity = reviewIdentity;
     }
 
     @PostMapping("/batches")
@@ -46,8 +50,9 @@ public class ReconciliationController {
     public ResultView result(@PathVariable String id) { return repository.getResultView(id); }
 
     @PostMapping("/results/{id}/reviews")
-    public ResultView review(@PathVariable String id, @Valid @RequestBody ReviewInput input) {
-        return service.review(id, input);
+    public ResultView review(@PathVariable String id, @Valid @RequestBody ReviewInput input,
+                             Authentication authentication) {
+        return service.review(id, reviewIdentity.resolve(input, authentication));
     }
 
     @GetMapping("/results/{id}/events")
