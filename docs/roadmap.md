@@ -7,12 +7,17 @@ ordering. See [the evidence](verification.md).
 
 Remaining priorities are planned work, not claims of completed features.
 
-1. Add authenticated reviewer identity and authorization. Define tenant boundaries,
-   scoped idempotency keys and access tests before any multi-user deployment.
+1. Add tenant-scoped authorization to the authenticated profile. Define membership,
+   scoped idempotency uniqueness, retained-data migration and cross-tenant access
+   tests before any multi-tenant use.
 2. Enforce rate limits; define retention and database backup
    behavior. Add structured diagnostics that do not log sensitive input values.
 3. Build a small review interface with keyboard navigation, conflict recovery and
    accessible evidence comparison. Keep source corrections separate from review notes.
+
+The [secured profile](authentication.md) now derives reviewer identity from verified
+JWTs and enforces separate read/create/review scopes in one shared workspace. It
+does not isolate tenants; key rotation and identity-provider integration also remain.
 
 The JSON write endpoints now enforce a 512 KiB body limit before parsing, with
 fixed-length and chunked HTTP cases. See [request bounds](request-bounds.md) for
