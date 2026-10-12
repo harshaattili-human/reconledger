@@ -27,7 +27,9 @@ Combine profiles as `postgres,secured` to use the [PostgreSQL configuration](pos
 Missing trust properties, a blank issuer/audience or an invalid key prevent this
 profile from starting. Omitting `secured` starts the unauthenticated demo: profile
 selection is an operator responsibility, not an automatic network-safety check.
-The existing demo and restart scripts target that default mode.
+The original demo and restart scripts target that default mode. The separate
+[secured JAR check](secured-package-checks.md) exercises actual profile startup,
+retained tenant data and manual pinned-key replacement on restart.
 
 Only RS256 signatures are accepted. Tokens must have a matching `iss`, an `aud`
 containing the configured audience, an unexpired `exp`, and a nonblank `sub` of at
