@@ -7,7 +7,7 @@ ordering. See [the evidence](verification.md).
 
 Remaining priorities are planned work, not claims of completed features.
 
-1. Verify external issuer membership configuration and key rotation/revocation.
+1. Verify external issuer membership configuration and automatic key rotation/revocation.
    Define tenant administration, export/deletion and operational separation before
    real multi-tenant deployment.
 2. Enforce rate limits; define retention and database backup
@@ -39,3 +39,8 @@ Audit pagination now limits rows in SQL, with an exclusive sequence cursor, a
 200-event maximum and documented live-read semantics. Contract tests cover page
 boundaries, later reviews, equal timestamps, rollback gaps and reads during an
 uncommitted review; the demo resumes a cursor after application restart.
+
+The [secured executable-JAR check](secured-package-checks.md) now covers profile
+startup, file-based trust configuration, retained tenant state and manual pinned-key
+replacement on restart. External membership, automatic rotation and user revocation
+remain separate work; the test signer does not substitute for an identity provider.

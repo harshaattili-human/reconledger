@@ -95,7 +95,8 @@ default-mode HTTP case retains the demo actor contract. See [observed results](v
 
 The profile does not supply TLS, automatic key rotation/JWKS, revocation, rate limits or tamper-resistant audit storage. A valid stolen bearer token
 is usable until expiry; replacing the pinned public key requires restarting the app.
-Provider integration, key rotation and deployment controls need separate verification.
+Manual pinned-key replacement on restart is covered by the [packaged check](secured-package-checks.md).
+Provider integration, automatic rotation and deployment controls need separate verification.
 
 Tenant scoping trusts signed issuer membership; it does not validate an external
 provider configuration or supply a membership administration system.

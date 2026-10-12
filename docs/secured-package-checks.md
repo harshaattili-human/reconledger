@@ -74,3 +74,22 @@ and [digest signing](https://docs.openssl.org/3.0/man1/openssl-dgst/).
 
 Interview exercise: why can an unexpired token stop working after this restart,
 and why does that not prove user-level revocation or automatic key rotation?
+
+## First execution failure
+
+[Run 38275880816](https://github.com/harshaattili-human/reconledger/actions/runs/38275880816)
+passed the Java suite and reached the new runner, but its first successful health
+response exposed an invalid Python diagnostic accessor: `Request.method` is not
+available when urllib infers GET/POST. The f-string evaluated even when the status
+matched. Commit `5ca1328` uses `Request.get_method()`; the expected HTTP statuses
+and security assertions are unchanged. That first run is not passing evidence for
+the secured packaged workflow.
+
+
+## Observed run
+
+[Run 38276082310](https://github.com/harshaattili-human/reconledger/actions/runs/38276082310)
+at `5ca1328` passed this complete workflow on H2 2.3.232 and PostgreSQL 16.15,
+alongside the existing 63 Java cases and both default-mode packaged checks.
+See [the verification record](verification.md#secured-executable-archive--october-12-2026)
+for tool versions, JAR hash and local-versus-hosted scope.
