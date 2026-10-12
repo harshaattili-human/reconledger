@@ -52,7 +52,9 @@ cannot tell whether those two left records represent a valid split or a duplicat
 
 For an automated check that starts and stops its own server in a temporary directory,
 run `python3 scripts/smoke.py` after packaging. It also restarts the process and checks
-that the batch, review history and idempotency key survive.
+that the batch, review history and idempotency key survive. The separate
+[secured JAR check](docs/secured-package-checks.md) runs authenticated tenant workflows
+and manual pinned-key replacement with temporary synthetic signing keys.
 
 ## Implementation and checks
 

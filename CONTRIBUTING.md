@@ -12,6 +12,8 @@ run. Use `RECON_TEST_DB_VENDOR=PostgreSQL` so the suite checks the actual engine
 The secured-profile HTTP tests generate ephemeral RSA keys and synthetic JWTs;
 no external issuer or private key file is needed. Keep default-demo tests as well as
 authenticated tests. A rejected token, scope or actor must leave state unchanged.
+After packaging/security changes, also run the [secured JAR check](docs/secured-package-checks.md)
+on H2 and a disposable PostgreSQL database; it requires Python 3 and OpenSSL 3.
 
 Use synthetic records only. Never add employer code, customer data, secrets, private
 logs or real account identifiers. Local H2 files and Maven build output are ignored.

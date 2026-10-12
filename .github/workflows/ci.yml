@@ -23,6 +23,10 @@ jobs:
         run: cat target/query-characterization.json
       - name: Exercise HTTP demo and persistent restart
         run: python3 scripts/smoke.py
+      - name: Exercise secured JAR and pinned-key replacement
+        run: python3 scripts/secured_smoke.py
+      - name: Show secured H2 check receipt
+        run: cat target/secured-smoke-h2.json
   verify-postgres:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -61,3 +65,7 @@ jobs:
         run: cat target/query-characterization.json
       - name: Exercise PostgreSQL profile and process restart
         run: python3 scripts/smoke.py --database postgres
+      - name: Exercise secured PostgreSQL JAR and pinned-key replacement
+        run: python3 scripts/secured_smoke.py --database postgres
+      - name: Show secured PostgreSQL check receipt
+        run: cat target/secured-smoke-postgres.json

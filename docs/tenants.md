@@ -77,7 +77,7 @@ HTTP case checks private-tenant rows remain inaccessible from the demo. Migratio
 checks and the same contracts run on both databases; see [verification](verification.md)
 for observed results. No real customer data or external identity provider is used.
 
-External issuer membership configuration, key rotation/revocation, tenant deletion,
+External issuer membership configuration, automatic key rotation/revocation, tenant deletion,
 retention/export policy, per-tenant rate limits, operational separation and backup
 restore remain separate work. The service remains a local synthetic prototype.
 

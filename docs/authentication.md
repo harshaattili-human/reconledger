@@ -27,7 +27,9 @@ Combine profiles as `postgres,secured` to use the [PostgreSQL configuration](pos
 Missing trust properties, a blank issuer/audience or an invalid key prevent this
 profile from starting. Omitting `secured` starts the unauthenticated demo: profile
 selection is an operator responsibility, not an automatic network-safety check.
-The existing demo and restart scripts target that default mode.
+The original demo and restart scripts target that default mode. The separate
+[secured JAR check](secured-package-checks.md) exercises actual profile startup,
+retained tenant data and manual pinned-key replacement on restart.
 
 Only RS256 signatures are accepted. Tokens must have a matching `iss`, an `aud`
 containing the configured audience, an unexpired `exp`, and a nonblank `sub` of at
@@ -93,7 +95,8 @@ default-mode HTTP case retains the demo actor contract. See [observed results](v
 
 The profile does not supply TLS, automatic key rotation/JWKS, revocation, rate limits or tamper-resistant audit storage. A valid stolen bearer token
 is usable until expiry; replacing the pinned public key requires restarting the app.
-Provider integration, key rotation and deployment controls need separate verification.
+Manual pinned-key replacement on restart is covered by the [packaged check](secured-package-checks.md).
+Provider integration, automatic rotation and deployment controls need separate verification.
 
 Tenant scoping trusts signed issuer membership; it does not validate an external
 provider configuration or supply a membership administration system.

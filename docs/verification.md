@@ -1,9 +1,44 @@
 # Verification record
 
-Latest verification on October 11, 2026: the same 63-test suite passes on H2 and
-PostgreSQL. The packaged application's real-HTTP demo and saved-cursor restart checks
-pass on both. This record describes a local prototype, not deployment, production
-traffic or financial accuracy.
+Latest verification on October 12, 2026: the same 63-test suite passes on H2 and
+PostgreSQL, plus the original demo/body-bound/restart checks and the new secured
+executable-JAR workflow. This record describes a local prototype, not deployment,
+production traffic or financial accuracy.
+
+## Secured executable archive — October 12, 2026
+
+[Run 38276082310](https://github.com/harshaattili-human/reconledger/actions/runs/38276082310)
+at `5ca13287991ad5d72bb7645ca43b547eaf65f4ad` passed both jobs:
+[H2 114901778974](https://github.com/harshaattili-human/reconledger/actions/runs/38276082310/job/114901778974)
+and [PostgreSQL 114901778651](https://github.com/harshaattili-human/reconledger/actions/runs/38276082310/job/114901778651).
+The Java suite remains 63 cases on each engine, with zero failures, errors or skips;
+the scripted workflow is additional packaged-process evidence, not new JUnit cases
+or 126 distinct tests.
+
+Each job checked blank-audience startup rejection, bearer/scope enforcement, two
+tenants reusing one key, foreign IDs, rejected actor spoofing and verified review
+attribution. After replacing the pinned public PEM and restarting the executable
+archive, the old unexpired token failed and new-key tokens recovered unchanged
+source evidence, scoped idempotency and review/audit state. A second review resumed
+the saved sequence cursor. A final switch to demo mode kept private IDs inaccessible
+and created a separate demo batch with the same key. No runtime policy, schema or
+identity-provider integration changed.
+
+Observed environment: H2 2.3.232 and PostgreSQL 16.15, Temurin Java 17.0.20.1,
+Spring Boot 3.5.16, Tomcat 10.1.55, Python 3.12.3, OpenSSL 3.0.13 and Ubuntu 24.04
+on Linux amd64. Both receipts recorded JAR SHA-256
+`2769e3f8e144244a9b9f83459761ca59d2905935a9eafc77744d60ff78e4f00c`.
+This identifies the tested archive; it is not a reproducible-build guarantee.
+
+Reproduce with `./mvnw verify`, then `python3 scripts/secured_smoke.py` and the
+[PostgreSQL variant](secured-package-checks.md#run). Local Python syntax,
+OpenSSL signing/verification, documentation links and whitespace checks passed.
+Local Maven lacked the cached parent POM; Java/database execution was hosted.
+
+The [first run and runner fix](secured-package-checks.md#first-execution-failure)
+remain documented. This is manual pinned-key replacement with a process restart,
+not automatic rotation, individual-token revocation, external membership
+verification, database restart/recovery or production deployment.
 
 ## Tenant-scoped access — October 11, 2026
 
@@ -317,7 +352,7 @@ The executable archive has an explicit `app` classifier, distinct from the plain
   characterization is sequential synthetic evidence, not a concurrent benchmark or
   service-level objective.
 - Real financial records or real-world matching quality.
-- External identity-provider membership configuration, key rotation, tenant lifecycle
+- External identity-provider membership configuration, automatic key rotation, tenant lifecycle
   administration or tamper-resistant audit storage. JWT and tenant API checks are
   covered above; database-level, timing and allocation-metadata isolation are not.
 
