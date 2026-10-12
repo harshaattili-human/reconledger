@@ -81,7 +81,7 @@ def main():
             response = error
         with response:
             raw = response.read()
-            require(response.status == expected, f"{request.method} {path}: expected {expected}, got {response.status}")
+            require(response.status == expected, f"{request.get_method()} {path}: expected {expected}, got {response.status}")
             if expected == 401:
                 require(response.headers.get("WWW-Authenticate", "").startswith("Bearer"), "Missing bearer challenge")
             return json.loads(raw) if raw else None
