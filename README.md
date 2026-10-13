@@ -71,7 +71,9 @@ Start with [the design decisions](docs/design.md), then inspect
 [Verification evidence](docs/verification.md) distinguishes checks actually run from
 planned validation. [API examples](docs/api.md) explain the request and error contract.
 The [query characterization](docs/query-characterization.md) explains the larger
-synthetic fixtures, recorded plans and limits of the timing observations.
+synthetic fixtures, recorded plans and limits of the timing observations. The
+[tenant-filter experiment](docs/tenant-query-characterization.md) records why an
+additional index was rejected after it failed to fix the measured PostgreSQL scan.
 
 ## Supported behavior
 

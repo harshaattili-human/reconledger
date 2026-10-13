@@ -56,8 +56,9 @@ V1 generated different unnamed unique-constraint names on H2 and PostgreSQL. V4 
 a Java Flyway migration that discovers exactly the single-column idempotency
 constraint in the current schema, adds tenant ownership and composite uniqueness,
 then removes the old constraint. It adds a tenant/sequence browse index. Existing
-currency/date indexes remain; their storage/write costs and tenant-filter plans need
-measurement before further index changes. Earlier prepared-plan measurements used
+currency/date indexes remain. The [tenant-filter experiment](tenant-query-characterization.md)
+measures current scoped pages and rejects an ineffective index candidate. Write/storage
+costs remain unmeasured. Earlier prepared-plan measurements used
 unscoped SQL and do not establish performance for this new predicate.
 
 Run migrations with application writers stopped and a tested backup. H2 DDL can
