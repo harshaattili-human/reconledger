@@ -44,3 +44,9 @@ The [secured executable-JAR check](secured-package-checks.md) now covers profile
 startup, file-based trust configuration, retained tenant state and manual pinned-key
 replacement on restart. External membership, automatic rotation and user revocation
 remain separate work; the test signer does not substitute for an identity provider.
+
+[Tenant-filtered characterization](tenant-query-characterization.md) now covers
+uneven ownership and first/continuation pages. A tenant/currency index alone failed
+to fix the large-tenant PostgreSQL scan and was rejected. Before another query/schema
+change, compare joint-selectivity statistics and allocation orders; preserve this
+baseline and measure planning/write/storage costs as appropriate.

@@ -1,9 +1,27 @@
 # Verification record
 
-Latest verification on October 12, 2026: the same 63-test suite passes on H2 and
-PostgreSQL, plus the original demo/body-bound/restart checks and the new secured
-executable-JAR workflow. This record describes a local prototype, not deployment,
-production traffic or financial accuracy.
+Latest verification on October 13, 2026: the same 64-test suite passes on H2 and
+PostgreSQL, plus the demo/body-bound/restart and secured executable-JAR workflows.
+This record describes a local prototype, not deployment, production traffic or
+financial accuracy.
+
+## Tenant-filtered query characterization — October 13, 2026
+
+[Baseline run 38408063113](https://github.com/harshaattili-human/reconledger/actions/runs/38408063113)
+and [index-candidate run 38408443492](https://github.com/harshaattili-human/reconledger/actions/runs/38408443492)
+passed 64 cases with zero failures, errors or skips on each engine, plus all packaged
+workflows. The candidate jobs were H2 `115334111972` and PostgreSQL `115334112161`.
+One new case measures 19 tenant/filter/page combinations against 40,000 synthetic
+header-only rows. Every repository response and cursor is checked; the 570 timed
+calls per engine are observations inside that case, not new test cases or a load test.
+
+The tenant/currency/sequence index candidate did not fix PostgreSQL's 39,600-row
+filtering scan for the large tenant's first XTS page. It was removed before merge;
+no runtime query, released migration or planning setting changes. The
+[protocol, failed candidate, raw reports and remaining gaps](tenant-query-characterization.md)
+retain both helpful and unfavorable measurements. H2 2.3.232, PostgreSQL 16.15,
+pgJDBC 42.7.11 and Java 17.0.20.1/Linux amd64 were observed. Local whitespace and
+link checks passed; Maven's uncached parent POM blocked local Java execution.
 
 ## Secured executable archive — October 12, 2026
 
