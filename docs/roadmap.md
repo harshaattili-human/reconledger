@@ -50,3 +50,9 @@ uneven ownership and first/continuation pages. A tenant/currency index alone fai
 to fix the large-tenant PostgreSQL scan and was rejected. Before another query/schema
 change, compare joint-selectivity statistics and allocation orders; preserve this
 baseline and measure planning/write/storage costs as appropriate.
+
+The [joint-statistics experiment](tenant-statistics.md) now compares index/MCV/both
+across blocked and shuffled allocations. Only the combination changed the large
+rare-currency scan; the common-currency blocked scan remained. Verify the candidate
+on ordinary tables with repeated trials and maintenance/write-cost checks before
+promoting it. No new index or statistics migration has been released.

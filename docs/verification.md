@@ -1,9 +1,29 @@
 # Verification record
 
-Latest verification on October 13, 2026: the same 64-test suite passes on H2 and
+Latest verification on October 14, 2026: the same 64-test suite passes on H2 and
 PostgreSQL, plus the demo/body-bound/restart and secured executable-JAR workflows.
 This record describes a local prototype, not deployment, production traffic or
 financial accuracy.
+
+## Tenant statistics comparison — October 14, 2026
+
+[Run 38574849165](https://github.com/harshaattili-human/reconledger/actions/runs/38574849165)
+passed 64 cases with zero failures, errors or skips on each H2 2.3.232 and PostgreSQL
+16.15, plus all packaged default and secured workflows. Jobs were H2 `115889134209`
+and PostgreSQL `115889134188`. The new PostgreSQL helper extends the existing
+characterization case; H2 records not-applicable for extended-statistics measurements.
+
+Two temporary 40,000-header allocations compare baseline, index, MCV and both:
+48 first/continuation page observations, 960 timed calls and 240 warmups. Results
+including lookahead are checked, and plans/catalog/timing/storage evidence is retained
+in [the experiment record](tenant-statistics.md). Index + MCV changed the rare-page
+scan in both orders; neither alone did, and the blocked common-currency scan remained.
+No runtime SQL, migration or application-table statistics changed. These are temporary
+table/JDBC measurements, not HTTP, repository latency, production or load evidence.
+
+Environment: pgJDBC 42.7.11, Java 17.0.20.1, Linux amd64/Ubuntu 24.04. Local whitespace
+and documentation/report checks passed; offline Maven lacked its parent POM, so
+Java/database execution was hosted.
 
 ## Tenant-filtered query characterization — October 13, 2026
 

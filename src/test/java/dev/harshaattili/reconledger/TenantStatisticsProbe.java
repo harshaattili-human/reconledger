@@ -48,7 +48,12 @@ final class TenantStatisticsProbe {
                 report.put("warmupsPerPage", 5);
                 report.put("samplesPerPage", 20);
                 var orders = new ArrayList<Map<String, Object>>();
-                for (String order : List.of("blocked", "shuffled")) orders.add(inspect(connection, order, json));
+                for (String order : List.of("blocked", "shuffled")) {
+                    orders.add(inspect(connection, order, json));
+                    assertThat(strings(connection,
+                        "SELECT (to_regclass('" + TABLE + "') IS NULL)::text"))
+                        .as("transaction rollback removes the temporary fixture").containsExactly("true");
+                }
                 report.put("orders", orders);
             }
         }
