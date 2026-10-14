@@ -23,6 +23,8 @@ jobs:
         run: cat target/query-characterization.json
       - name: Show H2 tenant browse characterization
         run: cat target/tenant-browse-characterization.json
+      - name: Show statistics experiment applicability
+        run: cat target/tenant-statistics.json
       - name: Exercise HTTP demo and persistent restart
         run: python3 scripts/smoke.py
       - name: Exercise secured JAR and pinned-key replacement
@@ -67,6 +69,8 @@ jobs:
         run: cat target/query-characterization.json
       - name: Show PostgreSQL tenant browse characterization
         run: cat target/tenant-browse-characterization.json
+      - name: Show PostgreSQL tenant statistics experiment
+        run: cat target/tenant-statistics.json
       - name: Exercise PostgreSQL profile and process restart
         run: python3 scripts/smoke.py --database postgres
       - name: Exercise secured PostgreSQL JAR and pinned-key replacement

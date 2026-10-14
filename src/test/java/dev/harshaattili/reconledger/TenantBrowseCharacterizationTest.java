@@ -35,6 +35,7 @@ class TenantBrowseCharacterizationTest {
     @Autowired ObjectMapper json;
 
     @Test void recordsTenantFilteredPagesWithUnevenOwnership() throws Exception {
+        TenantStatisticsProbe.writeReport(jdbc.getDataSource(), json);
         Path output = Path.of("target", "tenant-browse-characterization.json");
         Files.deleteIfExists(output);
         String prefix = "probe-" + UUID.randomUUID();

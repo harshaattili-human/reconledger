@@ -131,3 +131,7 @@ and [multicolumn index rules](https://www.postgresql.org/docs/16/indexes-multico
 Interview exercise: why can an index cover every filter and the requested order yet
 still be ignored for `ORDER BY ... LIMIT`, and why is a fast continuation page not
 evidence that the first page is cheap?
+
+Follow-up: the [October 14 statistics experiment](tenant-statistics.md) compares
+index availability and MCV statistics independently across two allocation orders.
+It preserves this rejected-index baseline and does not change the runtime schema.
