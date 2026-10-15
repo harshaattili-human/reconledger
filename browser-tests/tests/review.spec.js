@@ -97,6 +97,7 @@ test("keyboard review preserves evidence and displays notes as text", async ({
     "Review saved at version 1.",
   );
   await expect(page.locator("#events")).toContainText(note);
+  await expect(page.locator("#events")).toContainText("Self-reported name");
   await expect(page.locator("#events img")).toHaveCount(0);
   expect(await page.evaluate(() => window.injected)).toBeUndefined();
   await draft(
@@ -123,6 +124,58 @@ test("keyboard review preserves evidence and displays notes as text", async ({
     )
     .toBeLessThanOrEqual(1);
   await info.attach("review-evidence", {
+    body: await page.screenshot({ fullPage: true }),
+    contentType: "image/png",
+  });
+});
+
+test("audit identity labels preserve unknown history and render issuers literally", async ({
+  page,
+  request,
+}, info) => {
+  const date = dateFor(info, "06"),
+    batch = await create(request, date);
+  const issuer = '<img src=x onerror="window.issuerInjected=true">';
+  // Display fixture only: the demo cannot create verified JWT events through HTTP.
+  await page.route("**/api/results/*/events?*", async (route) => {
+    await route.fulfill({
+      json: {
+        events: [
+          { actorSource: "LEGACY_UNKNOWN", actorIssuer: null },
+          { actorSource: "DEMO_LABEL", actorIssuer: null },
+          { actorSource: "VERIFIED_JWT", actorIssuer: issuer },
+          {},
+        ].map((identity, index) => ({
+          sequence: index + 1,
+          actor: "same-name",
+          fromState: "OPEN",
+          toState: "IN_REVIEW",
+          resultingVersion: index + 1,
+          note: "Synthetic display fixture",
+          createdAt: "2040-01-01T00:00:00Z",
+          ...identity,
+        })),
+        nextAfterSequence: null,
+      },
+    });
+  });
+  await openBatch(page, date);
+  await reference(page, batch);
+  const events = page.locator("#events li");
+  await expect(events.nth(0)).toContainText("Identity provenance unknown");
+  await expect(events.nth(1)).toContainText("Self-reported name");
+  await expect(events.nth(2)).toContainText(
+    `Verified token subject · Issuer ${issuer}`,
+  );
+  await expect(events.nth(3)).toContainText("Identity provenance unknown");
+  await expect(page.locator("#events img")).toHaveCount(0);
+  expect(await page.evaluate(() => window.issuerInjected)).toBeUndefined();
+  await expect
+    .poll(() =>
+      page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+    )
+    .toBeLessThanOrEqual(1);
+  await info.attach("review-identity-labels", {
     body: await page.screenshot({ fullPage: true }),
     contentType: "image/png",
   });

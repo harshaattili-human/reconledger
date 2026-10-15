@@ -45,7 +45,14 @@ public final class Model {
                                @Size(max = 80) String actor,
                                @NotBlank @Size(max = 500) String note) {}
 
+    public enum ActorSource { LEGACY_UNKNOWN, DEMO_LABEL, VERIFIED_JWT }
+
+    // Internal command: provenance is resolved by the server, never bound from JSON.
+    public record ReviewCommand(ReviewState targetState, Integer expectedVersion, String actor,
+                                 String note, ActorSource actorSource, String actorIssuer) {}
+
     public record AuditEvent(long sequence, String resultId, String actor,
+                              ActorSource actorSource, String actorIssuer,
                               ReviewState fromState, ReviewState toState,
                               int resultingVersion, String note, String createdAt) {}
 

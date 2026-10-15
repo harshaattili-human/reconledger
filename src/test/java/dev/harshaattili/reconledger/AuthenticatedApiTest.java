@@ -154,6 +154,13 @@ class AuthenticatedApiTest {
             .statusCode()).isEqualTo(400);
         assertThat(body(call("GET", "/api/results/" + id, null, reviewer, null)).get("version").asInt()).isZero();
         assertThat(body(call("GET", "/api/results/" + id + "/events", null, reviewer, null)).get("events")).isEmpty();
+        for (String field : List.of("actorSource", "actorIssuer")) {
+            var forged = json.readTree(REVIEW).deepCopy();
+            ((com.fasterxml.jackson.databind.node.ObjectNode) forged).put(field, "caller-selected");
+            assertThat(call("POST", "/api/results/" + id + "/reviews", json.writeValueAsString(forged), reviewer, null)
+                .statusCode()).isEqualTo(400);
+        }
+        assertThat(body(call("GET", "/api/results/" + id, null, reviewer, null)).get("version").asInt()).isZero();
         var accepted = call("POST", "/api/results/" + id + "/reviews", REVIEW, reviewer, null);
         assertThat(accepted.statusCode()).isEqualTo(200);
         assertThat(body(accepted).get("version").asInt()).isEqualTo(1);
@@ -161,6 +168,8 @@ class AuthenticatedApiTest {
         var events = body(call("GET", "/api/results/" + id + "/events", null, reviewer, null)).get("events");
         assertThat(events).hasSize(1);
         assertThat(events.get(0).get("actor").asText()).isEqualTo("verified-reviewer");
+        assertThat(events.get(0).get("actorSource").asText()).isEqualTo("VERIFIED_JWT");
+        assertThat(events.get(0).get("actorIssuer").asText()).isEqualTo(ISSUER);
     }
 
     @Test void preservesRequestBoundsAndMvcErrorsAfterAuthentication() throws Exception {
@@ -192,6 +201,8 @@ class AuthenticatedApiTest {
         var badKey = new ByteArrayResource("not a PEM key".getBytes(StandardCharsets.UTF_8));
         assertThatThrownBy(() -> config.jwtDecoder(badKey, " ", AUDIENCE)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> config.jwtDecoder(badKey, ISSUER, " ")).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> config.jwtDecoder(badKey, "x".repeat(2049), AUDIENCE))
+            .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("2048");
         assertThatThrownBy(() -> config.jwtDecoder(badKey, ISSUER, AUDIENCE)).isInstanceOf(IllegalArgumentException.class);
     }
 

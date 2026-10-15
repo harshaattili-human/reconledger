@@ -150,9 +150,11 @@ transition committed before deciding to submit another transition.
 ## Read audit history
 
 `GET /api/results/{id}/events?limit=50&afterSequence=0` returns one page, or 404 for
-an unknown result. Each event includes sequence, result ID, actor, from/to state,
-resulting version, note and UTC timestamp. Matched results cannot be reviewed and
-return an empty page.
+an unknown result. Each event includes sequence, result ID, actor, actorSource,
+nullable actorIssuer, from/to state, resulting version, note and UTC timestamp.
+See [reviewer provenance](reviewer-provenance.md) for the three identity-source
+values and retained-data behavior. Matched results cannot be reviewed and return
+an empty page.
 
 | Parameter | Contract |
 | --- | --- |
@@ -171,6 +173,8 @@ The response is an object with `events` and `nextAfterSequence`:
     "sequence": 12,
     "resultId": "RESULT_ID",
     "actor": "demo-reviewer",
+    "actorSource": "DEMO_LABEL",
+    "actorIssuer": null,
     "fromState": "OPEN",
     "toState": "IN_REVIEW",
     "resultingVersion": 1,

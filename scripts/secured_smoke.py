@@ -178,6 +178,8 @@ def main():
                 require(changed["version"] == 1, "Initial review did not commit")
                 events = call(events_path, bearer=old_tokens[0])["events"]
                 require(len(events) == 1 and events[0]["actor"] == "synthetic-reviewer", "Reviewer attribution failed")
+                require(events[0]["actorSource"] == "VERIFIED_JWT" and events[0]["actorIssuer"] == ISSUER,
+                        "Verified issuer provenance missing")
                 for own, foreign, auth in zip(batches, reversed(batches), old_tokens):
                     listed = call("/api/batches?limit=1", bearer=auth)
                     require([b["id"] for b in listed["batches"]] == [own["id"]]
@@ -212,6 +214,8 @@ def main():
                 resumed = call(events_path + f"?afterSequence={events[0]['sequence']}", bearer=new_tokens[0])
                 require(len(resumed["events"]) == 1 and resumed["events"][0]["resultingVersion"] == 2
                         and resumed["events"][0]["actor"] == "synthetic-reviewer"
+                        and resumed["events"][0]["actorSource"] == "VERIFIED_JWT"
+                        and resumed["events"][0]["actorIssuer"] == ISSUER
                         and resumed["nextAfterSequence"] is None, "Audit cursor did not resume")
                 print("Pinned-key restart passed: old unexpired token rejected, new key accepted, tenant state/cursor retained.")
                 stop()

@@ -54,6 +54,10 @@ added. Authenticated UI integration and its deployment model need separate work.
 - Server-returned text, including notes and actor labels, is inserted with
   `textContent`. It is never interpreted as HTML. No CDN or runtime JavaScript
   dependency is needed; HTML/CSS/JS are packaged in the executable JAR.
+- Audit entries label new demo names as self-reported and earlier entries as
+  identity provenance unknown. Verified-token events carry the issuer alongside
+  the subject. These [provenance fields](reviewer-provenance.md) come from the API;
+  the screen does not verify tokens or turn legacy names into authenticated users.
 
 Semantic labels, headings, table captions, visible focus outlines and status/alert
 regions support keyboard navigation. After selection/reload/save, focus moves to
@@ -81,12 +85,14 @@ its own process and removes its temporary working directory. Existing databases
 are not read or modified. Browser failures retain traces/screenshots in the report;
 CI retains the report for 14 days. There are no automatic retries.
 
-Five workflows run at 1440×1000 and 390×844: ten executions, not ten distinct
+Six workflows run at 1440×1000 and 390×844: twelve executions, not twelve distinct
 workflows. They cover keyboard evidence/review, literal markup in notes, a real
 two-page competing review, a deliberately dropped response after a real commit,
 batch/audit pagination, and exact cursor/amount decoding. The large-cursor check
 injects an API response: it does not advance a database sequence toward overflow.
-The other workflows use live API/JDBC responses and synthetic fixtures.
+An additional injected history fixture checks unknown/demo/verified identity labels
+and literal issuer text; it does not authenticate through the demo UI. The other
+workflows use live API/JDBC responses and synthetic fixtures.
 
 The Java suite additionally asserts that unauthenticated and authorized API callers
 cannot load the demo UI assets in secured mode. Browser verification here is H2

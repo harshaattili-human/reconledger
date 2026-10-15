@@ -154,11 +154,13 @@ public class LedgerRepository {
             tenant.current()) == 1;
     }
 
-    public void insertEvent(StoredResult current, ReviewInput input, String createdAt) {
+    public void insertEvent(StoredResult current, ReviewCommand input, String createdAt) {
         jdbc.update("""
-            INSERT INTO review_event(result_id, actor, from_state, to_state, resulting_version, note, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, current.id(), input.actor().strip(), current.state().name(), input.targetState().name(),
+            INSERT INTO review_event(result_id, actor, actor_source, actor_issuer,
+                from_state, to_state, resulting_version, note, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, current.id(), input.actor(), input.actorSource().name(), input.actorIssuer(),
+            current.state().name(), input.targetState().name(),
             current.version() + 1, input.note().strip(), createdAt);
     }
 
@@ -173,6 +175,7 @@ public class LedgerRepository {
             WHERE result_id = ? AND sequence > ? ORDER BY sequence LIMIT ?
             """, (rs, n) ->
             new AuditEvent(rs.getLong("sequence"), id, rs.getString("actor"),
+                ActorSource.valueOf(rs.getString("actor_source")), rs.getString("actor_issuer"),
                 ReviewState.valueOf(rs.getString("from_state")), ReviewState.valueOf(rs.getString("to_state")),
                 rs.getInt("resulting_version"), rs.getString("note"), rs.getString("created_at")), id, afterSequence, limit + 1);
         boolean hasMore = rows.size() > limit;

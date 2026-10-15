@@ -56,7 +56,7 @@ public class ReconciliationService {
         return new CreateResult(repository.getBatch(existing.id()), true);
     }
 
-    public ResultView review(String id, ReviewInput input) {
+    public ResultView review(String id, ReviewCommand input) {
         return transaction.execute(status -> {
             var current = repository.getResult(id);
             if (current.version() != input.expectedVersion()) {
