@@ -10,8 +10,10 @@ Remaining priorities are planned work, not claims of completed features.
 1. Verify external issuer membership configuration and automatic key rotation/revocation.
    Define tenant administration, export/deletion and operational separation before
    real multi-tenant deployment.
-2. Enforce rate limits; define retention and database backup
-   behavior. Add structured diagnostics that do not log sensitive input values.
+2. Enforce rate limits; define retention and operational backup/recovery policy.
+   The [logical restore rehearsal](backup-restore.md) checks a quiesced synthetic
+   PostgreSQL checkpoint; off-host retention, real recovery objectives and H2 backup
+   remain unverified. Add structured diagnostics that do not log sensitive input values.
 3. Build a small review interface with keyboard navigation, conflict recovery and
    accessible evidence comparison. Keep source corrections separate from review notes.
 

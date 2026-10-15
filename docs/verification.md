@@ -1,9 +1,21 @@
 # Verification record
 
-Latest verification on October 14, 2026: the same 64-test suite passes on H2 and
-PostgreSQL, plus the demo/body-bound/restart and secured executable-JAR workflows.
+Latest verification on October 15, 2026: the same 64-test suite passes on H2 and
+PostgreSQL, plus the demo/body-bound/restart, secured executable-JAR and PostgreSQL
+logical restore workflows.
 This record describes a local prototype, not deployment, production traffic or
 financial accuracy.
+
+## Logical backup restoration — October 15, 2026
+
+[Run 38741230215](https://github.com/harshaattili-human/reconledger/actions/runs/38741230215)
+at `fdc2d438` passed the same 64 cases on both engines and the existing packaged
+checks. A separate job restored a quiesced synthetic backup into a fresh PostgreSQL
+16.15 cluster, compared all table rows/sequence values, and exercised tenant access,
+idempotency, cursors and new writes over secured HTTP. A truncated archive was rejected;
+post-backup source commits were deliberately absent after restoration.
+See [protocol, receipt and limits](backup-restore.md). This workflow adds no JUnit
+cases and establishes neither crash recovery nor a recovery-time/loss objective.
 
 ## Tenant statistics comparison — October 14, 2026
 

@@ -55,6 +55,9 @@ run `python3 scripts/smoke.py` after packaging. It also restarts the process and
 that the batch, review history and idempotency key survive. The separate
 [secured JAR check](docs/secured-package-checks.md) runs authenticated tenant workflows
 and manual pinned-key replacement with temporary synthetic signing keys.
+The [PostgreSQL restore rehearsal](docs/backup-restore.md) checks evidence, tenant
+boundaries, idempotency and new writes after a logical backup is restored into a
+fresh disposable cluster.
 
 ## Implementation and checks
 
