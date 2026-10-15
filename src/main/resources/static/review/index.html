@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Review workspace · ReconLedger</title>
+    <link rel="stylesheet" href="review.css" />
+    <script type="module" src="review.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#workspace">Skip to workspace</a>
+    <header>
+      <a class="brand" href="index.html"
+        ><span class="mark" aria-hidden="true">≋</span> ReconLedger</a
+      ><span class="demo">Local demo · synthetic data</span>
+    </header>
+    <main id="workspace">
+      <div class="intro">
+        <p class="eyebrow">EVIDENCE / EXCEPTIONS / DECISIONS</p>
+        <h1>Reconciliation review</h1>
+        <p>Compare the original records. Record what you checked.</p>
+      </div>
+      <p class="notice">
+        This workspace uses the unauthenticated demo profile. Reviewer names are
+        self-reported. Use synthetic records only.
+      </p>
+      <p id="status" role="status" aria-live="polite">Loading batches…</p>
+      <p id="error" role="alert" hidden></p>
+      <noscript>This review workspace requires JavaScript.</noscript>
+      <fieldset id="controls">
+        <legend class="sr-only">Review workspace controls</legend>
+        <div class="workspace-grid">
+          <section class="panel browse" aria-labelledby="browse-title">
+            <p class="eyebrow">01 / FIND A BATCH</p>
+            <h2 id="browse-title" tabindex="-1">Batches</h2>
+            <form id="filters">
+              <label
+                >Business date<input id="business-date" type="date"
+              /></label>
+              <label
+                >Currency<input
+                  id="currency"
+                  type="text"
+                  maxlength="3"
+                  pattern="[A-Z]{3}"
+                  placeholder="USD"
+                  autocomplete="off"
+              /></label>
+              <button type="submit">Refresh batches</button>
+            </form>
+            <p class="hint">
+              Exact filters. Refresh from the first page to see new or
+              late-committed batches.
+            </p>
+            <ul id="batches" class="choices"></ul>
+            <p id="empty-batches" hidden>
+              No batches match. Submit synthetic records through the API, then
+              refresh.
+            </p>
+            <button id="older-batches" type="button" disabled>
+              Older batches
+            </button>
+          </section>
+          <div>
+            <section class="panel" aria-labelledby="batch-title">
+              <p class="eyebrow">02 / INSPECT THE EVIDENCE</p>
+              <h2 id="batch-title" tabindex="-1">Choose a batch</h2>
+              <p id="batch-meta" class="hint">
+                Original records stay unchanged when you record a review.
+              </p>
+              <div id="result-picker" hidden>
+                <label>Reference<select id="results"></select></label>
+              </div>
+              <section id="result" hidden aria-labelledby="result-title">
+                <h3 id="result-title" tabindex="-1"></h3>
+                <p id="result-state" class="state"></p>
+                <p id="result-explanation" class="hint"></p>
+                <div class="evidence-grid">
+                  <div id="left-evidence"></div>
+                  <div id="right-evidence"></div>
+                </div>
+                <p id="current-note" class="current-note"></p>
+                <button id="reload-result" type="button">
+                  Reload result and history
+                </button>
+              </section>
+            </section>
+            <section
+              id="review-panel"
+              class="panel"
+              hidden
+              aria-labelledby="review-title"
+            >
+              <p class="eyebrow">03 / RECORD A DECISION</p>
+              <h2 id="review-title">Review decision</h2>
+              <p class="hint">
+                Resolving records your decision. It does not correct an amount
+                or change the matching outcome.
+              </p>
+              <p id="review-block" role="status" hidden></p>
+              <form id="review-form">
+                <fieldset id="review-fields">
+                  <legend class="sr-only">New review transition</legend>
+                  <div class="form-grid">
+                    <label
+                      >Reviewer name<input
+                        id="actor"
+                        required
+                        maxlength="80"
+                        autocomplete="off"
+                    /></label>
+                    <label
+                      >Next state<select id="target-state" required></select
+                    ></label>
+                  </div>
+                  <label
+                    >Review note<textarea
+                      id="note"
+                      required
+                      maxlength="500"
+                      rows="4"
+                      aria-describedby="note-help"
+                    ></textarea>
+                  </label>
+                  <p id="note-help" class="hint">
+                    Explain what you checked. The draft stays here after a
+                    failed save; choosing another reference clears it.
+                  </p>
+                  <button type="submit">Save review</button>
+                </fieldset>
+              </form>
+            </section>
+            <section
+              id="history-panel"
+              class="panel"
+              hidden
+              aria-labelledby="history-title"
+            >
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">DECISION TRAIL</p>
+                  <h2 id="history-title" tabindex="-1">Review history</h2>
+                </div>
+                <span class="pill">Original evidence retained</span>
+              </div>
+              <p class="hint">
+                Oldest events first, ten per page. These are live reads, not a
+                frozen history.
+              </p>
+              <ol id="events" class="events"></ol>
+              <p id="empty-events" hidden>No review events yet.</p>
+              <button id="next-events" type="button" disabled>
+                Next events
+              </button>
+            </section>
+          </div>
+        </div>
+      </fieldset>
+    </main>
+    <footer>
+      ReconLedger · local review workspace · no financial transactions
+    </footer>
+  </body>
+</html>

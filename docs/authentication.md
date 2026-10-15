@@ -53,6 +53,10 @@ They are independent: a review token does not implicitly gain read permission.
 | GET `/actuator/health` | None; no health details |
 | Other routes or methods | Denied |
 
+The [local review interface](review-interface.md) is a demo-only client. Its HTML,
+JavaScript and CSS remain denied by this profile, including for valid API tokens.
+No browser login, cookie authentication or UI exception to these rules was added.
+
 Send `Authorization: Bearer <token>`. Missing or invalid authentication returns 401
 with a Bearer challenge; a valid token lacking the required scope returns 403.
 These filter-level errors are not the MVC `ProblemDetail` contract. Once authorized,
