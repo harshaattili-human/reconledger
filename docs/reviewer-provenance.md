@@ -61,3 +61,12 @@ References: [JWT subject semantics, RFC 7519 §4.1.2](https://www.rfc-editor.org
 and [Spring JWT resource-server validation](https://docs.spring.io/spring-security/reference/6.5/servlet/oauth2/resource-server/jwt.html).
 Interview exercise: why is `(issuer, subject)` useful for new events but insufficient
 to reconstruct the provenance of older actor-only rows?
+
+Observed October 15: implementation `6c44a980` passed
+[run 38805939498](https://github.com/harshaattili-human/reconledger/actions/runs/38805939498),
+with 67 cases on each database, 12 Chromium executions (six workflows at two
+widths), both default/secured package workflows and PostgreSQL restoration.
+The [verification record](verification.md) lists jobs and environment. All six
+screenshots were inspected; the
+[browser report](https://github.com/harshaattili-human/reconledger/actions/runs/38805939498/artifacts/12006437317)
+is retained for 14 days. Reproduce after expiry with the documented commands.
