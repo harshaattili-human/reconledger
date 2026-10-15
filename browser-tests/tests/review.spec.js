@@ -36,7 +36,9 @@ async function openBatch(page, date) {
 
 async function reference(page, batch, name = "INV-101") {
   const result = batch.results.find((item) => item.reference === name);
-  await page.getByLabel("Reference", { exact: true }).selectOption(result.id);
+  await page
+    .getByRole("combobox", { name: "Reference", exact: true })
+    .selectOption(result.id);
   await expect(page.locator("#result-title")).toHaveText(name);
   await expect(page.locator("#status")).toHaveText(
     "Evidence and review history loaded.",
@@ -80,7 +82,9 @@ test("keyboard review preserves evidence and displays notes as text", async ({
   await page.getByLabel("Reviewer name").focus();
   await page.keyboard.type("demo-reviewer");
   await page.keyboard.press("Tab");
-  await expect(page.getByLabel("Next state")).toBeFocused();
+  await expect(
+    page.getByRole("combobox", { name: "Next state", exact: true }),
+  ).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(page.getByLabel("Review note", { exact: true })).toBeFocused();
   const note =
@@ -100,7 +104,9 @@ test("keyboard review preserves evidence and displays notes as text", async ({
     "demo-reviewer",
     "Synthetic difference explained; source amounts retained.",
   );
-  await page.getByLabel("Next state").selectOption("RESOLVED");
+  await page
+    .getByRole("combobox", { name: "Next state", exact: true })
+    .selectOption("RESOLVED");
   await page.getByRole("button", { name: "Save review" }).click();
   await expect(page.locator("#result-state")).toHaveText(
     "Amount mismatch · Resolved · Version 2",
@@ -168,7 +174,9 @@ test("a competing review retains the draft and requires an explicit reload", asy
   await expect(other.getByLabel("Review note", { exact: true })).toHaveValue(
     "Retain this draft after conflict.",
   );
-  await other.getByLabel("Next state").selectOption("RESOLVED");
+  await other
+    .getByRole("combobox", { name: "Next state", exact: true })
+    .selectOption("RESOLVED");
   await other.getByRole("button", { name: "Save review" }).click();
   await expect(other.locator("#result-state")).toContainText(
     "Resolved · Version 2",
