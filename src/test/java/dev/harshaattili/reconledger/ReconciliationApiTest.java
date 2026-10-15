@@ -154,6 +154,8 @@ class ReconciliationApiTest {
         mvc.perform(get("/api/results/{id}/events", id)).andExpect(status().isOk())
             .andExpect(jsonPath("$.events.length()").value(3))
             .andExpect(jsonPath("$.events[0].fromState").value("OPEN"))
+            .andExpect(jsonPath("$.events[0].actorSource").value("DEMO_LABEL"))
+            .andExpect(jsonPath("$.events[0].actorIssuer").isEmpty())
             .andExpect(jsonPath("$.events[2].resultingVersion").value(3));
         mvc.perform(get("/api/results/{id}", id)).andExpect(jsonPath("$.leftRecords[0].amount").value(10.0));
     }
@@ -226,6 +228,14 @@ class ReconciliationApiTest {
         mvc.perform(post("/api/results/{id}/reviews", id).contentType(MediaType.APPLICATION_JSON)
             .content("{\"targetState\":\"IN_REVIEW\",\"actor\":\"demo-reviewer\",\"note\":\"Missing version\"}"))
             .andExpect(status().isBadRequest());
+        for (String field : List.of("actorSource", "actorIssuer")) {
+            var forged = json.valueToTree(new ReviewInput(ReviewState.IN_REVIEW, 0, "demo", "Synthetic note"));
+            ((com.fasterxml.jackson.databind.node.ObjectNode) forged).put(field, "caller-selected");
+            mvc.perform(post("/api/results/{id}/reviews", id).contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(forged))).andExpect(status().isBadRequest());
+        }
+        mvc.perform(get("/api/results/{id}", id)).andExpect(jsonPath("$.version").value(0));
+        mvc.perform(get("/api/results/{id}/events", id)).andExpect(jsonPath("$.events.length()").value(0));
     }
 
     @Test void returnsNotFoundAndExposesOnlyBasicHealth() throws Exception {

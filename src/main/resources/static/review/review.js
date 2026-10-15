@@ -244,6 +244,14 @@ async function loadEvents(cursor = null) {
   $("events").replaceChildren();
   for (const event of page.events) {
     const li = element("li");
+    const provenance =
+      event.actorSource === "DEMO_LABEL"
+        ? "Self-reported name"
+        : event.actorSource === "VERIFIED_JWT" &&
+            typeof event.actorIssuer === "string" &&
+            event.actorIssuer.trim()
+          ? `Verified token subject · Issuer ${event.actorIssuer}`
+          : "Identity provenance unknown";
     li.append(
       element(
         "p",
@@ -254,6 +262,7 @@ async function loadEvents(cursor = null) {
         `${event.actor} · ${event.createdAt} · Event ${event.sequence}`,
         "event-meta",
       ),
+      element("p", provenance, "event-meta"),
       element("p", event.note),
     );
     $("events").append(li);

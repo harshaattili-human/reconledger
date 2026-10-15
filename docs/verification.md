@@ -1,11 +1,32 @@
 # Verification record
 
-Latest verification on October 15, 2026: the same 64-test suite passes on H2 and
+Latest verification on October 15, 2026: the same 67-test suite passes on H2 and
 PostgreSQL, plus the demo/body-bound/restart, secured executable-JAR and PostgreSQL
-logical restore workflows. Ten Chromium executions additionally cover the new
+logical restore workflows. Twelve Chromium executions additionally cover the
 local review interface at desktop and narrow widths.
 This record describes a local prototype, not deployment, production traffic or
 financial accuracy.
+
+## Reviewer provenance — October 15, 2026
+
+[Run 38805939498](https://github.com/harshaattili-human/reconledger/actions/runs/38805939498)
+at `6c44a980e8f54723f40820e6a32a7efb9a56bae6` passed all four jobs: H2
+`116666681139`, PostgreSQL `116666680727`, restore `116666681462` and browser
+`116666681169`. Each database passed the same 67 cases with zero failures/errors/skips.
+Three added cases cover the V4 retained-data migration and internal identity
+resolution; existing real JWT/demo cases also assert the new API metadata and
+reject client-supplied provenance. Package and restore checks preserve event metadata.
+
+Six browser workflows at two widths passed (12 executions), including an injected
+identity-label fixture and live demo labels. All six desktop/narrow evidence,
+conflict and identity screenshots were inspected. Browser backing remains H2;
+this does not add authenticated UI or assistive-technology verification. See the
+[identity contract, migration and limits](reviewer-provenance.md).
+
+Java 17.0.20.1, H2 2.3.232, PostgreSQL 16.15, Chromium 151.0.7922.34,
+Playwright 1.62.1, Node.js 24.21.0 and Ubuntu 24.04. Local syntax, browser discovery,
+documentation links and whitespace passed; local Maven lacked the parent POM,
+so Java/database/browser execution was hosted.
 
 ## Local review interface — October 15, 2026
 

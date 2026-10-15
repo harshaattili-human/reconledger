@@ -7,6 +7,10 @@ ordering. See [the evidence](verification.md).
 
 Remaining priorities are planned work, not claims of completed features.
 
+[Reviewer provenance](reviewer-provenance.md) now records the identity source and
+verified issuer on new audit events. Earlier rows remain unknown; this does not
+replace issuer membership verification or tamper-resistant audit storage.
+
 1. Verify external issuer membership configuration and automatic key rotation/revocation.
    Define tenant administration, export/deletion and operational separation before
    real multi-tenant deployment.

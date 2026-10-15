@@ -61,7 +61,8 @@ the audit history. Audit events have a database sequence and per-result version;
 timestamps alone are not used as ordering guarantees. Sequence gaps after a rollback
 are harmless. In the default mode the actor string is a self-reported demo label.
 The [secured profile](authentication.md) instead uses the verified JWT subject;
-existing demo rows remain unverified labels.
+new events retain its issuer as well. [Reviewer provenance](reviewer-provenance.md)
+distinguishes new demo labels from verified subjects; pre-V5 events remain unknown.
 
 ## Keep infrastructure small and explicit
 

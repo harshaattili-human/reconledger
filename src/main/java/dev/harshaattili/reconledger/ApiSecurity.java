@@ -65,6 +65,7 @@ public class ApiSecurity {
                           @Value("${recon.security.issuer}") String issuer,
                           @Value("${recon.security.audience}") String audience) throws IOException {
         Assert.hasText(issuer, "recon.security.issuer must not be blank");
+        Assert.isTrue(issuer.length() <= 2048, "recon.security.issuer must be at most 2048 characters");
         Assert.hasText(audience, "recon.security.audience must not be blank");
         RSAPublicKey key;
         try (var input = publicKey.getInputStream()) {

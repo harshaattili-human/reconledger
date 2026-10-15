@@ -70,6 +70,7 @@ def main():
     assert last_page["nextAfterSequence"] is None, last_page
     events = first_page["events"] + last_page["events"]
     assert [event["resultingVersion"] for event in events] == [1, 2], events
+    assert all(event["actorSource"] == "DEMO_LABEL" and event["actorIssuer"] is None for event in events), events
     print("Reviewed the mismatch and fetched both audit transitions in separate pages.")
     status, _, fetched = call("/api/batches/" + batch["id"])
     assert status == 200 and fetched["counts"] == batch["counts"]

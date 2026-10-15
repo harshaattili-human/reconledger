@@ -37,13 +37,18 @@ class BatchListMigrationTest {
             var headers = jdbc.queryForList(headerQuery);
             var sources = jdbc.queryForList("SELECT * FROM " + prefix + "source_record");
             var results = jdbc.queryForList("SELECT * FROM " + prefix + "recon_result");
-            var events = jdbc.queryForList("SELECT * FROM " + prefix + "review_event");
+            String eventQuery = "SELECT sequence, result_id, actor, from_state, to_state, resulting_version, note, created_at FROM "
+                + prefix + "review_event";
+            var events = jdbc.queryForList(eventQuery);
 
             Flyway.configure().dataSource(dataSource).schemas(schema).defaultSchema(schema).load().migrate();
             assertThat(jdbc.queryForList(headerQuery)).isEqualTo(headers);
             assertThat(jdbc.queryForList("SELECT * FROM " + prefix + "source_record")).isEqualTo(sources);
             assertThat(jdbc.queryForList("SELECT * FROM " + prefix + "recon_result")).isEqualTo(results);
-            assertThat(jdbc.queryForList("SELECT * FROM " + prefix + "review_event")).isEqualTo(events);
+            assertThat(jdbc.queryForList(eventQuery)).isEqualTo(events);
+            assertThat(jdbc.queryForObject("SELECT actor_source FROM " + prefix + "review_event", String.class))
+                .isEqualTo("LEGACY_UNKNOWN");
+            assertThat(jdbc.queryForObject("SELECT actor_issuer FROM " + prefix + "review_event", String.class)).isNull();
             assertThat(jdbc.queryForList("SELECT tenant_id FROM " + prefix + "recon_batch", String.class))
                 .containsExactly("demo", "demo");
             String scopedInsert = "INSERT INTO " + prefix
@@ -65,6 +70,42 @@ class BatchListMigrationTest {
                 .isGreaterThan(sequences.stream().mapToLong(Long::longValue).max().orElseThrow());
         } finally {
             // Only the randomly named schema owned by this test is removed.
+            jdbc.execute("DROP SCHEMA IF EXISTS \"" + schema + "\" CASCADE");
+        }
+    }
+
+    @Test void keepsPriorSecuredActorsUnknownAndConstrainsNewProvenance() {
+        String schema = "PROVENANCE_" + UUID.randomUUID().toString().replace("-", "");
+        String prefix = "\"" + schema + "\".";
+        var jdbc = new JdbcTemplate(dataSource);
+        try {
+            Flyway.configure().dataSource(dataSource).schemas(schema).defaultSchema(schema)
+                .target("4").load().migrate();
+            jdbc.update("INSERT INTO " + prefix + "recon_batch(id,idempotency_key,fingerprint,business_date,currency,created_at,tenant_id)"
+                + " VALUES ('batch','old-key',?,'2026-10-11','USD','2026-10-11T12:00:00Z','private-tenant')", "a".repeat(64));
+            jdbc.update("INSERT INTO " + prefix + "recon_result VALUES ('result','batch','REF','MISSING_RIGHT','IN_REVIEW',1,NULL)");
+            jdbc.update("INSERT INTO " + prefix + "review_event(result_id,actor,from_state,to_state,resulting_version,note,created_at)"
+                + " VALUES ('result','verified-looking-name','OPEN','IN_REVIEW',1,'Retained history','2026-10-11T12:00:00Z')");
+            Flyway.configure().dataSource(dataSource).schemas(schema).defaultSchema(schema).load().migrate();
+            assertThat(jdbc.queryForObject("SELECT actor FROM " + prefix + "review_event", String.class))
+                .isEqualTo("verified-looking-name");
+            assertThat(jdbc.queryForObject("SELECT actor_source FROM " + prefix + "review_event", String.class))
+                .isEqualTo("LEGACY_UNKNOWN");
+            assertThat(jdbc.queryForObject("SELECT actor_issuer FROM " + prefix + "review_event", String.class)).isNull();
+            assertThat(jdbc.queryForObject("SELECT tenant_id FROM " + prefix + "recon_batch", String.class))
+                .isEqualTo("private-tenant");
+            String update = "UPDATE " + prefix + "review_event SET actor_source = ?, actor_issuer = ?";
+            for (String source : new String[] {"DEMO_LABEL", "LEGACY_UNKNOWN", "unsupported"}) {
+                assertThatThrownBy(() -> jdbc.update(update, source, "https://forged.invalid"))
+                    .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+            }
+            assertThatThrownBy(() -> jdbc.update(update, "VERIFIED_JWT", null))
+                .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+            assertThatThrownBy(() -> jdbc.update(update, "VERIFIED_JWT", " "))
+                .isInstanceOf(org.springframework.dao.DataIntegrityViolationException.class);
+            assertThat(jdbc.update(update, "VERIFIED_JWT", "https://issuer.example.invalid" )).isEqualTo(1);
+            assertThat(jdbc.update(update, "DEMO_LABEL", null)).isEqualTo(1);
+        } finally {
             jdbc.execute("DROP SCHEMA IF EXISTS \"" + schema + "\" CASCADE");
         }
     }

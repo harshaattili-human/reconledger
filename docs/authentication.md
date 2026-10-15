@@ -37,8 +37,10 @@ most 80 Java characters with no surrounding whitespace. The `tenant_id` must fol
 the [tenant contract](tenants.md); old tokens without it now return 401. Spring also validates
 `nbf` when present, with its default 60-second clock skew. Use stable opaque subject
 IDs; a display name is not a durable identity. The configured issuer defines the
-subject namespace. Changing issuers against an existing database requires an
-explicit identity migration, since audit rows currently store only the subject.
+subject namespace and is limited to 2,048 characters to fit retained audit metadata.
+New events retain both issuer and subject; earlier events remain unknown. Changing
+issuers still requires an explicit tenant/identity migration, since tenant ownership
+is not automatically mapped between providers. See [reviewer provenance](reviewer-provenance.md).
 
 ## Endpoint permissions
 
@@ -76,9 +78,9 @@ In secured mode omit `actor` from a review (JSON null is also accepted):
 
 Supplying any non-null `actor` returns 400, even if it matches the token subject.
 The default demo continues to require a nonblank caller-supplied actor. Existing
-demo audit rows remain unverified labels; enabling this profile does not retroactively
-authenticate them. Both modes currently use the same audit schema, so the actor field
-alone does not distinguish historical demo rows from authenticated reviews.
+audit rows remain `LEGACY_UNKNOWN`; enabling this profile does not retroactively
+authenticate them. New events distinguish `DEMO_LABEL` from `VERIFIED_JWT` and retain
+the verified issuer for the latter. The actor string alone is still insufficient.
 
 There is no session, Basic login or cookie/query-token authentication. CSRF protection
 is disabled because authentication requires an explicit bearer header rather than
