@@ -181,7 +181,7 @@ function evidence(side, records) {
   table.append(
     element(
       "caption",
-      `${side === "left" ? "Left" : "Right"} source · ${records.length} records`,
+      `${side === "left" ? "Left" : "Right"} source · ${records.length} ${records.length === 1 ? "record" : "records"}`,
     ),
   );
   const head = element("thead"),
@@ -216,7 +216,7 @@ function renderResult() {
   $("result-explanation").textContent =
     result.outcome === "DUPLICATE_REFERENCE"
       ? "Duplicate references stay exceptions even when totals agree. The records are not silently paired or combined."
-      : "Amounts are shown as returned by the API, without browser arithmetic or rounding.";
+      : "Original amounts are shown exactly. Reviews do not change source records.";
   evidence("left", result.leftRecords);
   evidence("right", result.rightRecords);
   $("current-note").textContent = result.resolutionNote

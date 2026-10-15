@@ -2,9 +2,25 @@
 
 Latest verification on October 15, 2026: the same 64-test suite passes on H2 and
 PostgreSQL, plus the demo/body-bound/restart, secured executable-JAR and PostgreSQL
-logical restore workflows.
+logical restore workflows. Ten Chromium executions additionally cover the new
+local review interface at desktop and narrow widths.
 This record describes a local prototype, not deployment, production traffic or
 financial accuracy.
+
+## Local review interface — October 15, 2026
+
+[Run 38760972219](https://github.com/harshaattili-human/reconledger/actions/runs/38760972219)
+at `79342397` passed all four jobs: H2 `116511827247`, PostgreSQL `116511827221`,
+restore `116511827024` and browser `116511827206`. The Java suite remains 64 cases
+on each engine. Five browser workflows run at two widths (ten executions), against
+the actual packaged JAR and an isolated H2 in-memory database.
+
+Checks include keyboard review, unchanged source evidence, literal note rendering,
+real competing-review conflicts, a dropped response after commit, pagination and
+exact large-cursor decoding. Secured-profile Java HTTP assertions reject UI asset
+access. The [interface record](review-interface.md) preserves the initial locator
+failure, corrected test, screenshots, environment and limits. This is a local demo
+UI, not authenticated browser integration or full accessibility verification.
 
 ## Logical backup restoration — October 15, 2026
 

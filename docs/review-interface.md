@@ -99,3 +99,36 @@ and MDN's [JSON parse source context](https://developer.mozilla.org/en-US/docs/W
 
 Interview exercise: why is incrementing the version and resending a stale draft
 unsafe, and why does a failed browser fetch not establish that the review rolled back?
+
+## Observed verification — October 15, 2026
+
+Implementation `bc93780` passed all existing Java and packaged checks in
+[run 38759914562](https://github.com/harshaattili-human/reconledger/actions/runs/38759914562),
+but eight browser executions stopped at reference selection. The two large-cursor
+executions passed. The browser snapshot showed a combobox named `Reference`; the
+test's exact-label lookup included the wrapped select's option text and did not
+match. Commit `79342397fac334d615757b4e2b576dc20a5872b8` selects controls by their
+accessible role/name. It did not skip assertions or change application behavior.
+
+[Run 38760972219](https://github.com/harshaattili-human/reconledger/actions/runs/38760972219)
+then passed all ten browser executions (five workflows at two widths), with one
+worker and no retries. Desktop and narrow evidence/conflict screenshots were
+inspected. The same run passed 64 Java cases with no failures/errors/skips on each
+H2 2.3.232 and PostgreSQL 16.15, both packaged demo/body-bound/process-restart and
+secured pinned-key workflows, and the PostgreSQL logical restore rehearsal.
+The secured asset assertions extend an existing Java case; this remains 64 cases,
+not 128 distinct cases across the databases.
+
+Observed browser environment: Chromium 151.0.7922.34, Playwright 1.62.1, Node.js
+24.21.0, Temurin Java 17.0.20.1 and Ubuntu 24.04. Browser state was backed by the
+packaged application's H2 in-memory database. The
+[HTML report](https://github.com/harshaattili-human/reconledger/actions/runs/38760972219/artifacts/11985074226)
+expires after 14 days; the commands above reproduce the workflows and screenshots.
+No pixel baseline, PostgreSQL browser execution or manual assistive-technology
+result is claimed.
+
+Local JavaScript/Python syntax, test discovery, exact source-token decoding,
+documentation links and whitespace checks passed. Local Maven lacked the parent
+POM cache, so Java/database/browser execution evidence is hosted. A subsequent
+copy edit corrects singular source counts and keeps implementation terminology out
+of the evidence explanation; it does not alter API or review behavior.
