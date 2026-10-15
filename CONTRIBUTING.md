@@ -14,6 +14,9 @@ no external issuer or private key file is needed. Keep default-demo tests as wel
 authenticated tests. A rejected token, scope or actor must leave state unchanged.
 After packaging/security changes, also run the [secured JAR check](docs/secured-package-checks.md)
 on H2 and a disposable PostgreSQL database; it requires Python 3 and OpenSSL 3.
+For persistence/migration changes, run `python3 scripts/restore_smoke.py` after
+packaging when Docker is available. It owns two disposable PostgreSQL containers;
+see [the restore protocol](docs/backup-restore.md) for scope and cleanup.
 
 Use synthetic records only. Never add employer code, customer data, secrets, private
 logs or real account identifiers. Local H2 files and Maven build output are ignored.
