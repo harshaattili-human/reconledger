@@ -17,6 +17,10 @@ on H2 and a disposable PostgreSQL database; it requires Python 3 and OpenSSL 3.
 For persistence/migration changes, run `python3 scripts/restore_smoke.py` after
 packaging when Docker is available. It owns two disposable PostgreSQL containers;
 see [the restore protocol](docs/backup-restore.md) for scope and cleanup.
+For review-interface changes, package the JAR and run the
+[browser workflows](docs/review-interface.md#reproduce-browser-checks). Preserve
+explicit reload after a conflict or ambiguous save, exact cursor/amount decoding,
+literal note rendering and secured-profile denial of demo assets.
 
 Use synthetic records only. Never add employer code, customer data, secrets, private
 logs or real account identifiers. Local H2 files and Maven build output are ignored.

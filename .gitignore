@@ -5,3 +5,7 @@ target/
 *.log
 *.iml
 .env
+browser-tests/node_modules/
+browser-tests/playwright-report/
+browser-tests/test-results/
+__pycache__/

@@ -136,6 +136,10 @@ class AuthenticatedApiTest {
         assertThat(call("PUT", "/api/batches/" + batchId, BATCH, all, null).statusCode()).isEqualTo(403);
         assertThat(call("GET", "/api/unmapped", null, all, null).statusCode()).isEqualTo(403);
         assertThat(call("GET", "/actuator/env", null, all, null).statusCode()).isEqualTo(403);
+        for (String path : List.of("/review/index.html", "/review/review.js", "/review/review.css")) {
+            assertThat(call("GET", path, null, null, null).statusCode()).isEqualTo(401);
+            assertThat(call("GET", path, null, all, null).statusCode()).isEqualTo(403);
+        }
     }
 
     @Test void recordsVerifiedSubjectAndRejectsCallerSelectedActorWithoutMutation() throws Exception {

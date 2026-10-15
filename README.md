@@ -40,6 +40,11 @@ one amount mismatch, one missing record on each side, and one duplicate-referenc
 exception. It also checks a safe retry, a conflicting retry, and two review events.
 Each invocation uses a fresh idempotency key and creates a new demonstration batch.
 
+Then open **<http://127.0.0.1:8081/review/index.html>** to browse batches, compare
+source records and record review decisions. The [local review workspace](docs/review-interface.md)
+retains drafts after conflicts and requires an explicit reload before another save.
+It is available in the default demo profile; secured mode remains API-only.
+
 Two cases from [the demo input](examples/mixed-batch.json) illustrate the matching rules:
 
 | Reference | Left amounts | Right amounts | Result |
@@ -89,6 +94,7 @@ additional index was rejected after it failed to fix the measured PostgreSQL sca
 - Optional JWT authentication with separate read, batch-create and review scopes.
 - Tenant-scoped data access and idempotency using an issuer-signed tenant claim.
 - Paginated batch summaries with exact business-date and currency filters.
+- A packaged local review screen with source comparison, notes and audit paging.
 - Flyway schema migrations, JDBC persistence and a local health endpoint.
 
 Resolving an exception records a human-entered review decision. It does **not**

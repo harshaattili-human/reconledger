@@ -1,0 +1,376 @@
+:root {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  color: #203631;
+  background: #f4f5ef;
+  font-synthesis: none;
+  line-height: 1.5;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.2rem max(1.2rem, calc((100vw - 1260px) / 2));
+  background: #193c32;
+  color: #fff;
+}
+.brand {
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: inherit;
+  white-space: nowrap;
+}
+.mark {
+  color: #bdd699;
+  margin-right: 0.4rem;
+  font-size: 1.7rem;
+  vertical-align: middle;
+}
+.demo {
+  font-size: 0.8rem;
+  color: #d9e8d4;
+}
+main {
+  max-width: 1260px;
+  margin: auto;
+  padding: 2rem 1.2rem;
+}
+.intro {
+  margin-bottom: 1.6rem;
+}
+.intro h1 {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  letter-spacing: -0.035em;
+  margin: 0.35rem 0;
+}
+.intro p {
+  margin: 0.25rem 0;
+  color: #52665e;
+}
+.eyebrow {
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.14em;
+  color: #577065;
+  margin: 0 0 0.7rem;
+}
+h2 {
+  font-size: 1.3rem;
+  letter-spacing: -0.025em;
+  margin: 0.2rem 0 1rem;
+}
+h3 {
+  font-size: 1.15rem;
+  margin: 1.5rem 0 0.5rem;
+}
+.notice {
+  background: #e9eddf;
+  border-left: 3px solid #6d824e;
+  padding: 0.85rem 1rem;
+  font-size: 0.85rem;
+}
+.hint {
+  font-size: 0.8rem;
+  color: #54665f;
+}
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 285px minmax(0, 1fr);
+  gap: 1.4rem;
+}
+.panel {
+  padding: 1.5rem;
+  background: #fff;
+  border: 1px solid #d9e1d7;
+  border-radius: 10px;
+  margin-bottom: 1.3rem;
+  min-width: 0;
+}
+.browse {
+  align-self: start;
+}
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.pill {
+  font-size: 0.65rem;
+  border: 1px solid #c7d6c6;
+  border-radius: 20px;
+  padding: 0.25rem 0.6rem;
+  white-space: nowrap;
+}
+fieldset {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  min-width: 0;
+}
+label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 650;
+  margin-bottom: 1rem;
+}
+input,
+select,
+textarea {
+  display: block;
+  width: 100%;
+  font: inherit;
+  font-weight: 400;
+  margin-top: 0.35rem;
+  padding: 0.65rem;
+  border: 1px solid #a7b9ad;
+  border-radius: 5px;
+  color: #203631;
+  background: #fff;
+}
+textarea {
+  resize: vertical;
+  min-height: 6rem;
+}
+button {
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 650;
+  padding: 0.65rem 1rem;
+  background: #245f48;
+  color: #fff;
+  border: 1px solid #245f48;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover {
+  background: #174b37;
+}
+button:disabled {
+  opacity: 0.48;
+  cursor: default;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #ad6b13;
+  outline-offset: 3px;
+}
+h2:focus,
+h3:focus {
+  outline-offset: 5px;
+}
+.choices {
+  list-style: none;
+  margin: 1rem 0;
+  padding: 0;
+}
+.choices li + li {
+  margin-top: 0.6rem;
+}
+.choices button {
+  display: block;
+  text-align: left;
+  width: 100%;
+  color: #203631;
+  background: #f7f9f3;
+  border-color: #dde4d8;
+}
+.choices button:hover,
+.choices button[aria-current="true"] {
+  background: #e7efde;
+  border-color: #799669;
+}
+.choices span {
+  display: block;
+}
+.choices small {
+  display: block;
+  font-weight: 400;
+  color: #52665e;
+  overflow-wrap: anywhere;
+}
+.form-grid,
+.evidence-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem;
+}
+.evidence-grid > div {
+  min-width: 0;
+}
+.evidence-grid table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.8rem;
+  table-layout: fixed;
+}
+.evidence-grid caption {
+  text-align: left;
+  font-weight: 700;
+  padding: 0.6rem 0;
+}
+.evidence-grid th,
+.evidence-grid td {
+  padding: 0.6rem;
+  border-bottom: 1px solid #dde4d8;
+  text-align: left;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.evidence-grid th:last-child,
+.evidence-grid td:last-child {
+  text-align: right;
+}
+.evidence-grid th {
+  background: #f3f6ef;
+  font-size: 0.7rem;
+}
+.state {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #684e1a;
+}
+.current-note {
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border-left: 2px solid #b4c9ad;
+  padding-left: 1rem;
+}
+.events {
+  list-style: none;
+  padding: 0;
+}
+.events li {
+  border-left: 2px solid #c7d8bb;
+  padding: 0 0 1rem 1rem;
+  margin: 1rem 0;
+}
+.events p {
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.events .event-meta {
+  color: #54665f;
+  font-size: 0.75rem;
+}
+#status {
+  font-size: 0.85rem;
+  min-height: 1.3rem;
+}
+#error,
+#review-block {
+  background: #fff3dc;
+  border: 1px solid #bc8e46;
+  padding: 0.85rem 1rem;
+  overflow-wrap: anywhere;
+  font-size: 0.85rem;
+}
+#batch-meta {
+  overflow-wrap: anywhere;
+}
+footer {
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 1rem 1.2rem 2rem;
+  color: #54665f;
+  font-size: 0.75rem;
+}
+.skip {
+  position: absolute;
+  left: 1rem;
+  top: -5rem;
+  padding: 0.7rem;
+  background: #fff;
+  color: #193c32;
+  z-index: 5;
+}
+.skip:focus {
+  top: 0.5rem;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+[hidden] {
+  display: none !important;
+}
+@media (max-width: 850px) {
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+  .browse form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .browse form button {
+    grid-column: 1/-1;
+  }
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+  }
+  .choices li + li {
+    margin: 0;
+  }
+  .panel {
+    padding: 1.2rem;
+  }
+}
+@media (max-width: 480px) {
+  header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  main {
+    padding: 1.3rem 0.9rem;
+  }
+  .evidence-grid,
+  .form-grid,
+  .choices {
+    grid-template-columns: 1fr;
+  }
+  .section-heading {
+    display: block;
+  }
+  .pill {
+    display: inline-block;
+    margin-bottom: 0.5rem;
+  }
+  .panel {
+    padding: 1rem;
+  }
+  input,
+  select,
+  textarea {
+    font-size: 1rem;
+  }
+}

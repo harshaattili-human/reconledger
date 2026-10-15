@@ -14,8 +14,10 @@ Remaining priorities are planned work, not claims of completed features.
    The [logical restore rehearsal](backup-restore.md) checks a quiesced synthetic
    PostgreSQL checkpoint; off-host retention, real recovery objectives and H2 backup
    remain unverified. Add structured diagnostics that do not log sensitive input values.
-3. Build a small review interface with keyboard navigation, conflict recovery and
-   accessible evidence comparison. Keep source corrections separate from review notes.
+3. Extend the [local review workspace](review-interface.md) with separately designed
+   authenticated access and manual assistive-technology verification. The demo UI
+   now provides evidence comparison, keyboard navigation, audit paging and explicit
+   conflict recovery. Keep source corrections separate from review notes.
 
 The [secured profile](authentication.md) now derives reviewer identity from verified
 JWTs and enforces separate read/create/review scopes. [Tenant ownership](tenants.md)
