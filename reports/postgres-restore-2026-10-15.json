@@ -1,0 +1,37 @@
+{
+  "source_commit": "54454f02297161c467b9978c6ae8bbbfa26366e5",
+  "jar_sha256": "2769e3f8e144244a9b9f83459761ca59d2905935a9eafc77744d60ff78e4f00c",
+  "python": "3.12.3",
+  "postgres": {
+    "server": "16.15 (Debian 16.15-1.pgdg13+2)",
+    "pg_dump": "pg_dump (PostgreSQL) 16.15 (Debian 16.15-1.pgdg13+2)",
+    "pg_restore": "pg_restore (PostgreSQL) 16.15 (Debian 16.15-1.pgdg13+2)"
+  },
+  "image_id": "sha256:275447c94b11b151decd1f29877965301d5a77032037c46de93d990f739f00a9",
+  "archive_sha256": "765bc7e1ded7c4cb5c4b6058829b89cb8a977edeb6166a458d8e4231b7466a66",
+  "archive_bytes": 15624,
+  "checkpoint_rows": {
+    "recon_batch": 4,
+    "source_record": 44,
+    "recon_result": 24,
+    "review_event": 4,
+    "flyway_schema_history": 4
+  },
+  "allocated_sequences": {
+    "review_event_sequence_seq": 11,
+    "recon_batch_list_sequence_seq": 11
+  },
+  "checks": [
+    "truncated-archive-rejected-without-partial-objects",
+    "full-table-and-flyway-row-equality",
+    "sequence-gaps-retained",
+    "tenant-boundaries",
+    "key-replay-and-conflict",
+    "batch-and-audit-cursor-resume",
+    "new-reviews-and-batch",
+    "post-backup-writes-absent"
+  ],
+  "limitations": "Quiesced synthetic logical backup to a fresh PostgreSQL cluster; no crash, PITR, roles/ACL recovery, external issuer, H2 or recovery-time objective.",
+  "observed_run": "https://github.com/harshaattili-human/reconledger/actions/runs/38741230215",
+  "implementation_commit": "fdc2d4388fff01265631e2972ae61eb6e43d7743"
+}
