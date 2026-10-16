@@ -94,9 +94,10 @@ and literal issuer text; it does not authenticate through the demo UI. The other
 workflows use live API/JDBC responses and synthetic fixtures.
 
 The Java suite additionally asserts that unauthenticated and authorized API callers
-cannot load the demo UI assets in secured mode. Browser verification here is H2
+cannot load the demo UI assets in secured mode without explicit UI opt-in. Browser verification here is H2
 and resized desktop Chromium; PostgreSQL retains its existing API/package checks.
-Firefox/WebKit, physical devices, assistive technology remain unverified for ReconLedger. Authenticated browser workflows have a separate
+Firefox/WebKit, physical devices and assistive technology remain unverified for
+ReconLedger. Authenticated browser workflows have a separate
 [reproduction command and scope](secured-review-interface.md).
 
 Implementation references: Spring Boot's [static resources](https://docs.spring.io/spring-boot/3.5/reference/web/servlet.html#web.servlet.spring-mvc.static-content)
