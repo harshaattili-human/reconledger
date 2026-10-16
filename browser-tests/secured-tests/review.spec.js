@@ -72,6 +72,24 @@ test("verified reviewer saves with tenant isolation and clears credentials on di
   await select(page, beta);
   await expect(page.locator("#identity")).toContainText("Tenant browser-beta");
   await expect(page.locator("#events li")).toHaveCount(0);
+  let releaseRead, readStarted;
+  const held = new Promise((resolve) => { releaseRead = resolve; });
+  const started = new Promise((resolve) => { readStarted = resolve; });
+  await page.route("**/api/batches?*", async (route) => {
+    const response = await route.fetch();
+    readStarted();
+    await held;
+    await route.fulfill({ response });
+  }, { times: 1 });
+  await page.getByRole("button", { name: "Refresh batches" }).click();
+  await started;
+  await expect(page.getByRole("button", { name: "Disconnect and clear workspace" })).toBeDisabled();
+  // Controlled lifecycle event tests a late response, independent of browser BFCache eligibility.
+  await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pagehide")));
+  releaseRead();
+  await expect(page.locator("#error")).toContainText("Workspace disconnected");
+  await expect(page.locator("#batches button")).toHaveCount(0);
+  await expect(page.locator("#identity")).toBeEmpty();
   await page.reload();
   await expect(page.locator("#connection")).toBeVisible();
   await expect(page.locator("#result")).toBeHidden();

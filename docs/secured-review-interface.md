@@ -63,7 +63,8 @@ npx playwright test --config=playwright.secured.config.js
 The separate secured runner starts the actual executable JAR on loopback 8802 with
 an isolated H2 database, temporary RSA key and synthetic signed tokens. Three
 workflows run at 1440×1000 and 390×844 (six executions): verified reviews and tenant
-switching; read-only/invalid/expired credentials; and response loss after commit
+switching (including a held response after a simulated pagehide event);
+read-only/invalid/expired credentials; and response loss after commit
 followed by a real decoder rejection using an expired token substituted in transit.
 The last case verifies recovery without a second POST. Existing demo workflows
 remain separate. Java HTTP coverage checks session-context scopes and identity on
@@ -82,3 +83,25 @@ contracts. A caller's asserted identity is not trusted until decoder validation.
 
 Interview exercise: why is hiding a review button insufficient authorization, and
 why should reconnecting after a lost save start with inspecting the audit history?
+
+## Observed verification — October 16, 2026
+
+Initial implementation `966ecb3` passed the database/package/restore checks in
+[run 38909061091](https://github.com/harshaattili-human/reconledger/actions/runs/38909061091),
+but all twelve demo browser executions stopped with disabled batch controls.
+The operation cleanup accidentally cleared connection state after a successful
+load. `43d349ec5442a0349566ec0a197207012e094bc3` preserves that state; the existing
+workflow assertions were retained.
+
+[Run 38909440201](https://github.com/harshaattili-human/reconledger/actions/runs/38909440201)
+then passed 12 demo and six secured Chromium executions, plus the same 68 Java
+cases on H2 2.3.232 and PostgreSQL 16.15 and all packaged/restart/key-replacement
+and PostgreSQL restore workflows. Desktop and narrow secured screenshots were
+inspected. Browser backing was H2; this is not PostgreSQL browser evidence.
+Java 17.0.20.1, Node 24.21.0, Playwright 1.62.1, Chromium 151.0.7922.34 and
+Ubuntu 24.04.5 were used by hosted checks. Local syntax, test discovery and
+whitespace checks passed; the Maven parent POM was unavailable locally.
+
+The final refinement additionally holds a live batch response across a simulated
+pagehide event and checks that the old tenant list cannot reappear. It is a
+controlled lifecycle check, not proof of every browser's back/forward-cache behavior.
