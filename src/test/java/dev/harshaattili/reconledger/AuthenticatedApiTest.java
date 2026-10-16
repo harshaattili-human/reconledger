@@ -303,6 +303,26 @@ class AuthenticatedApiTest {
                 failure -> assertThat(failure.status()).isEqualTo(org.springframework.http.HttpStatus.UNAUTHORIZED));
     }
 
+    @Test void reviewContextUsesVerifiedIdentityAndReadScopeWithoutCreatingSession() throws Exception {
+        String path = "/api/review-session";
+        assertThat(call("GET", path, null, null, null).statusCode()).isEqualTo(401);
+        assertThat(call("GET", path, null, token("writer", "recon:write"), null).statusCode()).isEqualTo(403);
+        var read = call("GET", path, null, token("reader", "recon:read"), null);
+        assertThat(read.statusCode()).isEqualTo(200);
+        assertThat(read.headers().firstValue("Cache-Control").orElse("")).contains("no-store");
+        assertThat(read.headers().allValues("Set-Cookie")).isEmpty();
+        assertThat(body(read).get("secured").asBoolean()).isTrue();
+        assertThat(body(read).get("subject").asText()).isEqualTo("reader");
+        assertThat(body(read).get("issuer").asText()).isEqualTo(ISSUER);
+        assertThat(body(read).get("tenant").asText()).isEqualTo("auth-test");
+        assertThat(body(read).get("canReview").asBoolean()).isFalse();
+        var reviewer = call("GET", path, null, tenantToken("other-tenant", "recon:read recon:review"), null);
+        assertThat(body(reviewer).get("tenant").asText()).isEqualTo("other-tenant");
+        assertThat(body(reviewer).get("canReview").asBoolean()).isTrue();
+        assertThat(body(reviewer).size()).isEqualTo(5);
+        assertThat(call("POST", path, "{}", token("reader", "recon:read"), null).statusCode()).isEqualTo(403);
+    }
+
     private static String tenantToken(String tenant, String scopes) throws Exception {
         return bearer(sign(claims("shared-subject", scopes).claim("tenant_id", tenant), KEY, JWSAlgorithm.RS256));
     }

@@ -22,7 +22,10 @@ let batch,
   eventCursor = null,
   filters = {},
   blocked = false,
-  busy = false;
+  busy = false,
+  accessToken = null,
+  session = null,
+  connectionEpoch = 0;
 
 // Preserve the wire tokens: cursors are signed 64-bit integers and amounts are decimals.
 export function parseLedger(text) {
@@ -54,20 +57,29 @@ function element(tag, text, className) {
 }
 
 async function request(path, body) {
+  const epoch = connectionEpoch;
   const response = await fetch(path, {
     credentials: "omit",
     cache: "no-store",
     signal: AbortSignal.timeout(15000),
+    redirect: "error",
+    headers: {
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      ...(body ? { "Content-Type": "application/json" } : {}),
+    },
     ...(body
       ? {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         }
       : {}),
   });
   const text = await response.text();
+  if (epoch !== connectionEpoch) throw new Error("Workspace disconnected while the request was pending.");
   if (!response.ok) {
+    if (response.status === 401) {
+      disconnect("Access expired or was rejected. Reconnect, then inspect the result and history before any new review.");
+    }
     let detail = `Request failed (${response.status}).`;
     try {
       detail = JSON.parse(text).detail || detail;
@@ -80,12 +92,14 @@ async function request(path, body) {
 }
 
 function controls() {
-  $("controls").disabled = busy;
+  $("controls").disabled = busy || !session;
+  $("connect").disabled = busy;
+  $("disconnect").disabled = busy;
   $("workspace").setAttribute("aria-busy", String(busy));
   $("older-batches").disabled = !batchCursor;
   $("next-events").disabled = !eventCursor;
   $("review-fields").disabled =
-    blocked || !result || !transitions[result.reviewState]?.length;
+    busy || !session?.canReview || blocked || !result || !transitions[result.reviewState]?.length;
 }
 
 async function run(action) {
@@ -100,7 +114,9 @@ async function run(action) {
     $("error").hidden = false;
     $("status").textContent = "Request did not complete.";
   } finally {
-    busy = false;
+    busy = false,
+  accessToken = null,
+  session = null;
     controls();
   }
 }
@@ -226,6 +242,10 @@ function renderResult() {
   for (const state of transitions[result.reviewState])
     $("target-state").add(new Option(labels[state], state));
   $("review-block").hidden = !blocked && result.reviewState !== "NOT_REQUIRED";
+  if (!session?.canReview) {
+    $("review-block").hidden = false;
+    $("review-block").textContent = "This token has read access only. A review requires recon:review permission.";
+  }
   if (result.reviewState === "NOT_REQUIRED")
     $("review-block").textContent =
       "Matched references do not accept review transitions.";
@@ -330,12 +350,12 @@ $("reload-result").addEventListener("click", () =>
 );
 $("review-form").addEventListener("submit", (event) => {
   event.preventDefault();
-  if (blocked || !result) return;
+  if (blocked || !result || !session?.canReview) return;
   run(async () => {
     const input = {
       expectedVersion: result.version,
       targetState: $("target-state").value,
-      actor: $("actor").value,
+      ...(session.secured ? {} : { actor: $("actor").value }),
       note: $("note").value,
     };
     blocked = true;
@@ -345,6 +365,7 @@ $("review-form").addEventListener("submit", (event) => {
         input,
       );
     } catch (error) {
+      if (!session) return;
       requireReload(
         error.status === 409
           ? "This result changed or the transition is no longer allowed. Your draft is retained. Reload result and history before deciding again."
@@ -359,6 +380,7 @@ $("review-form").addEventListener("submit", (event) => {
     try {
       await loadEvents();
     } catch {
+      if (!session) return;
       requireReload(
         "Review saved, but history could not load. Reload result and history before another review.",
       );
@@ -372,7 +394,70 @@ $("review-form").addEventListener("submit", (event) => {
   });
 });
 
+function disconnect(message = "Disconnected. Workspace data and draft cleared.") {
+  connectionEpoch++;
+  accessToken = null;
+  session = null;
+  batch = null;
+  batchCursor = null;
+  filters = {};
+  clearResult();
+  $("error").textContent = $("review-block").textContent = "";
+  $("error").hidden = true;
+  for (const id of ["batches", "results", "left-evidence", "right-evidence"])
+    $(id).replaceChildren();
+  for (const id of ["batch-meta", "result-title", "result-state", "result-explanation", "current-note", "identity"])
+    $(id).textContent = "";
+  for (const id of ["actor", "access-token", "business-date", "currency"])
+    $(id).value = "";
+  $("batch-title").textContent = "Choose a batch";
+  $("result-picker").hidden = $("identity").hidden = $("disconnect").hidden = true;
+  $("empty-batches").hidden = true;
+  $("connection").hidden = false;
+  $("notice").textContent = message;
+  $("status").textContent = message;
+  $("mode").textContent = "Secured workspace · disconnected";
+  controls();
+}
+
+async function connect() {
+  session = await request("/api/review-session");
+  $("connection").hidden = true;
+  $("disconnect").hidden = $("identity").hidden = !session.secured;
+  $("actor-label").hidden = session.secured;
+  $("actor").required = !session.secured;
+  $("mode").textContent = session.secured ? "Secured workspace · synthetic data" : "Local demo · synthetic data";
+  $("notice").textContent = session.secured
+    ? "Reviews use your verified token identity. Disconnect clears this page; it does not revoke the token."
+    : "This workspace uses the unauthenticated demo profile. Reviewer names are self-reported. Use synthetic records only.";
+  $("identity").textContent = session.secured
+    ? `Tenant ${session.tenant} · Subject ${session.subject} · Issuer ${session.issuer}` : "";
+  await loadBatches();
+}
+
+$("connect-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (busy) return;
+  const candidate = $("access-token").value.trim();
+  $("access-token").value = "";
+  run(async () => {
+    accessToken = candidate;
+    try { await connect(); }
+    catch (error) {
+      disconnect("Connection failed. Check the token and its read permission.");
+      throw error;
+    }
+  });
+});
+$("disconnect").addEventListener("click", () => {
+  if (busy) return;
+  disconnect();
+  $("access-token").focus();
+});
+// Back/forward cache must not resurrect an authenticated workspace.
+window.addEventListener("pagehide", () => disconnect());
+
 run(async () => {
   parseLedger('{"sequence":9007199254740993}');
-  await loadBatches();
+  try { await connect(); } catch (error) { if (error.status !== 401) throw error; }
 });

@@ -20,7 +20,7 @@ see [the restore protocol](docs/backup-restore.md) for scope and cleanup.
 For review-interface changes, package the JAR and run the
 [browser workflows](docs/review-interface.md#reproduce-browser-checks). Preserve
 explicit reload after a conflict or ambiguous save, exact cursor/amount decoding,
-literal note rendering and secured-profile denial of demo assets.
+literal note rendering and default secured-profile denial of demo assets.
 
 Use synthetic records only. Never add employer code, customer data, secrets, private
 logs or real account identifiers. Local H2 files and Maven build output are ignored.
@@ -38,3 +38,6 @@ Add tests for changed behavior and document actual verification commands and res
 Do not claim production readiness, performance, independent review or deployment
 without evidence. Test counts are coverage examples, not a quality score. Keep AI
 assistance and synthetic-data provenance accurate.
+
+For secured UI changes also run `npx playwright test --config=playwright.secured.config.js`
+from `browser-tests`. Keep bearer headers out of traces, logs and artifacts.

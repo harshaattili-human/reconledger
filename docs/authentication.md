@@ -112,3 +112,11 @@ and [request authorization](https://docs.spring.io/spring-security/reference/6.5
 
 Interview exercise: why does verifying a JWT's signature alone not establish its
 intended API or grant access to a particular customer's batch?
+
+## Optional local review screen
+
+The secured profile remains API-only by default. `recon.security.review-ui-enabled=true`
+permits the three static review assets; data routes still require bearer scopes and
+tenant ownership. See [credential lifecycle and browser checks](secured-review-interface.md).
+GET `/api/review-session` requires `recon:read` and returns verified display context
+without creating a session or returning the token.

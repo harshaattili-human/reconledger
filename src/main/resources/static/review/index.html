@@ -13,7 +13,7 @@
     <header>
       <a class="brand" href="index.html"
         ><span class="mark" aria-hidden="true">≋</span> ReconLedger</a
-      ><span class="demo">Local demo · synthetic data</span>
+      ><span id="mode" class="demo">Local workspace · synthetic data</span>
     </header>
     <main id="workspace">
       <div class="intro">
@@ -21,14 +21,23 @@
         <h1>Reconciliation review</h1>
         <p>Compare the original records. Record what you checked.</p>
       </div>
-      <p class="notice">
-        This workspace uses the unauthenticated demo profile. Reviewer names are
-        self-reported. Use synthetic records only.
-      </p>
-      <p id="status" role="status" aria-live="polite">Loading batches…</p>
+      <p id="notice" class="notice">Checking workspace access. Use synthetic records only.</p>
+      <section id="connection" class="panel" hidden aria-labelledby="connection-title">
+        <h2 id="connection-title">Connect to your workspace</h2>
+        <p>Use an access token issued for this API. It stays in this page's memory
+          until disconnect or reload. This screen does not issue tokens or sign you into an identity provider.</p>
+        <form id="connect-form" autocomplete="off">
+          <label>Access token<input id="access-token" type="password" required
+            autocomplete="off" spellcheck="false" autocapitalize="none" /></label>
+          <button id="connect" type="submit">Connect</button>
+        </form>
+      </section>
+      <p id="identity" hidden></p>
+      <button id="disconnect" type="button" hidden>Disconnect and clear workspace</button>
+      <p id="status" role="status" aria-live="polite">Checking access…</p>
       <p id="error" role="alert" hidden></p>
       <noscript>This review workspace requires JavaScript.</noscript>
-      <fieldset id="controls">
+      <fieldset id="controls" disabled>
         <legend class="sr-only">Review workspace controls</legend>
         <div class="workspace-grid">
           <section class="panel browse" aria-labelledby="browse-title">
@@ -103,7 +112,7 @@
                 <fieldset id="review-fields">
                   <legend class="sr-only">New review transition</legend>
                   <div class="form-grid">
-                    <label
+                    <label id="actor-label"
                       >Reviewer name<input
                         id="actor"
                         required
