@@ -114,9 +114,7 @@ async function run(action) {
     $("error").hidden = false;
     $("status").textContent = "Request did not complete.";
   } finally {
-    busy = false,
-  accessToken = null,
-  session = null;
+    busy = false;
     controls();
   }
 }
