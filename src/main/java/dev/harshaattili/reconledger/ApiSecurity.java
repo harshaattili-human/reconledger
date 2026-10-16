@@ -34,17 +34,24 @@ public class ApiSecurity {
 
     @Bean
     @Profile("secured")
-    SecurityFilterChain authenticatedApi(HttpSecurity http) throws Exception {
+    SecurityFilterChain authenticatedApi(HttpSecurity http,
+            @Value("${recon.security.review-ui-enabled:false}") boolean reviewUiEnabled) throws Exception {
         return stateless(http)
-            .authorizeHttpRequests(rules -> rules
+            .authorizeHttpRequests(rules -> {
+                if (reviewUiEnabled) {
+                    rules.requestMatchers(HttpMethod.GET, "/review/index.html",
+                        "/review/review.js", "/review/review.css").permitAll();
+                }
+                rules
                 // Keep MVC error responses (400/404/413) from becoming a second authorization failure.
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/batches", "/api/batches/*",
+                .requestMatchers(HttpMethod.GET, "/api/review-session", "/api/batches", "/api/batches/*",
                     "/api/results/*", "/api/results/*/events").hasAuthority("SCOPE_recon:read")
                 .requestMatchers(HttpMethod.POST, "/api/batches").hasAuthority("SCOPE_recon:write")
                 .requestMatchers(HttpMethod.POST, "/api/results/*/reviews").hasAuthority("SCOPE_recon:review")
-                .anyRequest().denyAll())
+                .anyRequest().denyAll();
+            })
             .oauth2ResourceServer(server -> server.jwt(Customizer.withDefaults()))
             .build();
     }

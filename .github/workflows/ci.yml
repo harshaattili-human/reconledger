@@ -121,9 +121,14 @@ jobs:
       - name: Exercise review workflows against the executable JAR
         run: npm test
         working-directory: browser-tests
+      - name: Exercise opt-in secured review workflows
+        run: npx playwright test --config=playwright.secured.config.js
+        working-directory: browser-tests
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: review-browser-report
-          path: browser-tests/playwright-report/
+          path: |
+            browser-tests/playwright-report/
+            browser-tests/playwright-report-secured/
           retention-days: 14

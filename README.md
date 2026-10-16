@@ -43,7 +43,8 @@ Each invocation uses a fresh idempotency key and creates a new demonstration bat
 Then open **<http://127.0.0.1:8081/review/index.html>** to browse batches, compare
 source records and record review decisions. The [local review workspace](docs/review-interface.md)
 retains drafts after conflicts and requires an explicit reload before another save.
-It is available in the default demo profile; secured mode remains API-only.
+It is available in the default demo profile. The [opt-in secured workspace](docs/secured-review-interface.md)
+uses a verified token and its tenant; secured mode remains API-only unless enabled.
 
 Two cases from [the demo input](examples/mixed-batch.json) illustrate the matching rules:
 

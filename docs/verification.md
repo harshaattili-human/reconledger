@@ -1,9 +1,9 @@
 # Verification record
 
-Latest verification on October 15, 2026: the same 67-test suite passes on H2 and
+Latest verification on October 16, 2026: the same 68-test suite passes on H2 and
 PostgreSQL, plus the demo/body-bound/restart, secured executable-JAR and PostgreSQL
-logical restore workflows. Twelve Chromium executions additionally cover the
-local review interface at desktop and narrow widths.
+logical restore workflows. Twelve demo and six opt-in secured Chromium executions
+cover desktop and narrow review workflows. See [authenticated review evidence](secured-review-interface.md).
 This record describes a local prototype, not deployment, production traffic or
 financial accuracy.
 

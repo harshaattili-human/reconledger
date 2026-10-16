@@ -20,11 +20,10 @@ two left records of 20.00 are still a duplicate-reference exception against one
 right record of 40.00. Resolving that exception records a decision; it does not
 change the matching outcome or source evidence.
 
-This first interface is deliberately for the default loopback demo. Its reviewer
-name is a self-reported label. The existing secured profile denies these static
-routes, even with an otherwise valid API token; it remains an API-only profile.
-No bearer-token entry, browser storage, cookie login or authentication rule was
-added. Authenticated UI integration and its deployment model need separate work.
+The default loopback demo uses self-reported reviewer names. Secured mode denies
+these assets by default; the [opt-in authenticated workflow](secured-review-interface.md)
+uses the existing verified bearer-token and tenant contract. Its credential lifecycle
+and separate browser checks are documented there.
 
 ## Review and read behavior
 
@@ -95,10 +94,11 @@ and literal issuer text; it does not authenticate through the demo UI. The other
 workflows use live API/JDBC responses and synthetic fixtures.
 
 The Java suite additionally asserts that unauthenticated and authorized API callers
-cannot load the demo UI assets in secured mode. Browser verification here is H2
+cannot load the demo UI assets in secured mode without explicit UI opt-in. Browser verification here is H2
 and resized desktop Chromium; PostgreSQL retains its existing API/package checks.
-Firefox/WebKit, physical devices, assistive technology and authenticated browser
-workflows remain unverified for ReconLedger.
+Firefox/WebKit, physical devices and assistive technology remain unverified for
+ReconLedger. Authenticated browser workflows have a separate
+[reproduction command and scope](secured-review-interface.md).
 
 Implementation references: Spring Boot's [static resources](https://docs.spring.io/spring-boot/3.5/reference/web/servlet.html#web.servlet.spring-mvc.static-content)
 and MDN's [JSON parse source context](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse).

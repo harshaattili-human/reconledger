@@ -49,15 +49,17 @@ They are independent: a review token does not implicitly gain read permission.
 
 | Request | Required scope |
 | --- | --- |
-| GET batch list/detail, result detail, result events | `recon:read` |
+| GET batch list/detail, result detail, result events, `/api/review-session` | `recon:read` |
 | POST `/api/batches` | `recon:write` |
 | POST `/api/results/{id}/reviews` | `recon:review` |
 | GET `/actuator/health` | None; no health details |
+| GET the three review assets | Denied by default; public only with UI opt-in |
 | Other routes or methods | Denied |
 
-The [local review interface](review-interface.md) is a demo-only client. Its HTML,
-JavaScript and CSS remain denied by this profile, including for valid API tokens.
-No browser login, cookie authentication or UI exception to these rules was added.
+The [local review interface](review-interface.md) is denied by default, including
+for valid API tokens. Explicitly enabling the [secured UI](secured-review-interface.md)
+permits GET of its HTML, JavaScript and CSS only. Data requests still use bearer
+authentication; no cookie login or external identity-provider login is added.
 
 Send `Authorization: Bearer <token>`. Missing or invalid authentication returns 401
 with a Bearer challenge; a valid token lacking the required scope returns 403.
@@ -112,3 +114,11 @@ and [request authorization](https://docs.spring.io/spring-security/reference/6.5
 
 Interview exercise: why does verifying a JWT's signature alone not establish its
 intended API or grant access to a particular customer's batch?
+
+## Optional local review screen
+
+The secured profile remains API-only by default. `recon.security.review-ui-enabled=true`
+permits the three static review assets; data routes still require bearer scopes and
+tenant ownership. See [credential lifecycle and browser checks](secured-review-interface.md).
+GET `/api/review-session` requires `recon:read` and returns verified display context
+without creating a session or returning the token.
