@@ -26,8 +26,8 @@ All mapped reconciliation routes and `GET /api/review-session` share one bucket.
 Each admitted request spends one token, including idempotent replays and requests
 that later fail validation, ownership checks or database work. There is no refund.
 A burst may consume the full capacity immediately; elapsed monotonic time restores
-fractional credit up to capacity. Admission is synchronized, has no waiting queue
-or background task, and keeps constant-sized state with no caller-ID map.
+fractional credit up to capacity. Admission is synchronized; exhausted callers never wait for refill. No background
+task is needed, and state is constant-sized with no caller-ID map.
 
 Spring Security runs before MVC. Missing/invalid credentials and insufficient
 endpoint scopes therefore retain 401/403 and spend no tokens. Health, static review
@@ -75,9 +75,19 @@ requests/retries, unchanged review state/audit, all current data routes, shared
 cross-tenant budget, security precedence and health/static access. Advancing this
 clock avoids timing sleeps; it is not a real-time rate/load benchmark.
 
-The existing suite and packaged checks exercise the default disabled mode. Hosted
-Java/database verification for this increment will be recorded in the pull request;
-local Maven currently lacks the cached Spring Boot parent POM.
+The existing suite and packaged checks exercise the default disabled mode. [Run 39011501728](https://github.com/harshaattili-human/reconledger/actions/runs/39011501728)
+at implementation `9d3c1d0c43b433c81af24a918cd7689c87fb04fb` passed the same
+76 Java cases on H2 and PostgreSQL, with zero failures/errors/skips. Jobs:
+H2 `117334809993`, PostgreSQL `117334810113`, browser `117334810162`, restore
+`117334810180`. The default/secured packaged workflows, process restarts, pinned-key
+replacement, PostgreSQL restore and 12 demo + six secured Chromium executions also
+passed. Those packaged/browser workflows use the default disabled rate policy;
+the enabled policy is exercised by the embedded-Tomcat cases above.
+
+Local whitespace/documentation links passed; Maven lacked the cached Spring Boot
+parent POM, so compilation and Java/database/browser execution were hosted. A final
+concurrency-test refinement waits for all 12 callers before releasing admission;
+its exact-head CI result is retained in [PR 20](https://github.com/harshaattili-human/reconledger/pull/20).
 
 Interview exercise: why is a rate budget insufficient to bound concurrent database
 work, and what changes when the same configuration runs on four replicas?

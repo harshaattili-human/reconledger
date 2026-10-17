@@ -33,13 +33,16 @@ class RequestRateBudgetTest {
     @Test void concurrentCallersCannotOverspendTheBurst() throws Exception {
         var budget = new RequestRateBudget(3, 1000, () -> 0L);
         var start = new CountDownLatch(1);
+        var ready = new CountDownLatch(12);
         var pool = Executors.newFixedThreadPool(12);
         try {
             var results = new ArrayList<Future<Long>>();
             for (int i = 0; i < 12; i++) results.add(pool.submit(() -> {
+                ready.countDown();
                 assertThat(start.await(5, TimeUnit.SECONDS)).isTrue();
                 return budget.acquire();
             }));
+            assertThat(ready.await(5, TimeUnit.SECONDS)).isTrue();
             start.countDown();
             var delays = new ArrayList<Long>();
             for (var result : results) delays.add(result.get(5, TimeUnit.SECONDS));

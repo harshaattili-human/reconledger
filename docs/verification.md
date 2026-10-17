@@ -1,11 +1,13 @@
 # Verification record
 
-Latest verification on October 16, 2026: the same 68-test suite passes on H2 and
-PostgreSQL, plus the demo/body-bound/restart, secured executable-JAR and PostgreSQL
-logical restore workflows. Twelve demo and six opt-in secured Chromium executions
-cover desktop and narrow review workflows. See [authenticated review evidence](secured-review-interface.md).
-This record describes a local prototype, not deployment, production traffic or
-financial accuracy.
+Latest implementation verification on October 17, 2026: the same 76-test suite
+passes on H2 and PostgreSQL, plus packaged demo/body-bound/restart, secured JAR,
+PostgreSQL restore and 18 existing Chromium executions. The new optional
+[API request budget](rate-limits.md) adds five unit/configuration and three secured
+HTTP cases. The enabled limiter is checked through embedded Tomcat; packaged/browser
+workflows still run with it disabled. Full run IDs and the final-head PR are linked
+in the rate-limit record. This is synthetic prototype evidence, not deployment,
+production traffic or measured service capacity.
 
 ## Reviewer provenance — October 15, 2026
 
