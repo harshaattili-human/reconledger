@@ -88,6 +88,7 @@ additional index was rejected after it failed to fix the measured PostgreSQL sca
 
 - One business date and currency label per batch; at most 500 records on each side.
 - JSON request bodies capped at 512 KiB before parsing, including chunked requests.
+- Opt-in [process-wide request rate budget](docs/rate-limits.md) with 429 and retry delays.
 - Case-sensitive reference matching with five explicit outcomes.
 - Amounts exactly representable to two decimal places, including negative reversals.
 - `Idempotency-Key` replay across process restarts while the database is retained.
@@ -114,8 +115,8 @@ Do not expose it to a public network or put real financial/customer records into
 Currency is an uppercase three-letter label, not an ISO currency validator. Every
 amount uses two decimal places; currency-specific minor units, FX, fuzzy matching,
 settlement rules, tenant administration, retention policies, and large-file ingestion
-are outside this milestone. Request bodies are bounded, but rate limits and operational
-access controls remain deployment prerequisites. Result counts describe references, not
+are outside this milestone. Request bodies are bounded and a process-wide rate budget is optional; distributed
+limits, tenant fairness and operational access controls remain deployment prerequisites. Result counts describe references, not
 source-record counts or an accuracy score.
 
 H2 is the default local database. CI runs the same contract suite and packaged-app
