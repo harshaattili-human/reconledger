@@ -132,11 +132,20 @@ test("access rejection clears a draft and an uncertain save requires inspection 
   await page.getByRole("button", { name: "Save review" }).click();
   await expect(page.locator("#review-block")).toContainText("Save was not confirmed");
   expect(writes).toBe(1);
-  // A real expired credential is substituted at the transport boundary after connection.
-  await page.route("**/api/results/*", async (route) => {
-    await route.continue({ headers: { ...route.request().headers(), ...headers(t.expired) } });
+  // Replace the lower-case header rather than adding a second Authorization key.
+  const resultPath = `/api/results/${result.id}`;
+  let replacements = 0;
+  await page.route((url) => url.pathname === resultPath, async (route) => {
+    expect(route.request().method()).toBe("GET");
+    const forwarded = { ...await route.request().allHeaders(), authorization: `Bearer ${t.expired}` };
+    expect(Object.keys(forwarded).filter((name) => name.toLowerCase() === "authorization")).toHaveLength(1);
+    replacements++;
+    await route.continue({ headers: forwarded });
   }, { times: 1 });
+  const rejected = page.waitForResponse((response) => new URL(response.url()).pathname === resultPath);
   await page.getByRole("button", { name: "Reload result and history" }).click();
+  expect((await rejected).status()).toBe(401);
+  expect(replacements).toBe(1);
   await expect(page.locator("#connection")).toBeVisible();
   await expect(page.locator("#note")).toHaveValue("");
   await expect(page.locator("#events")).toBeEmpty();

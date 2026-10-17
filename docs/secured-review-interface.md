@@ -105,3 +105,22 @@ whitespace checks passed; the Maven parent POM was unavailable locally.
 The final refinement additionally holds a live batch response across a simulated
 pagehide event and checks that the old tenant list cannot reappear. It is a
 controlled lifecycle check, not proof of every browser's back/forward-cache behavior.
+
+## Expired-token test correction — October 17, 2026
+
+During [rate-budget verification run 39011676349](https://github.com/harshaattili-human/reconledger/actions/runs/39011676349),
+all 12 demo executions and five of six secured executions passed. The desktop
+expired-token substitution case failed: its error context showed a successful
+version-1 reload instead of a disconnected workspace. The limiter was disabled in
+this browser workflow; no rate rejection was observed.
+
+The harness spread lower-case request headers, then added an uppercase
+`Authorization` property. That can leave two differently cased properties for the
+same HTTP header. [Playwright's header contract](https://playwright.dev/docs/api/class-request#request-all-headers)
+returns lower-case names. The corrected test uses `allHeaders()` and replaces
+`authorization`, targets the exact result GET, and asserts one matching header key,
+one substitution and a real 401 response before checking cleared UI state. Token
+values remain absent from logs/traces. The original failure lacked network traces,
+so it does not establish which duplicate reached the server. No application or
+security validation was relaxed; final verification is recorded in
+[PR 20](https://github.com/harshaattili-human/reconledger/pull/20).
