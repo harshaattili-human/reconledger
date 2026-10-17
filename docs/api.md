@@ -9,6 +9,14 @@ Authentication failures return 401; insufficient scopes return 403. Those securi
 filter responses are not MVC problem details. Each token needs an issuer-signed `tenant_id`; data and keys are
 scoped to that tenant. See [the tenant contract](tenants.md). Foreign IDs return 404.
 
+## Optional request rate limit
+
+When enabled, mapped API requests share a process-wide token bucket. Exhaustion
+returns 429 with `Retry-After` and `Cache-Control: no-store` before parsing or
+controller work; rejected writes do not reserve keys or change review state.
+Authentication/scope failures retain 401/403. See [configuration, retry semantics
+and limitations](rate-limits.md). The limit is disabled by default.
+
 ## Request body limit
 
 Batch creation and review requests accept at most **524,288 bytes (512 KiB)**,

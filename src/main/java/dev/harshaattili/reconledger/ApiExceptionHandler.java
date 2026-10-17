@@ -13,6 +13,15 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 public class ApiExceptionHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ApiExceptionHandler.class);
 
+    @ExceptionHandler(ApiRateLimit.Rejected.class)
+    public ResponseEntity<ProblemDetail> rateLimited(ApiRateLimit.Rejected exception) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+            .header(HttpHeaders.RETRY_AFTER, Long.toString(exception.retrySeconds))
+            .cacheControl(CacheControl.noStore())
+            .body(ProblemDetail.forStatusAndDetail(HttpStatus.TOO_MANY_REQUESTS,
+                "API request budget exhausted. Wait before retrying; no operation was started."));
+    }
+
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ProblemDetail> api(ApiException exception) {
         return problem(exception.status(), exception.getMessage());
