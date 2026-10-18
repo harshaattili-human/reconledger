@@ -53,13 +53,18 @@ def token(private, tenant, expiry, scope=SCOPES):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--database", choices=["h2", "postgres"], default="h2")
+    parser.add_argument("--seed-jar", type=Path,
+                        help="Create retained state with this trusted older JAR before restarting the current JAR")
     args = parser.parse_args()
     if args.database == "postgres":
         for name in ("RECON_DB_URL", "RECON_DB_USER", "RECON_DB_PASSWORD"):
             require(os.environ.get(name), "PostgreSQL smoke requires " + name)
         require(os.environ["RECON_DB_URL"].startswith("jdbc:postgresql:"), "Expected a disposable PostgreSQL URL")
     require(JAR.exists(), "Run ./mvnw verify before this check")
-    report = ROOT / f"target/secured-smoke-{args.database}.json"
+    seed_jar = args.seed_jar.resolve() if args.seed_jar else JAR
+    require(seed_jar.is_file(), "Seed JAR does not exist")
+    report_kind = "upgrade" if args.seed_jar else "secured-smoke"
+    report = ROOT / f"target/{report_kind}-{args.database}.json"
     report.unlink(missing_ok=True)  # A failed rerun must not leave an old success report.
     with socket.socket() as reserved:
         reserved.bind(("127.0.0.1", 0))
@@ -99,9 +104,9 @@ def main():
         process = None
         log_path = directory / "application.log"
 
-        def command(secured=True):
+        def command(secured=True, jar=JAR):
             profiles = ("postgres," if args.database == "postgres" else "") + ("secured" if secured else "default")
-            result = ["java", "-jar", str(JAR), f"--server.port={port}", "--server.address=127.0.0.1",
+            result = ["java", "-jar", str(jar), f"--server.port={port}", "--server.address=127.0.0.1",
                       "--spring.profiles.active=" + profiles]
             if args.database == "h2":
                 result += ["--spring.datasource.url=jdbc:h2:file:./.local/reconledger;DB_CLOSE_ON_EXIT=FALSE",
@@ -111,9 +116,9 @@ def main():
                            "--recon.security.issuer=" + ISSUER, "--recon.security.audience=" + AUDIENCE]
             return result
 
-        def start(log, secured=True):
+        def start(log, secured=True, jar=JAR):
             nonlocal process
-            process = subprocess.Popen(command(secured), cwd=directory, env=env,
+            process = subprocess.Popen(command(secured, jar), cwd=directory, env=env,
                                        stdout=log, stderr=subprocess.STDOUT)
             deadline = time.monotonic() + 45
             while time.monotonic() < deadline:
@@ -161,7 +166,7 @@ def main():
                     "Blank audience did not fail startup for the expected reason")
             print("Packaged trust check passed: blank audience prevents startup.")
             with log_path.open("w") as log:
-                start(log)
+                start(log, jar=seed_jar)
                 call("/api/batches", 401)
                 call("/api/batches", 401, new_tokens[0])
                 read_only = token(first_key, tenants[0], expiry, "recon:read")
@@ -230,6 +235,8 @@ def main():
                 stop()
                 print("Demo profile check passed: private tenant IDs stay inaccessible; the same key creates a demo batch.")
             report.write_text(json.dumps({"database_profile": args.database, "jar_sha256": hashlib.sha256(JAR.read_bytes()).hexdigest(),
+                "seed_jar_sha256": hashlib.sha256(seed_jar.read_bytes()).hexdigest(),
+                "cross_version_restart": bool(args.seed_jar),
                 "openssl": openssl("version").decode().strip(), "python": sys.version.split()[0],
                 "checks": ["blank-audience-startup-rejected", "scopes-and-tenant-boundaries", "authenticated-review",
                            "pinned-key-replacement-on-restart", "retained-evidence-idempotency-audit-cursor", "demo-profile-isolation"],

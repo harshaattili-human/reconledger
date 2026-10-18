@@ -51,6 +51,16 @@ jobs:
         run: python3 scripts/secured_smoke.py
       - name: Show secured H2 check receipt
         run: cat target/secured-smoke-h2.json
+      - uses: actions/checkout@v7
+        with:
+          ref: 844c11767a8b0c7db516a47fb569999b1ad6877e
+          path: upgrade-baseline
+      - name: Build previous Boot 3 runtime for retained-data upgrade
+        run: ./mvnw --batch-mode --no-transfer-progress -DskipTests package
+        working-directory: upgrade-baseline
+      - name: Open Boot 3 H2 data with the current secured JAR
+        run: python3 scripts/secured_smoke.py --seed-jar upgrade-baseline/target/reconledger-0.1.0-SNAPSHOT-app.jar
+      - run: cat target/upgrade-h2.json
   verify-postgres:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -97,6 +107,16 @@ jobs:
         run: python3 scripts/secured_smoke.py --database postgres
       - name: Show secured PostgreSQL check receipt
         run: cat target/secured-smoke-postgres.json
+      - uses: actions/checkout@v7
+        with:
+          ref: 844c11767a8b0c7db516a47fb569999b1ad6877e
+          path: upgrade-baseline
+      - name: Build previous Boot 3 runtime for retained-data upgrade
+        run: ./mvnw --batch-mode --no-transfer-progress -DskipTests package
+        working-directory: upgrade-baseline
+      - name: Open Boot 3 PostgreSQL data with the current secured JAR
+        run: python3 scripts/secured_smoke.py --database postgres --seed-jar upgrade-baseline/target/reconledger-0.1.0-SNAPSHOT-app.jar
+      - run: cat target/upgrade-postgres.json
   postgres-restore:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
