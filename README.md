@@ -123,6 +123,8 @@ H2 is the default local database. CI runs the same contract suite and packaged-a
 restart checks on H2 and PostgreSQL 16. [The PostgreSQL guide](docs/postgresql.md)
 shows how to repeat the checks with a disposable database; [verification evidence](docs/verification.md)
 records the exact versions, successful run and a collation bug found along the way.
+The [packaged Java audit](docs/java-audit.md) checks shipped library inventory and
+retains advisory findings separately from functional verification.
 See [next work](docs/roadmap.md).
 
 Audit reads return at most 200 events per page (50 by default). The response is now

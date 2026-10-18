@@ -35,6 +35,7 @@ Preserve these invariants:
 - A stale reviewer cannot overwrite a newer decision.
 
 Add tests for changed behavior and document actual verification commands and results.
+For dependency or packaging changes, also run the [packaged Java audit](docs/java-audit.md).
 Do not claim production readiness, performance, independent review or deployment
 without evidence. Test counts are coverage examples, not a quality score. Keep AI
 assistance and synthetic-data provenance accurate.

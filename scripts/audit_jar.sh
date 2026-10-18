@@ -19,7 +19,7 @@ scan() {
     "$scanner" --cache-dir /cache "$@"
 }
 # One complete report is both the retained evidence and the input to the gate.
-scan filesystem --disable-telemetry --scanners vuln --pkg-types library \
+scan rootfs --disable-telemetry --scanners vuln --pkg-types library \
   --ignorefile /dev/null --list-all-pkgs --format json --exit-code 0 \
   --output /output/trivy.json /input
 scan version --format json > "$output/scanner-version.json"
