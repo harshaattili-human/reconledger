@@ -13,6 +13,14 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 public class ApiExceptionHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ApiExceptionHandler.class);
 
+    @ExceptionHandler(ApiConcurrencyLimit.Rejected.class)
+    public ResponseEntity<ProblemDetail> concurrencyLimited(ApiConcurrencyLimit.Rejected exception) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+            .cacheControl(CacheControl.noStore())
+            .body(ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE,
+                "API concurrency capacity exhausted. No operation was started."));
+    }
+
     @ExceptionHandler(ApiRateLimit.Rejected.class)
     public ResponseEntity<ProblemDetail> rateLimited(ApiRateLimit.Rejected exception) {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)

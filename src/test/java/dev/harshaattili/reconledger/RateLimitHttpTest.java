@@ -40,7 +40,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = {"recon.rate-limit.enabled=true", "recon.security.review-ui-enabled=true"})
+    properties = {"recon.rate-limit.enabled=true", "recon.security.review-ui-enabled=true",
+        "recon.concurrency-limit.enabled=true", "recon.concurrency-limit.capacity=1"})
 @ActiveProfiles({"test", "secured"})
 @Import(RateLimitHttpTest.ClockConfiguration.class)
 class RateLimitHttpTest {

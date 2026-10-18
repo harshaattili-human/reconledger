@@ -19,6 +19,11 @@ and limitations](rate-limits.md). The limit is disabled by default.
 
 ## Request body limit
 
+An independent opt-in [concurrent API cap](concurrency-limits.md) rejects excess
+mapped requests with 503/no-store before parsing or rate charging. Its detail says
+no operation was started; existing admitted work retains its slots through response
+serialization. It has no predictable retry delay and does not add automatic retries.
+
 Batch creation and review requests accept at most **524,288 bytes (512 KiB)**,
 including JSON whitespace, encoded field names and values. The bound applies to
 both `Content-Length` and chunked HTTP/1.1 bodies. Larger bodies return 413 with
