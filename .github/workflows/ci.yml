@@ -7,6 +7,26 @@ on:
 permissions:
   contents: read
 jobs:
+  java-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - run: python3 scripts/test_jar_audit.py
+      - run: ./mvnw --batch-mode --no-transfer-progress -DskipTests package
+      - name: Audit libraries in the executable JAR
+        run: bash scripts/audit_jar.sh target/reconledger-0.1.0-SNAPSHOT-app.jar target/java-audit
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: java-audit
+          path: target/java-audit/
+          retention-days: 30
   verify:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
