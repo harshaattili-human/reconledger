@@ -67,9 +67,24 @@ after 429 and the interaction with token refill. These are synthetic correctness
 fixtures, not throughput measurements. Packaged/browser workflows retain the default
 disabled policy.
 
-Execution evidence will be recorded after the exact candidate passes hosted CI.
-Local Maven could not resolve the uncached parent POM offline; no local Java pass
-is claimed.
+## Observed execution — October 18, 2026
+
+Implementation `c1c14ef60eb7a276757d3e655bf8a17f3deb569b` passed all five jobs in
+[run 39134194395](https://github.com/harshaattili-human/reconledger/actions/runs/39134194395).
+H2 job `117695256897` and PostgreSQL job `117695256900` each passed the same 81 Java
+cases with zero failures/errors/skips, including the five new cases above and the
+three existing rate cases with concurrency enabled. Default/secured packaged
+workflows, process restarts, pinned-key replacement and both Boot 3 retained-data
+upgrade rehearsals also passed. Browser job `117695256896` passed 12 demo and six
+secured Chromium executions; restore job `117695256782` passed. These existing
+packaged/browser workflows keep admission disabled.
+
+Java 17.0.20.1, Boot 4.0.8, H2 2.3.232 and PostgreSQL 16.15 ran on hosted Ubuntu
+24.04. Audit job `117695256620` inventoried 73 shipped libraries with zero entries
+in its advisory snapshot; this is not an absence-of-vulnerabilities claim. Local
+whitespace checks passed, but Maven could not resolve the uncached parent POM
+offline; no local Java pass is claimed. Final-head CI is retained in
+[PR 22](https://github.com/harshaattili-human/reconledger/pull/22).
 
 Reference: Spring's [interceptor lifecycle](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/servlet/HandlerInterceptor.html).
 

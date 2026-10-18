@@ -1,5 +1,10 @@
 # Verification record
 
+October 18: the [concurrent API cap](concurrency-limits.md) passed 81 cases on each
+database, all packaged/upgrade/restore workflows and the existing 18 browser
+executions. The enabled policy uses secured embedded-Tomcat tests; packaged checks
+retain the disabled default. See the admission record for exact run/jobs and limits.
+
 October 18: the [Boot 4 migration](boot-4-migration.md) passed the same 76 cases on
 both databases, packaged security/restart/restore workflows and 18 browser
 executions. The packaged Java audit now inventories 73 libraries with zero advisory
