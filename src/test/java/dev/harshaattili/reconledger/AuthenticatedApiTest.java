@@ -71,7 +71,9 @@ class AuthenticatedApiTest {
     @AfterAll static void removeKeyFile() throws Exception { Files.deleteIfExists(PUBLIC_KEY); }
 
     @Test void requiresBearerAuthenticationOnEveryDataEndpoint() throws Exception {
-        assertThat(call("GET", "/actuator/health", null, null, null).statusCode()).isEqualTo(200);
+        var health = call("GET", "/actuator/health", null, null, null);
+        assertThat(health.statusCode()).isEqualTo(200);
+        assertThat(body(health)).isEqualTo(json.readTree("{\"status\":\"UP\"}"));
         for (String path : List.of("/api/batches", "/api/batches/unknown", "/api/results/unknown",
                                    "/api/results/unknown/events")) {
             var denied = call("GET", path, null, null, null);
