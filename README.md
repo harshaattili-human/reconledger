@@ -3,7 +3,7 @@
 Compare two sets of transaction records, explain discrepancies, and record review
 decisions without changing the original evidence.
 
-ReconLedger is a Java 17 / Spring Boot 3 backend project. It focuses on exact decimal
+ReconLedger is a Java 17 / Spring Boot 4 backend project. It focuses on exact decimal
 comparison, durable idempotency, concurrent updates, and database rollback. Matching
 is deterministic: duplicate references remain exceptions even when their totals agree.
 

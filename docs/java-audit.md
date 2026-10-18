@@ -61,7 +61,7 @@ authentication-policy fix beyond the scanner's minimum 42.7.12. Sources:
 [Tomcat](https://tomcat.apache.org/security-10.html),
 [pgJDBC](https://jdbc.postgresql.org/changelogs/2026-10-07-42.7.14-release/).
 
-Spring MVC findings CVE-2026-47884 and CVE-2026-47890 remain a migration decision.
+Spring MVC findings CVE-2026-47884 and CVE-2026-47890 required a migration decision.
 The scanner classifies both CRITICAL; Spring's advisories classify them MEDIUM and
 LOW, respectively, and describe XSLT view rendering and SSE view-fragment conditions.
 Spring lists 6.2.20 as enterprise-only and 7.0.9 as the OSS fix. No exception is
@@ -88,7 +88,8 @@ pgJDBC 42.7.14. These checks establish compatibility for the covered synthetic
 workflows, not exploitability or deployment safety. Java and scanner execution was
 hosted; local checks covered the four Python fixtures, shell syntax and diff/link review.
 
-Next: evaluate a supported Boot/Framework upgrade with the full security, tenant,
-migration and packaged-workflow suite. Do not suppress these advisories merely to
-merge the audit. Interview exercise: why can functional tests pass while a packaged
-dependency audit correctly blocks the same change?
+The subsequent [Boot 4 migration](boot-4-migration.md) resolves these findings and
+records the compatibility failures, additional dependency updates and passing
+artifact scan. The earlier results above remain historical evidence.
+Interview exercise: why can functional tests pass while a packaged dependency
+audit correctly blocks the same change?

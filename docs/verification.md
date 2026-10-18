@@ -1,5 +1,11 @@
 # Verification record
 
+October 18: the [Boot 4 migration](boot-4-migration.md) passed the same 76 cases on
+both databases, packaged security/restart/restore workflows and 18 browser
+executions. The packaged Java audit now inventories 73 libraries with zero advisory
+entries in its recorded snapshot. See the migration record for exact versions,
+failed candidates and the separate retained-data upgrade protocol.
+
 Latest implementation verification on October 17, 2026: the same 76-test suite
 passes on H2 and PostgreSQL, plus packaged demo/body-bound/restart, secured JAR,
 PostgreSQL restore and 18 existing Chromium executions. The new optional
