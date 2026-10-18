@@ -3,7 +3,7 @@
 Compare two sets of transaction records, explain discrepancies, and record review
 decisions without changing the original evidence.
 
-ReconLedger is a Java 17 / Spring Boot 3 backend project. It focuses on exact decimal
+ReconLedger is a Java 17 / Spring Boot 4 backend project. It focuses on exact decimal
 comparison, durable idempotency, concurrent updates, and database rollback. Matching
 is deterministic: duplicate references remain exceptions even when their totals agree.
 
@@ -123,6 +123,8 @@ H2 is the default local database. CI runs the same contract suite and packaged-a
 restart checks on H2 and PostgreSQL 16. [The PostgreSQL guide](docs/postgresql.md)
 shows how to repeat the checks with a disposable database; [verification evidence](docs/verification.md)
 records the exact versions, successful run and a collation bug found along the way.
+The [packaged Java audit](docs/java-audit.md) checks shipped library inventory and
+retains advisory findings separately from functional verification.
 See [next work](docs/roadmap.md).
 
 Audit reads return at most 200 events per page (50 by default). The response is now

@@ -3,7 +3,7 @@ package dev.harshaattili.reconledger;
 import static dev.harshaattili.reconledger.Model.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;

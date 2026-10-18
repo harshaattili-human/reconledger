@@ -1,0 +1,1856 @@
+{
+  "protocol": "Same packaged JAR inventory gate; all findings retained. Not an exploitability assessment.",
+  "candidates": [
+    {
+      "head": "8aa16384bbf67b9f05ef8b356e958e9a4915637b",
+      "run_id": 39107670911,
+      "inventory": {
+        "jar_sha256": "7e84378b9c2995c6dce6a9e8f7ac0dd0ac6768adb782873d21ebb112900112fc",
+        "libraries": {
+          "BOOT-INF/lib/HdrHistogram-2.2.2.jar": "22d1d4316c4ec13a68b559e98c8256d69071593731da96136640f864fa14fad8",
+          "BOOT-INF/lib/HikariCP-7.0.2.jar": "f1e612fa27345be3107a85431e8a8aeb205c15364ab2f2d411e40a9d7bb08095",
+          "BOOT-INF/lib/LatencyUtils-2.0.3.jar": "a32a9ffa06b2f4e01c5360f8f9df7bc5d9454a5d373cd8f361347fa5a57165ec",
+          "BOOT-INF/lib/checker-qual-3.55.1.jar": "857658c8bdcbff794949a8d9922f88d63ee3751c203c7cd7d21ea97f9e745288",
+          "BOOT-INF/lib/classmate-1.7.3.jar": "75fbda45456f123fb6e2028a6189442d8d0730b357adce4c0a6d7e789f70669b",
+          "BOOT-INF/lib/commons-logging-1.3.6.jar": "f8ead8943401081dea0aa824b5b1ba40a0e4ed297a572a0f02258150a0b62357",
+          "BOOT-INF/lib/flyway-core-11.14.1.jar": "45148edbcb55016418ff1ef7ecca3331b55f5216b3af4bd2db40063904db3715",
+          "BOOT-INF/lib/flyway-database-postgresql-11.14.1.jar": "d7142273706f225e6890ff971f0c8ccc4e7fe253ab6ab9f20556b155c68bca8a",
+          "BOOT-INF/lib/h2-2.3.232.jar": "8dae62d22db8982c3dcb3826edb9c727c5d302063a67eef7d63d82de401f07d3",
+          "BOOT-INF/lib/hibernate-validator-9.0.1.Final.jar": "25f40118fa4c50f8522d090d25d52d5a38953b0ccd1250835f052e7bd3164ce0",
+          "BOOT-INF/lib/jackson-annotations-2.21.jar": "53ca085f4a150f703f49e1aabd935bd03b43e1ea3d55d135438292af22cef56b",
+          "BOOT-INF/lib/jackson-core-2.21.5.jar": "b64b5874162b503a0e58a8f7758266e8dd9f91bf49e3a59ae0b5f47589a231b7",
+          "BOOT-INF/lib/jackson-core-3.1.5.jar": "9431b7fa2673bbb618c11d865fe15e13222fd182a214ff998cb7e56afd8f35d2",
+          "BOOT-INF/lib/jackson-databind-2.21.5.jar": "507418c0fafd38b2b2cfb704521630da613a8e4cc8381195a6f418017883e2c0",
+          "BOOT-INF/lib/jackson-databind-3.1.5.jar": "3a2338d996fd3056791df8d335fa9ba8a62a706ed4245ecf81b3e583df37d08a",
+          "BOOT-INF/lib/jackson-datatype-jdk8-2.21.5.jar": "c8b1a0d14ffb3f8f8a1f182856c8803a3ee1d7c1aeb68dfee08f22d934ce108f",
+          "BOOT-INF/lib/jackson-datatype-jsr310-2.21.5.jar": "e941f9718d16a649614cb06711de06da34722afff9cee0b7725fc5318638304c",
+          "BOOT-INF/lib/jackson-module-parameter-names-2.21.5.jar": "87da1f76d23865f87df740658e96e906fd429e5df3a8f949551955d6dbb5129c",
+          "BOOT-INF/lib/jakarta.annotation-api-3.0.0.jar": "b01f55552284cfb149411e64eabca75e942d26d2e1786b32914250e4330afaa2",
+          "BOOT-INF/lib/jakarta.validation-api-3.1.1.jar": "63ce00156388c365f3ac1be71fcfaf114682fc0c452020b5df6e7ec236e142ab",
+          "BOOT-INF/lib/jboss-logging-3.6.3.Final.jar": "7c12ee575508f81e22b1db9334b969d0ec54ef0fd1dcba24eeab1a44235fc366",
+          "BOOT-INF/lib/jspecify-1.0.1.jar": "070d75f261fe4c5b8202508366715f7f2d4660f88c8ef7e6d3575e48c9683b66",
+          "BOOT-INF/lib/jul-to-slf4j-2.0.18.jar": "cbb7d1aaaa9e871eb1a06594abd911bf97027152976edf1edc315be75239204e",
+          "BOOT-INF/lib/log4j-api-2.25.5.jar": "64777f73ea0b3104c04eb82befbdccc30a425a19e83ad06cb2f93aa303511863",
+          "BOOT-INF/lib/log4j-to-slf4j-2.25.5.jar": "b68e8b47342dbc9b35644a14fe2efc0b7bf18da703910cd05ad5501ffe07bba1",
+          "BOOT-INF/lib/logback-classic-1.5.38.jar": "afb439c61fa287c9e1925523b13baab03617e724406a389d48b61c2c3e46b700",
+          "BOOT-INF/lib/logback-core-1.5.38.jar": "a855a0fc97b1d06f4efb1c3bba5ebd0eb508d8b58e68e89e4bbc23a85135c883",
+          "BOOT-INF/lib/micrometer-commons-1.16.7.jar": "cd1ad64a94650a2ed3988a4ab48c9a7fad40c4986a81e328194dd757b5170273",
+          "BOOT-INF/lib/micrometer-core-1.16.7.jar": "6a1971bc92310cf8e387118a79d0b9146695d6f8d89d03990e180f9dcb374284",
+          "BOOT-INF/lib/micrometer-jakarta9-1.16.7.jar": "100b600eed6ef9ceafeacee9687b6fd41dd59007f23d1483739b6d9480705863",
+          "BOOT-INF/lib/micrometer-observation-1.16.7.jar": "74f9e4d51ef30c141de8a2409879282e572eef98665e033e8922c2fbee16862d",
+          "BOOT-INF/lib/nimbus-jose-jwt-10.4.jar": "6f13f3480ddc53d820d276f582f54843cff1daf5c6e35e534947e9de7723b46b",
+          "BOOT-INF/lib/postgresql-42.7.14.jar": "73914527305a40cce504b0d3d90b23caf565136912d607ae8ae7c5895512332c",
+          "BOOT-INF/lib/slf4j-api-2.0.18.jar": "44508fd1576500688c790b190acdd16fec4f8c79a3e0b900afd70503cf055f55",
+          "BOOT-INF/lib/snakeyaml-2.5.jar": "e6682acf1ace77508ef13649cbf4f8d09d2cf5457bdb61d25ffb6ac0233d78dd",
+          "BOOT-INF/lib/spring-aop-7.0.9.jar": "b8c5d6bfcb1f4993f2cc124f7ab7fac40edf5256b9e43c2f7250a733cb5510e9",
+          "BOOT-INF/lib/spring-beans-7.0.9.jar": "ff218b827a25c9e8929b0cd56dfb56916cea9d5b669ed97dc7cb262508ff548b",
+          "BOOT-INF/lib/spring-boot-4.0.8.jar": "ef1a4917ff5dfd41de20b7441a7830eaeae0a01229998c3aa2f471b96bc2b38f",
+          "BOOT-INF/lib/spring-boot-actuator-4.0.8.jar": "1f3bd61015e1a6346a7f3b12547b07b47ea312392cfbccbcfa3cbadbe7cc7a4a",
+          "BOOT-INF/lib/spring-boot-actuator-autoconfigure-4.0.8.jar": "f9c3c760c2ac7a8d7b33ac1ad0c886e36f4573c7674e1fd5ca46f81443e5d58e",
+          "BOOT-INF/lib/spring-boot-autoconfigure-4.0.8.jar": "6beeb105cceae1df37957d35e1bf8d060e7bde61537569decae3f976f6b54919",
+          "BOOT-INF/lib/spring-boot-flyway-4.0.8.jar": "a14377e98f8446a2b95bb12ceb3d43d23ef0d482cf22a69a329b363561425738",
+          "BOOT-INF/lib/spring-boot-health-4.0.8.jar": "85dcca38f6d9b33f96af895bfdc99ecfe862f591e677047d58e025b3a94a786c",
+          "BOOT-INF/lib/spring-boot-http-converter-4.0.8.jar": "ea94cd0d84162603266b7ab97f8a4de5661ad0425d0d8a50c50a18f4610dc0be",
+          "BOOT-INF/lib/spring-boot-jackson-4.0.8.jar": "f846da1dc1f78acd3e9446b19d049f0a3a5bd79dac7eb2cff921b256f9dc4b01",
+          "BOOT-INF/lib/spring-boot-jackson2-4.0.8.jar": "5d47b12cad1075d9c5e4e84dd60e3798f08a72cf134f12e7384b9a556103171e",
+          "BOOT-INF/lib/spring-boot-jarmode-tools-4.0.8.jar": "7b14818a48bb13e252d0267728eacf3a458b9aab3c63687ee4e292f305c5e026",
+          "BOOT-INF/lib/spring-boot-jdbc-4.0.8.jar": "794570e0962830d4d6ea356ec9dbbfee595afbb8cdf3a95eb7d331e900401f80",
+          "BOOT-INF/lib/spring-boot-micrometer-metrics-4.0.8.jar": "30eb8f95ebcd29375e49eb1834dcc176a8f824cba01214c37d899e2ad5e598f7",
+          "BOOT-INF/lib/spring-boot-micrometer-observation-4.0.8.jar": "4ba481c61798a353114925be837b27b709da5e6b9bdddbd786e7761949d4c2b6",
+          "BOOT-INF/lib/spring-boot-persistence-4.0.8.jar": "663b2018a8820bee73cc99314a7a7e64275706e615c4274efb80f90207098263",
+          "BOOT-INF/lib/spring-boot-security-4.0.8.jar": "7a52b309ac7a604e9c2aefd4389773ba8cacd3d0a01989b55d3a45576654e48a",
+          "BOOT-INF/lib/spring-boot-security-oauth2-resource-server-4.0.8.jar": "f4dca29b44703d660e39ae69c8002cdd64aec1da99e8e9cb24359e96b5eb38c4",
+          "BOOT-INF/lib/spring-boot-servlet-4.0.8.jar": "c632f7a95fb68edd0803ed9b40c0e93591ee572cc755fd78ca4c9a039369661b",
+          "BOOT-INF/lib/spring-boot-sql-4.0.8.jar": "cd88bfdcb52b5aa5b4124c65909cd57c2b414a8a2776c4c087dd75b7427a8e0c",
+          "BOOT-INF/lib/spring-boot-tomcat-4.0.8.jar": "2c704a61e44768d6b5101b2ac0ae0b87399a30abb96712d9fb746b506efcee1e",
+          "BOOT-INF/lib/spring-boot-transaction-4.0.8.jar": "cf86b197ceb6f352ec32c8a1374520c2361c8b2c08ec0dca2753480d097dcfc6",
+          "BOOT-INF/lib/spring-boot-validation-4.0.8.jar": "25b357a3d7cc84cc6ebb14b38ae28cfd27a3e1468fb5d0891b87f6bb30494a52",
+          "BOOT-INF/lib/spring-boot-web-server-4.0.8.jar": "634e37eb6e53cc9d30e54bb8e3969faec289a0cf222e4929446d2af38e6fb6ce",
+          "BOOT-INF/lib/spring-boot-webmvc-4.0.8.jar": "92052c430ea18f39f34c4f05feaebb108ee1a145263f46bbc3b3506fed598b81",
+          "BOOT-INF/lib/spring-context-7.0.9.jar": "7552a2fcfa30cea53eb14d7a65a7a8e1b1dd82e832a7164fb7e6fb105f438858",
+          "BOOT-INF/lib/spring-core-7.0.9.jar": "5195f4722699b39878d99a832549fe65df2890b159d063b88fff31b1ca65ae36",
+          "BOOT-INF/lib/spring-expression-7.0.9.jar": "046434c40f43819729b9b1db0e6c659dfa68184c1c2c2efa5f7b3a5b27c4e2e2",
+          "BOOT-INF/lib/spring-jdbc-7.0.9.jar": "ca0d9af1c5721eef8cac1f94c8b9d27a753248bc33c86e3472bd3d1dbd78f450",
+          "BOOT-INF/lib/spring-security-config-7.0.7.jar": "a601134be90447b371c0679a21fc0c797f9a2e8d05ca8f821020a7d952985464",
+          "BOOT-INF/lib/spring-security-core-7.0.7.jar": "e1f9eacc6a91fadc2d63155ccb8896c19cc945239ac126f2556fffe15effe596",
+          "BOOT-INF/lib/spring-security-crypto-7.0.7.jar": "e03b7570b6bac4a7d4837542e9317bc65158cfc96485564a29e7bb6747f218aa",
+          "BOOT-INF/lib/spring-security-oauth2-core-7.0.7.jar": "ebd2443cfab96e6c84fde0a2e8fd28946c25b21e84f457b49d9deaff2ffdc91e",
+          "BOOT-INF/lib/spring-security-oauth2-jose-7.0.7.jar": "2fa42334847a224b3c28f4c2dbcafe8b2b5afc00ac76db6c99a47081059872af",
+          "BOOT-INF/lib/spring-security-oauth2-resource-server-7.0.7.jar": "c71412e10a18beabd8f38c96577ded32c11d9531e534f9360497f36e6a649652",
+          "BOOT-INF/lib/spring-security-web-7.0.7.jar": "b9935b0ab3ddbf4df963b2c7fa8fc98245687398ef3e22253c26e1d53db75388",
+          "BOOT-INF/lib/spring-tx-7.0.9.jar": "bfb15da6e096e2c0752e9db9987d2415bf0da1d744efc988535c10c6b6c2eedd",
+          "BOOT-INF/lib/spring-web-7.0.9.jar": "941ced476427bde2533872f293da535fd0258de3f3a650a7f1bfe01ed2927302",
+          "BOOT-INF/lib/spring-webmvc-7.0.9.jar": "8f114c1461692c5e534e82b27de23b7fb23370db8dee7ce0c92d5106906c9555",
+          "BOOT-INF/lib/tomcat-embed-core-11.0.24.jar": "e7b966dcaac8c5ffa4f10e44031ebf5b71f2123560c08ac8b7120028615aea08",
+          "BOOT-INF/lib/tomcat-embed-el-11.0.24.jar": "ad0546f12dace008aacce18ba13222137760b310ca719e173d3e13021b9af6c6",
+          "BOOT-INF/lib/tomcat-embed-websocket-11.0.24.jar": "825160101f0da4a10e19b5730c2ae2f99f8c2c7a7211ac05562726c5e97ab91e"
+        },
+        "library_count": 77,
+        "finding_entries": 17,
+        "fixable_high_critical_entries": 13
+      },
+      "scanner-digests": [
+        "aquasec/trivy@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa"
+      ],
+      "scanner-version": {
+        "Version": "0.75.0",
+        "VulnerabilityDB": {
+          "Version": 2,
+          "NextUpdate": "2026-10-19T00:43:37.96251693Z",
+          "UpdatedAt": "2026-10-18T00:43:37.96251718Z",
+          "DownloadedAt": "2026-10-18T07:27:09.138746966Z"
+        },
+        "JavaDB": {
+          "Version": 1,
+          "NextUpdate": "2026-10-21T00:58:00.305003002Z",
+          "UpdatedAt": "2026-10-18T00:58:00.305003613Z",
+          "DownloadedAt": "2026-10-18T07:27:26.095189283Z"
+        }
+      },
+      "scanner_artifact": "/input",
+      "findings": [
+        {
+          "VulnerabilityID": "CVE-2026-89407",
+          "VendorIDs": [
+            "GHSA-p6pp-m3f8-5c89"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-core",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-core-2.21.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.21.5",
+            "UID": "e57d3f32337605a4"
+          },
+          "InstalledVersion": "2.21.5",
+          "FixedVersion": "2.18.11, 2.21.7, 2.22.3",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-89407",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:fe9dc6fbc03361e277738776851154f8ece5faadc1ad4329f9b61207e6df0fd6",
+          "Title": "com.fasterxml.jackson/jackson-core: tools.jackson.core/jackson-core: Jackson-core: Denial of Service via regular expression backtracking",
+          "Description": "NumberInput.looksLikeValidNumber() in FasterXML jackson-core pre-validates \"stringified numbers\" with two regular expressions: PATTERN_FLOAT ([+-]?[0-9]*[\\.]?[0-9]+([eE][+-]?[0-9]+)?), present since 2.17.0, and PATTERN_FLOAT_TRAILING_DOT, added in 2.17.2. PATTERN_FLOAT places adjacent quantifiers over the same character class -- an optional [0-9]* run, an optional dot, then a required [0-9]+ run -- so input that ultimately fails to match forces Java's backtracking engine to retry every possible split point of the digit run.\u00a0\n\n\n\nMatching cost therefore grows with the square of the input length.\u00a0\n\n\n\nAn attacker who can supply JSON that an application deserializes into a numeric target type reaches this method through jackson-databind's default String-to-number coercion (StdDeserializer and NumberDeserializers for BigDecimal, BigInteger, Double and Float).\u00a0\n\n\n\nBecause StreamReadConstraints.maxStringLength defaults to 20,000,000 characters, no constraint bounds the input before it reaches the regex.\u00a0\n\n\n\nTesting by the reporter confirmed O(n^2) growth across five consecutive input-size doublings, with a single 160,000-character string consuming roughly 74 seconds in one call; a small number of concurrent requests of ordinary body size can therefore exhaust a server's request-handling thread pool.\u00a0\n\n\n\nThe affected method does not exist before 2.17.0, so 2.16.x and earlier releases are not affected.\u00a0\n\n\n\nThe fix replaces both regular expressions with a hand-rolled single-pass scan.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "ghsa": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 5.9
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-89407",
+            "https://advisory.echohq.com/cve/CVE-2026-89407",
+            "https://getsafety.com/vulnerabilities/SFTY-20260922-89449/CVE-2026-89407",
+            "https://github.com/FasterXML/jackson-core",
+            "https://github.com/FasterXML/jackson-core/commit/731e794f62623aa0d86ced52490166be903fbb1d",
+            "https://github.com/FasterXML/jackson-core/commit/e7acd64cc99bd346704423dc2bfea1ab0a08ddff",
+            "https://github.com/FasterXML/jackson-core/issues/1649",
+            "https://github.com/FasterXML/jackson-core/pull/1650",
+            "https://github.com/FasterXML/jackson-core/pull/1701",
+            "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-p6pp-m3f8-5c89",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-89407",
+            "https://www.cve.org/CVERecord?id=CVE-2026-89407"
+          ],
+          "PublishedDate": "2026-09-22T15:17:21.053Z",
+          "LastModifiedDate": "2026-09-22T20:00:03.713Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-89425",
+          "VendorIDs": [
+            "GHSA-7hhh-6rmp-j9qf"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-core",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-core-2.21.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.21.5",
+            "UID": "e57d3f32337605a4"
+          },
+          "InstalledVersion": "2.21.5",
+          "FixedVersion": "2.21.7, 2.22.3, 2.18.11",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-89425",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:c3aa1748156bbd548117f6b7d986a937a5030b1e5416a0601e7d260404291d85",
+          "Title": "com.fasterxml.jackson.core/jackson-core: Jackson-core: Denial of Service via unbounded StringBuilder growth during malformed token processing",
+          "Description": "UTF8DataInputJsonParser._reportInvalidToken() in FasterXML jackson-core builds the offending-token text for its error message by appending Java identifier characters to a StringBuilder in a loop that has no upper bound. Unlike the three sibling parser implementations, including UTF8StreamJsonParser, it never consults ErrorReportConfiguration.getMaxErrorTokenLength() (default 256). A malformed token supplied to a parser created through JsonFactory.createParser(DataInput) is therefore accumulated in full. No StreamReadConstraints setting mitigates this: maxDocumentLength cannot be applied to DataInput sources at all, and maxStringLength does not cover this path because the accumulation bypasses ReadConstrainedTextBuffer. The reporter measured a 20,000,109-character exception message from a 20-million-character malformed token on the DataInput path, against 367 characters for identical input on the InputStream path. Scaling the payload drives the StringBuilder, which also incurs byte-to-char expansion and internal array doubling, to many times the raw payload size and can trigger OutOfMemoryError for the whole JVM. UTF8DataInputJsonParser was introduced in 2.8.0 together with createParser(DataInput); releases before 2.8.0 do not contain the affected class.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-89425",
+            "https://advisory.echohq.com/cve/CVE-2026-89425",
+            "https://github.com/FasterXML/jackson-core",
+            "https://github.com/FasterXML/jackson-core/commit/211cf2c5d91abbec38067f37efc1363cd4e88ee3",
+            "https://github.com/FasterXML/jackson-core/pull/1698",
+            "https://github.com/FasterXML/jackson-core/releases/tag/jackson-core-2.18.11",
+            "https://github.com/FasterXML/jackson-core/releases/tag/jackson-core-3.2.3",
+            "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-7hhh-6rmp-j9qf",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-89425",
+            "https://www.cve.org/CVERecord?id=CVE-2026-89425"
+          ],
+          "PublishedDate": "2026-09-23T03:17:04.357Z",
+          "LastModifiedDate": "2026-09-24T20:43:32.537Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-68497",
+          "VendorIDs": [
+            "GHSA-q4xh-88c3-wmh7"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-databind-2.21.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.5",
+            "UID": "3261b84539433a0a"
+          },
+          "InstalledVersion": "2.21.5",
+          "FixedVersion": "2.18.10, 2.21.6, 2.22.2",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-68497",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:64925f94bedf57ffe938e2ed80f68afd9007cf02ece8fa000177306fa97421b1",
+          "Title": "com.fasterxml.jackson.core/jackson-databind: tools.jackson.core/jackson-databind: jackson-databind: CPU Denial of Service via unbounded numeric parsing",
+          "Description": "jackson-databind binds a JSON string to a javax.xml.datatype.Duration or javax.xml.datatype.XMLGregorianCalendar field by passing the raw string verbatim to DatatypeFactory.newDuration(value) or newXMLGregorianCalendar(value) in CoreXMLDeserializers.Std._deserialize. These deserializers are registered by default with no opt-in, so a plain ObjectMapper or JsonMapper with no polymorphic typing and no special configuration reaches this path. The XML Schema lexical grammar permits numeric components of arbitrary length, which the JDK materializes through the native BigInteger(String) and BigDecimal(String) constructors, both quadratic in digit count. Because the digits sit inside a JSON string token rather than a JSON number token, jackson-core's StreamReadConstraints.maxNumberLength guard never applies; jackson's own NumberDeserializers call validateIntegerLength or validateFPLength before parsing a stringified number, but the XML datatype deserializer omits that pre-check. An unauthenticated attacker can therefore submit a single request of a few megabytes, such as a Duration value consisting of the letter P followed by several million digits and the letter Y, and force tens of seconds to several minutes of single-threaded CPU work; a handful of concurrent requests can saturate a server's worker threads. This affects com.fasterxml.jackson.core:jackson-databind from 2.0.0 before 2.18.10, from 2.19.0 before 2.21.6, and from 2.22.0 before 2.22.2, and tools.jackson.core:jackson-databind from 3.0.0 before 3.1.6 and from 3.2.0 before 3.2.2. Users should upgrade to 2.18.10, 2.21.6, 2.22.2, 3.1.6, or 3.2.2.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:80504",
+            "https://access.redhat.com/security/cve/CVE-2026-68497",
+            "https://advisory.echohq.com/cve/CVE-2026-68497",
+            "https://bugzilla.redhat.com/2531964",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531964",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-68497",
+            "https://errata.almalinux.org/9/ALSA-2026-80504.html",
+            "https://errata.rockylinux.org/RLSA-2026:80504",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/a99b7e74c8928f43f6975773a8c862c8316178bd",
+            "https://github.com/FasterXML/jackson-databind/pull/6127",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.10",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.2",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.2",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-q4xh-88c3-wmh7",
+            "https://linux.oracle.com/cve/CVE-2026-68497.html",
+            "https://linux.oracle.com/errata/ELSA-2026-80504.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-68497",
+            "https://www.cve.org/CVERecord?id=CVE-2026-68497"
+          ],
+          "PublishedDate": "2026-09-11T16:17:39.61Z",
+          "LastModifiedDate": "2026-09-18T19:34:36.657Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-91776",
+          "VendorIDs": [
+            "GHSA-wv8q-qhhj-9h54"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-databind-2.21.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.5",
+            "UID": "3261b84539433a0a"
+          },
+          "InstalledVersion": "2.21.5",
+          "FixedVersion": "2.18.11, 2.21.7, 2.22.3",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-91776",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:ab9a5b20b655e0dcf83a0baf1e54efc82f37352ee056bc1e4e51013ef965b9f3",
+          "Title": "jackson-databind: com.fasterxml.jackson/jackson-core: jackson-databind: Denial of Service via unbounded cache growth in TypeDeserializerBase",
+          "Description": "TypeDeserializerBase._findDeserializer() in FasterXML jackson-databind caches the resolved deserializer under the raw, attacker-supplied type ID. When name-based polymorphism is configured with a fallback, for example @JsonTypeInfo(use = Id.NAME, defaultImpl = ...), every distinct unrecognized type ID resolves to the same fallback deserializer but is retained as its own key in the _deserializers map. That map has no configurable bound and lives for the lifetime of the type deserializer, so an attacker who can repeatedly supply fresh unknown type IDs causes monotonic memory retention across requests. The reporter observed 10,000 retained entries from 10,000 distinct unknown IDs, against a single entry for a control that repeated one unknown ID the same number of times, isolating attacker-controlled key cardinality from request volume. Exploitation requires an application that enables name-based polymorphism with a defaultImpl or equivalent fallback, accepts attacker-influenced type IDs, and reuses a long-lived ObjectMapper across requests. The fix stops caching fallback resolutions for unrecognized IDs and bounds both the number of cached entries and the length of a cacheable type ID.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-91776",
+            "https://advisory.echohq.com/cve/CVE-2026-91776",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/2870d1d6dc1b7e1c07ee11dd5b04ab71cddbb577",
+            "https://github.com/FasterXML/jackson-databind/issues/6203",
+            "https://github.com/FasterXML/jackson-databind/pull/6203",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.11",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.3",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.3",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-wv8q-qhhj-9h54",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-91776",
+            "https://www.cve.org/CVERecord?id=CVE-2026-91776"
+          ],
+          "PublishedDate": "2026-09-23T03:17:04.62Z",
+          "LastModifiedDate": "2026-09-24T20:43:32.537Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-91777",
+          "VendorIDs": [
+            "GHSA-cxp5-3px4-pw24"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-databind-2.21.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.5",
+            "UID": "3261b84539433a0a"
+          },
+          "InstalledVersion": "2.21.5",
+          "FixedVersion": "2.21.7, 2.18.11, 2.22.3",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-91777",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:153db34822ee7275719c0d2045b9e5830e3ac206b233d00c74765bfc6ee2995b",
+          "Title": "com.fasterxml.jackson.core/jackson-databind: tools.jackson.core:jackson-databind: Jackson-databind: Denial of Service via quadratic forward-reference completion",
+          "Description": "Forward-reference completion for @JsonIdentityInfo object IDs in FasterXML jackson-databind performs a linear scan of the pending-reference accumulator for every resolved ID. The affected paths are CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference() and the equivalent implementation in MapDeserializer. When a document first creates N unresolved object-ID references in an identity-enabled collection or map and then defines those same IDs in reverse order, completion performs on the order of N * (N + 1) / 2 identity comparisons, so a shallow document whose size grows linearly causes quadratic CPU work during deserialization. The reporter instrumented equals() calls on the ID class and measured exactly 2,003,000 comparisons at N = 2,000, against zero comparisons in the pending-reference lookup path for an equally sized control in which every reference was already resolved. The input requires no deep nesting and no syntactically unusual JSON. Exploitation requires an application that deserializes attacker-influenced JSON into an identity-enabled collection or map. The fix replaces the repeated linear lookup with a keyed pending-reference structure.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-91777",
+            "https://advisory.echohq.com/cve/CVE-2026-91777",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/37ad9b81712cbb9fb62c2d2c1813593252a24b67",
+            "https://github.com/FasterXML/jackson-databind/issues/6204",
+            "https://github.com/FasterXML/jackson-databind/pull/6204",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.11",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.3",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.3",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-cxp5-3px4-pw24",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-91777",
+            "https://www.cve.org/CVERecord?id=CVE-2026-91777"
+          ],
+          "PublishedDate": "2026-09-23T03:17:04.783Z",
+          "LastModifiedDate": "2026-09-24T20:43:32.537Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-19032",
+          "VendorIDs": [
+            "GHSA-wjgm-6hv5-3cvf"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-databind-2.21.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.5",
+            "UID": "3261b84539433a0a"
+          },
+          "InstalledVersion": "2.21.5",
+          "FixedVersion": "2.18.10, 2.21.6, 2.22.2",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-19032",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:b06377cc3d59dafb157a9b106933abd50038f758e1b9df9dbe5c33860969f531",
+          "Title": "com.fasterxml.jackson.core/jackson-databind: tools.jackson.core/jackson-databind: Jackson-databind: Uncontrolled URI scheme resolution in Path deserialization",
+          "Description": "jackson-databind's deserializer for java.nio.file.Path resolves an attacker-supplied URI without restricting the URI scheme. In JDKFromStringDeserializer.NioPathHelper.deserialize, a string bound from untrusted JSON is passed to new URI(value) and then to Path.of(uri). When that throws FileSystemNotFoundException, the code enumerates ServiceLoader<FileSystemProvider> and calls provider.getPath(uri) on the first provider whose scheme matches the attacker-chosen scheme. Untrusted JSON can therefore select and drive an arbitrary registered FileSystemProvider during readValue under a default JsonMapper, and forces provider class loading at the same time. With only the JDK built-in providers (file, jar/zipfs) present, the resolved path is inert and no mount or network I/O occurs; further impact requires a side-effecting third-party FileSystemProvider on the classpath. This affects com.fasterxml.jackson.core:jackson-databind from 2.8.0 before 2.18.10, from 2.19.0 before 2.21.6, and from 2.22.0 before 2.22.2, and tools.jackson.core:jackson-databind from 3.0.0 before 3.1.6 and from 3.2.0 before 3.2.2. Users should upgrade to 2.18.10, 2.21.6, 2.22.2, 3.1.6, or 3.2.2. Binding java.nio.file.Path from untrusted JSON should be avoided regardless of version.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-470",
+            "CWE-610"
+          ],
+          "VendorSeverity": {
+            "amazon": 2,
+            "ghsa": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-19032",
+            "https://advisory.echohq.com/cve/CVE-2026-19032",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/cc6756b61ed90b6b9227f670e0408d5d9bd48551",
+            "https://github.com/FasterXML/jackson-databind/commit/ce26eda3481cd796f76ba4c53ffe1da23b53f166",
+            "https://github.com/FasterXML/jackson-databind/commit/d94bb632becfe0ba96926b9909ab06d1f87aad6d",
+            "https://github.com/FasterXML/jackson-databind/pull/6129",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.10",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.2",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.2",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-wjgm-6hv5-3cvf",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-19032",
+            "https://www.cve.org/CVERecord?id=CVE-2026-19032"
+          ],
+          "PublishedDate": "2026-09-01T04:18:00.433Z",
+          "LastModifiedDate": "2026-09-08T19:29:32.2Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-83557",
+          "VendorIDs": [
+            "GHSA-gx83-3vf8-gh7j"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-databind-2.21.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.5",
+            "UID": "3261b84539433a0a"
+          },
+          "InstalledVersion": "2.21.5",
+          "FixedVersion": "2.18.10, 2.21.6, 2.22.2",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-83557",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:b3ea992e6aa245d740b3ebadee3f9a8147b2931c203cb74688e99e79c8283662",
+          "Title": "com.fasterxml.jackson.core/jackson-databind: tools.jackson.core/jackson-databind: jackson-databind: Path traversal via incomplete type validation",
+          "Description": "DefaultBaseTypeLimitingValidator is the PolymorphicTypeValidator applied automatically whenever @JsonTypeInfo is used without an explicitly configured custom validator. It denies polymorphic resolution only for a fixed set of \"unsafe base types\", and its isSafeSubType method returns true unconditionally for every base type outside that set. java.lang.Comparable was absent from the list despite being implemented by a very large fraction of JDK and application classes, comparable in breadth to java.io.Serializable, which is on the list for that reason. An application declaring an @JsonTypeInfo-annotated property or class with Comparable as its base type, and no custom PolymorphicTypeValidator, will accept a type identifier for essentially any class implementing Comparable. This yields an attacker-controlled object instantiation primitive; a demonstrated case constructs a java.io.File for an arbitrary attacker-chosen path, which becomes path-traversal-adjacent if the application subsequently calls path-sensitive methods on the value. No class implementing Comparable has been identified that yields code execution through deserialization alone. Global Default Typing via activateDefaultTyping is not affected, because that method structurally requires an explicit PolymorphicTypeValidator argument. This affects com.fasterxml.jackson.core:jackson-databind from 2.11.0 before 2.18.10, from 2.19.0 before 2.21.6, and from 2.22.0 before 2.22.2, and tools.jackson.core:jackson-databind from 3.0.0 before 3.1.6 and from 3.2.0 before 3.2.2. Users should upgrade to 2.18.10, 2.21.6, 2.22.2, 3.1.6, or 3.2.2.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-502",
+            "CWE-915"
+          ],
+          "VendorSeverity": {
+            "amazon": 2,
+            "ghsa": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L",
+              "V3Score": 5.6
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L",
+              "V3Score": 5.6
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-83557",
+            "https://advisory.echohq.com/cve/CVE-2026-83557",
+            "https://getsafety.com/vulnerabilities/SFTY-20260901-46895/CVE-2026-83557",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/eb3b7fc0f9c0d27f471550ac3316b17d1987388f",
+            "https://github.com/FasterXML/jackson-databind/issues/6156",
+            "https://github.com/FasterXML/jackson-databind/pull/6155",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.10",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.2",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.2",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-gx83-3vf8-gh7j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-83557",
+            "https://www.cve.org/CVERecord?id=CVE-2026-83557"
+          ],
+          "PublishedDate": "2026-09-01T15:17:37.987Z",
+          "LastModifiedDate": "2026-09-08T19:29:32.2Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-65182",
+          "VendorIDs": [
+            "GHSA-gcx9-497g-6cp6"
+          ],
+          "PkgName": "org.apache.tomcat.embed:tomcat-embed-core",
+          "PkgPath": "application.jar/BOOT-INF/lib/tomcat-embed-core-11.0.24.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/org.apache.tomcat.embed/tomcat-embed-core@11.0.24",
+            "UID": "cad047b7f009ce99"
+          },
+          "InstalledVersion": "11.0.24",
+          "FixedVersion": "11.0.25, 10.1.58, 9.0.121",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-65182",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:23b703f2117f4eee194a890f51d72d8648c6ec5ba3c8564e856b520b41d60fb1",
+          "Title": "tomcat: Apache Tomcat: Security constraint bypass due to improper access control",
+          "Description": "Improper Access Control, Incorrect Authorization vulnerability in Apache Tomcat leads to security constraint bypass if a constraint for a longer path is specified before a more restrictive constraint for a shorter sub-path.\n\n\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.24, from 10.1.0-M1 through 10.1.57, from 9.0.0.M1 through 9.0.120, from 8.5.0 through 8.5.100, from 7.0.0 through 7.0.109.\n\n\n\nUsers are recommended to upgrade to version 11.0.25, 10.1.58, 9.0.121, which fixes the issue.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-284",
+            "CWE-863"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "bitnami": 4,
+            "ghsa": 4,
+            "redhat": 3
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 9.1
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 9.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:L/A:N",
+              "V3Score": 8.2
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/08/26/1",
+            "https://access.redhat.com/security/cve/CVE-2026-65182",
+            "https://advisory.echohq.com/cve/CVE-2026-65182",
+            "https://github.com/apache/tomcat/commit/8bafd79a3b54684e80e9cb1bafd4746aede7d3f5",
+            "https://github.com/apache/tomcat/commit/b2c56ec8f20c66773a1a813034ffcdb60841f1cf",
+            "https://github.com/apache/tomcat/commit/b79752d2a8578d94743e2a95c50af297f780c0df",
+            "https://lists.apache.org/thread/joosxvzc9b49ttj8lj0jw9mqt0ml767m",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-65182",
+            "https://tomcat.apache.org/security-10.html",
+            "https://tomcat.apache.org/security-11.html",
+            "https://tomcat.apache.org/security-9.html",
+            "https://www.cve.org/CVERecord?id=CVE-2026-65182"
+          ],
+          "PublishedDate": "2026-08-25T22:17:04.9Z",
+          "LastModifiedDate": "2026-08-27T15:27:26.04Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-65905",
+          "VendorIDs": [
+            "GHSA-9xv2-5v5q-p794"
+          ],
+          "PkgName": "org.apache.tomcat.embed:tomcat-embed-core",
+          "PkgPath": "application.jar/BOOT-INF/lib/tomcat-embed-core-11.0.24.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/org.apache.tomcat.embed/tomcat-embed-core@11.0.24",
+            "UID": "cad047b7f009ce99"
+          },
+          "InstalledVersion": "11.0.24",
+          "FixedVersion": "11.0.25, 10.1.58, 9.0.121",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-65905",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:4de4f24dbe82b2de974ee8085bcaed94e334272d1af53ab3be7d525b92a1da55",
+          "Title": "tomcat: Apache Tomcat: Authentication bypass via limited replay attack in DIGEST authenticator",
+          "Description": "Authentication Bypass by Capture-replay vulnerability in Apache Tomcat's DIGEST authenticator. If, before windowSize requests have been made, a client makes a DIGEST \nauthenticated request with a nonceCount on the upper boundary of the \nreplay window then that request is replayable once only while the \nassociated nonceCount remains within the replay window.\n\n\n\n\u00a0\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.24, from 10.1.0-M1 through 10.1.57, from 9.0.0.M1 through 9.0.120.\n\n\n\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected:\u00a0from 8.5.0 through 8.5.100, from 7.0.30 through 7.0.109. Other unsupported versions may also be affected.\n\n\n\nUsers are recommended to upgrade to version 11.0.25, 10.1.58 or 9.0.121, which fix the issue.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-294"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "bitnami": 4,
+            "ghsa": 4,
+            "redhat": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:N",
+              "V3Score": 4.8
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/08/26/4",
+            "https://access.redhat.com/security/cve/CVE-2026-65905",
+            "https://advisory.echohq.com/cve/CVE-2026-65905",
+            "https://github.com/apache/tomcat",
+            "https://lists.apache.org/thread/9v114xlpgbzrrbzz5vf9f6r2q4wnxwwj",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-65905",
+            "https://www.cve.org/CVERecord?id=CVE-2026-65905"
+          ],
+          "PublishedDate": "2026-08-25T22:17:05.303Z",
+          "LastModifiedDate": "2026-08-27T15:17:49.277Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-68525",
+          "VendorIDs": [
+            "GHSA-h3x4-894j-xpx5"
+          ],
+          "PkgName": "org.apache.tomcat.embed:tomcat-embed-core",
+          "PkgPath": "application.jar/BOOT-INF/lib/tomcat-embed-core-11.0.24.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/org.apache.tomcat.embed/tomcat-embed-core@11.0.24",
+            "UID": "cad047b7f009ce99"
+          },
+          "InstalledVersion": "11.0.24",
+          "FixedVersion": "11.0.25, 10.1.58, 9.0.121",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-68525",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:258ef2047e552cc8f369b92d6a9e8d73b5087acbf39731d59a4dbb0f839e8750",
+          "Title": "tomcat: Apache Tomcat: Unauthorized resource access via FORM authentication bypass",
+          "Description": "Incorrect Authorization vulnerability in Apache Tomcat's FORM authentication process allows the bypassing of a security constraint that limits user has access to a resource POST but not GET.\n\n\n\n\n\n\n\nThis issue affects Apache Tomcat: from 11.0.0-M1 through 11.0.24, from 10.1.0-M1 through 10.1.57, from 9.0.0.M1 through 9.0.120.\n\n\n\n\n\n\n\nThe following versions were EOL at the time the CVE was created but are \nknown to be affected: from 8.5.0 through 8.5.100, from 7.0.0 through 7.0.109. Other unsupported versions may also be affected.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nUsers are recommended to upgrade to version 11.0.25, 10.1.58 or 9.0.121, which fixes the issue.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-863"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "bitnami": 4,
+            "ghsa": 4,
+            "redhat": 2
+          },
+          "CVSS": {
+            "bitnami": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 9.1
+            },
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 9.1
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+              "V3Score": 6.5
+            }
+          },
+          "References": [
+            "http://www.openwall.com/lists/oss-security/2026/08/26/7",
+            "https://access.redhat.com/security/cve/CVE-2026-68525",
+            "https://advisory.echohq.com/cve/CVE-2026-68525",
+            "https://github.com/apache/tomcat",
+            "https://github.com/apache/tomcat/commit/10d048e16034ddf12055e0cede0da05b15c823b8",
+            "https://github.com/apache/tomcat/commit/32f0c38526b4e655ff0c17cd97afedefc624fe43",
+            "https://github.com/apache/tomcat/commit/58123aa468a20e2a079b7e0c68a4009e2475c098",
+            "https://lists.apache.org/thread/x1y2lfsgzxwzc456f8954vbvgn03zhd7",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-68525",
+            "https://tomcat.apache.org/security-10.html",
+            "https://tomcat.apache.org/security-11.html",
+            "https://tomcat.apache.org/security-9.html",
+            "https://www.cve.org/CVERecord?id=CVE-2026-68525"
+          ],
+          "PublishedDate": "2026-08-25T22:17:05.7Z",
+          "LastModifiedDate": "2026-08-27T15:15:02.453Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-89407",
+          "VendorIDs": [
+            "GHSA-p6pp-m3f8-5c89"
+          ],
+          "PkgName": "tools.jackson.core:jackson-core",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-core-3.1.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/tools.jackson.core/jackson-core@3.1.5",
+            "UID": "4b269f72b22663a9"
+          },
+          "InstalledVersion": "3.1.5",
+          "FixedVersion": "3.1.7, 3.2.2",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-89407",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:fe9dc6fbc03361e277738776851154f8ece5faadc1ad4329f9b61207e6df0fd6",
+          "Title": "com.fasterxml.jackson/jackson-core: tools.jackson.core/jackson-core: Jackson-core: Denial of Service via regular expression backtracking",
+          "Description": "NumberInput.looksLikeValidNumber() in FasterXML jackson-core pre-validates \"stringified numbers\" with two regular expressions: PATTERN_FLOAT ([+-]?[0-9]*[\\.]?[0-9]+([eE][+-]?[0-9]+)?), present since 2.17.0, and PATTERN_FLOAT_TRAILING_DOT, added in 2.17.2. PATTERN_FLOAT places adjacent quantifiers over the same character class -- an optional [0-9]* run, an optional dot, then a required [0-9]+ run -- so input that ultimately fails to match forces Java's backtracking engine to retry every possible split point of the digit run.\u00a0\n\n\n\nMatching cost therefore grows with the square of the input length.\u00a0\n\n\n\nAn attacker who can supply JSON that an application deserializes into a numeric target type reaches this method through jackson-databind's default String-to-number coercion (StdDeserializer and NumberDeserializers for BigDecimal, BigInteger, Double and Float).\u00a0\n\n\n\nBecause StreamReadConstraints.maxStringLength defaults to 20,000,000 characters, no constraint bounds the input before it reaches the regex.\u00a0\n\n\n\nTesting by the reporter confirmed O(n^2) growth across five consecutive input-size doublings, with a single 160,000-character string consuming roughly 74 seconds in one call; a small number of concurrent requests of ordinary body size can therefore exhaust a server's request-handling thread pool.\u00a0\n\n\n\nThe affected method does not exist before 2.17.0, so 2.16.x and earlier releases are not affected.\u00a0\n\n\n\nThe fix replaces both regular expressions with a hand-rolled single-pass scan.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "ghsa": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 5.9
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-89407",
+            "https://advisory.echohq.com/cve/CVE-2026-89407",
+            "https://getsafety.com/vulnerabilities/SFTY-20260922-89449/CVE-2026-89407",
+            "https://github.com/FasterXML/jackson-core",
+            "https://github.com/FasterXML/jackson-core/commit/731e794f62623aa0d86ced52490166be903fbb1d",
+            "https://github.com/FasterXML/jackson-core/commit/e7acd64cc99bd346704423dc2bfea1ab0a08ddff",
+            "https://github.com/FasterXML/jackson-core/issues/1649",
+            "https://github.com/FasterXML/jackson-core/pull/1650",
+            "https://github.com/FasterXML/jackson-core/pull/1701",
+            "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-p6pp-m3f8-5c89",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-89407",
+            "https://www.cve.org/CVERecord?id=CVE-2026-89407"
+          ],
+          "PublishedDate": "2026-09-22T15:17:21.053Z",
+          "LastModifiedDate": "2026-09-22T20:00:03.713Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-89425",
+          "VendorIDs": [
+            "GHSA-7hhh-6rmp-j9qf"
+          ],
+          "PkgName": "tools.jackson.core:jackson-core",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-core-3.1.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/tools.jackson.core/jackson-core@3.1.5",
+            "UID": "4b269f72b22663a9"
+          },
+          "InstalledVersion": "3.1.5",
+          "FixedVersion": "3.1.7, 3.2.3",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-89425",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:c3aa1748156bbd548117f6b7d986a937a5030b1e5416a0601e7d260404291d85",
+          "Title": "com.fasterxml.jackson.core/jackson-core: Jackson-core: Denial of Service via unbounded StringBuilder growth during malformed token processing",
+          "Description": "UTF8DataInputJsonParser._reportInvalidToken() in FasterXML jackson-core builds the offending-token text for its error message by appending Java identifier characters to a StringBuilder in a loop that has no upper bound. Unlike the three sibling parser implementations, including UTF8StreamJsonParser, it never consults ErrorReportConfiguration.getMaxErrorTokenLength() (default 256). A malformed token supplied to a parser created through JsonFactory.createParser(DataInput) is therefore accumulated in full. No StreamReadConstraints setting mitigates this: maxDocumentLength cannot be applied to DataInput sources at all, and maxStringLength does not cover this path because the accumulation bypasses ReadConstrainedTextBuffer. The reporter measured a 20,000,109-character exception message from a 20-million-character malformed token on the DataInput path, against 367 characters for identical input on the InputStream path. Scaling the payload drives the StringBuilder, which also incurs byte-to-char expansion and internal array doubling, to many times the raw payload size and can trigger OutOfMemoryError for the whole JVM. UTF8DataInputJsonParser was introduced in 2.8.0 together with createParser(DataInput); releases before 2.8.0 do not contain the affected class.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-89425",
+            "https://advisory.echohq.com/cve/CVE-2026-89425",
+            "https://github.com/FasterXML/jackson-core",
+            "https://github.com/FasterXML/jackson-core/commit/211cf2c5d91abbec38067f37efc1363cd4e88ee3",
+            "https://github.com/FasterXML/jackson-core/pull/1698",
+            "https://github.com/FasterXML/jackson-core/releases/tag/jackson-core-2.18.11",
+            "https://github.com/FasterXML/jackson-core/releases/tag/jackson-core-3.2.3",
+            "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-7hhh-6rmp-j9qf",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-89425",
+            "https://www.cve.org/CVERecord?id=CVE-2026-89425"
+          ],
+          "PublishedDate": "2026-09-23T03:17:04.357Z",
+          "LastModifiedDate": "2026-09-24T20:43:32.537Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-68497",
+          "VendorIDs": [
+            "GHSA-q4xh-88c3-wmh7"
+          ],
+          "PkgName": "tools.jackson.core:jackson-databind",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-databind-3.1.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/tools.jackson.core/jackson-databind@3.1.5",
+            "UID": "8ae05154e1cf4483"
+          },
+          "InstalledVersion": "3.1.5",
+          "FixedVersion": "3.2.2, 3.1.6",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-68497",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:64925f94bedf57ffe938e2ed80f68afd9007cf02ece8fa000177306fa97421b1",
+          "Title": "com.fasterxml.jackson.core/jackson-databind: tools.jackson.core/jackson-databind: jackson-databind: CPU Denial of Service via unbounded numeric parsing",
+          "Description": "jackson-databind binds a JSON string to a javax.xml.datatype.Duration or javax.xml.datatype.XMLGregorianCalendar field by passing the raw string verbatim to DatatypeFactory.newDuration(value) or newXMLGregorianCalendar(value) in CoreXMLDeserializers.Std._deserialize. These deserializers are registered by default with no opt-in, so a plain ObjectMapper or JsonMapper with no polymorphic typing and no special configuration reaches this path. The XML Schema lexical grammar permits numeric components of arbitrary length, which the JDK materializes through the native BigInteger(String) and BigDecimal(String) constructors, both quadratic in digit count. Because the digits sit inside a JSON string token rather than a JSON number token, jackson-core's StreamReadConstraints.maxNumberLength guard never applies; jackson's own NumberDeserializers call validateIntegerLength or validateFPLength before parsing a stringified number, but the XML datatype deserializer omits that pre-check. An unauthenticated attacker can therefore submit a single request of a few megabytes, such as a Duration value consisting of the letter P followed by several million digits and the letter Y, and force tens of seconds to several minutes of single-threaded CPU work; a handful of concurrent requests can saturate a server's worker threads. This affects com.fasterxml.jackson.core:jackson-databind from 2.0.0 before 2.18.10, from 2.19.0 before 2.21.6, and from 2.22.0 before 2.22.2, and tools.jackson.core:jackson-databind from 3.0.0 before 3.1.6 and from 3.2.0 before 3.2.2. Users should upgrade to 2.18.10, 2.21.6, 2.22.2, 3.1.6, or 3.2.2.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:80504",
+            "https://access.redhat.com/security/cve/CVE-2026-68497",
+            "https://advisory.echohq.com/cve/CVE-2026-68497",
+            "https://bugzilla.redhat.com/2531964",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531964",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-68497",
+            "https://errata.almalinux.org/9/ALSA-2026-80504.html",
+            "https://errata.rockylinux.org/RLSA-2026:80504",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/a99b7e74c8928f43f6975773a8c862c8316178bd",
+            "https://github.com/FasterXML/jackson-databind/pull/6127",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.10",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.2",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.2",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-q4xh-88c3-wmh7",
+            "https://linux.oracle.com/cve/CVE-2026-68497.html",
+            "https://linux.oracle.com/errata/ELSA-2026-80504.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-68497",
+            "https://www.cve.org/CVERecord?id=CVE-2026-68497"
+          ],
+          "PublishedDate": "2026-09-11T16:17:39.61Z",
+          "LastModifiedDate": "2026-09-18T19:34:36.657Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-91776",
+          "VendorIDs": [
+            "GHSA-wv8q-qhhj-9h54"
+          ],
+          "PkgName": "tools.jackson.core:jackson-databind",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-databind-3.1.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/tools.jackson.core/jackson-databind@3.1.5",
+            "UID": "8ae05154e1cf4483"
+          },
+          "InstalledVersion": "3.1.5",
+          "FixedVersion": "3.1.7, 3.2.3",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-91776",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:ab9a5b20b655e0dcf83a0baf1e54efc82f37352ee056bc1e4e51013ef965b9f3",
+          "Title": "jackson-databind: com.fasterxml.jackson/jackson-core: jackson-databind: Denial of Service via unbounded cache growth in TypeDeserializerBase",
+          "Description": "TypeDeserializerBase._findDeserializer() in FasterXML jackson-databind caches the resolved deserializer under the raw, attacker-supplied type ID. When name-based polymorphism is configured with a fallback, for example @JsonTypeInfo(use = Id.NAME, defaultImpl = ...), every distinct unrecognized type ID resolves to the same fallback deserializer but is retained as its own key in the _deserializers map. That map has no configurable bound and lives for the lifetime of the type deserializer, so an attacker who can repeatedly supply fresh unknown type IDs causes monotonic memory retention across requests. The reporter observed 10,000 retained entries from 10,000 distinct unknown IDs, against a single entry for a control that repeated one unknown ID the same number of times, isolating attacker-controlled key cardinality from request volume. Exploitation requires an application that enables name-based polymorphism with a defaultImpl or equivalent fallback, accepts attacker-influenced type IDs, and reuses a long-lived ObjectMapper across requests. The fix stops caching fallback resolutions for unrecognized IDs and bounds both the number of cached entries and the length of a cacheable type ID.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-91776",
+            "https://advisory.echohq.com/cve/CVE-2026-91776",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/2870d1d6dc1b7e1c07ee11dd5b04ab71cddbb577",
+            "https://github.com/FasterXML/jackson-databind/issues/6203",
+            "https://github.com/FasterXML/jackson-databind/pull/6203",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.11",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.3",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.3",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-wv8q-qhhj-9h54",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-91776",
+            "https://www.cve.org/CVERecord?id=CVE-2026-91776"
+          ],
+          "PublishedDate": "2026-09-23T03:17:04.62Z",
+          "LastModifiedDate": "2026-09-24T20:43:32.537Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-91777",
+          "VendorIDs": [
+            "GHSA-cxp5-3px4-pw24"
+          ],
+          "PkgName": "tools.jackson.core:jackson-databind",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-databind-3.1.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/tools.jackson.core/jackson-databind@3.1.5",
+            "UID": "8ae05154e1cf4483"
+          },
+          "InstalledVersion": "3.1.5",
+          "FixedVersion": "3.1.7, 3.2.3",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-91777",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:153db34822ee7275719c0d2045b9e5830e3ac206b233d00c74765bfc6ee2995b",
+          "Title": "com.fasterxml.jackson.core/jackson-databind: tools.jackson.core:jackson-databind: Jackson-databind: Denial of Service via quadratic forward-reference completion",
+          "Description": "Forward-reference completion for @JsonIdentityInfo object IDs in FasterXML jackson-databind performs a linear scan of the pending-reference accumulator for every resolved ID. The affected paths are CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference() and the equivalent implementation in MapDeserializer. When a document first creates N unresolved object-ID references in an identity-enabled collection or map and then defines those same IDs in reverse order, completion performs on the order of N * (N + 1) / 2 identity comparisons, so a shallow document whose size grows linearly causes quadratic CPU work during deserialization. The reporter instrumented equals() calls on the ID class and measured exactly 2,003,000 comparisons at N = 2,000, against zero comparisons in the pending-reference lookup path for an equally sized control in which every reference was already resolved. The input requires no deep nesting and no syntactically unusual JSON. Exploitation requires an application that deserializes attacker-influenced JSON into an identity-enabled collection or map. The fix replaces the repeated linear lookup with a keyed pending-reference structure.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-91777",
+            "https://advisory.echohq.com/cve/CVE-2026-91777",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/37ad9b81712cbb9fb62c2d2c1813593252a24b67",
+            "https://github.com/FasterXML/jackson-databind/issues/6204",
+            "https://github.com/FasterXML/jackson-databind/pull/6204",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.11",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.3",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.3",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-cxp5-3px4-pw24",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-91777",
+            "https://www.cve.org/CVERecord?id=CVE-2026-91777"
+          ],
+          "PublishedDate": "2026-09-23T03:17:04.783Z",
+          "LastModifiedDate": "2026-09-24T20:43:32.537Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-19032",
+          "VendorIDs": [
+            "GHSA-wjgm-6hv5-3cvf"
+          ],
+          "PkgName": "tools.jackson.core:jackson-databind",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-databind-3.1.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/tools.jackson.core/jackson-databind@3.1.5",
+            "UID": "8ae05154e1cf4483"
+          },
+          "InstalledVersion": "3.1.5",
+          "FixedVersion": "3.1.6, 3.2.2",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-19032",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:b06377cc3d59dafb157a9b106933abd50038f758e1b9df9dbe5c33860969f531",
+          "Title": "com.fasterxml.jackson.core/jackson-databind: tools.jackson.core/jackson-databind: Jackson-databind: Uncontrolled URI scheme resolution in Path deserialization",
+          "Description": "jackson-databind's deserializer for java.nio.file.Path resolves an attacker-supplied URI without restricting the URI scheme. In JDKFromStringDeserializer.NioPathHelper.deserialize, a string bound from untrusted JSON is passed to new URI(value) and then to Path.of(uri). When that throws FileSystemNotFoundException, the code enumerates ServiceLoader<FileSystemProvider> and calls provider.getPath(uri) on the first provider whose scheme matches the attacker-chosen scheme. Untrusted JSON can therefore select and drive an arbitrary registered FileSystemProvider during readValue under a default JsonMapper, and forces provider class loading at the same time. With only the JDK built-in providers (file, jar/zipfs) present, the resolved path is inert and no mount or network I/O occurs; further impact requires a side-effecting third-party FileSystemProvider on the classpath. This affects com.fasterxml.jackson.core:jackson-databind from 2.8.0 before 2.18.10, from 2.19.0 before 2.21.6, and from 2.22.0 before 2.22.2, and tools.jackson.core:jackson-databind from 3.0.0 before 3.1.6 and from 3.2.0 before 3.2.2. Users should upgrade to 2.18.10, 2.21.6, 2.22.2, 3.1.6, or 3.2.2. Binding java.nio.file.Path from untrusted JSON should be avoided regardless of version.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-470",
+            "CWE-610"
+          ],
+          "VendorSeverity": {
+            "amazon": 2,
+            "ghsa": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-19032",
+            "https://advisory.echohq.com/cve/CVE-2026-19032",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/cc6756b61ed90b6b9227f670e0408d5d9bd48551",
+            "https://github.com/FasterXML/jackson-databind/commit/ce26eda3481cd796f76ba4c53ffe1da23b53f166",
+            "https://github.com/FasterXML/jackson-databind/commit/d94bb632becfe0ba96926b9909ab06d1f87aad6d",
+            "https://github.com/FasterXML/jackson-databind/pull/6129",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.10",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.2",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.2",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-wjgm-6hv5-3cvf",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-19032",
+            "https://www.cve.org/CVERecord?id=CVE-2026-19032"
+          ],
+          "PublishedDate": "2026-09-01T04:18:00.433Z",
+          "LastModifiedDate": "2026-09-08T19:29:32.2Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-83557",
+          "VendorIDs": [
+            "GHSA-gx83-3vf8-gh7j"
+          ],
+          "PkgName": "tools.jackson.core:jackson-databind",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-databind-3.1.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/tools.jackson.core/jackson-databind@3.1.5",
+            "UID": "8ae05154e1cf4483"
+          },
+          "InstalledVersion": "3.1.5",
+          "FixedVersion": "3.1.6, 3.2.2",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-83557",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:b3ea992e6aa245d740b3ebadee3f9a8147b2931c203cb74688e99e79c8283662",
+          "Title": "com.fasterxml.jackson.core/jackson-databind: tools.jackson.core/jackson-databind: jackson-databind: Path traversal via incomplete type validation",
+          "Description": "DefaultBaseTypeLimitingValidator is the PolymorphicTypeValidator applied automatically whenever @JsonTypeInfo is used without an explicitly configured custom validator. It denies polymorphic resolution only for a fixed set of \"unsafe base types\", and its isSafeSubType method returns true unconditionally for every base type outside that set. java.lang.Comparable was absent from the list despite being implemented by a very large fraction of JDK and application classes, comparable in breadth to java.io.Serializable, which is on the list for that reason. An application declaring an @JsonTypeInfo-annotated property or class with Comparable as its base type, and no custom PolymorphicTypeValidator, will accept a type identifier for essentially any class implementing Comparable. This yields an attacker-controlled object instantiation primitive; a demonstrated case constructs a java.io.File for an arbitrary attacker-chosen path, which becomes path-traversal-adjacent if the application subsequently calls path-sensitive methods on the value. No class implementing Comparable has been identified that yields code execution through deserialization alone. Global Default Typing via activateDefaultTyping is not affected, because that method structurally requires an explicit PolymorphicTypeValidator argument. This affects com.fasterxml.jackson.core:jackson-databind from 2.11.0 before 2.18.10, from 2.19.0 before 2.21.6, and from 2.22.0 before 2.22.2, and tools.jackson.core:jackson-databind from 3.0.0 before 3.1.6 and from 3.2.0 before 3.2.2. Users should upgrade to 2.18.10, 2.21.6, 2.22.2, 3.1.6, or 3.2.2.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-502",
+            "CWE-915"
+          ],
+          "VendorSeverity": {
+            "amazon": 2,
+            "ghsa": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L",
+              "V3Score": 5.6
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L",
+              "V3Score": 5.6
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-83557",
+            "https://advisory.echohq.com/cve/CVE-2026-83557",
+            "https://getsafety.com/vulnerabilities/SFTY-20260901-46895/CVE-2026-83557",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/eb3b7fc0f9c0d27f471550ac3316b17d1987388f",
+            "https://github.com/FasterXML/jackson-databind/issues/6156",
+            "https://github.com/FasterXML/jackson-databind/pull/6155",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.10",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.2",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.2",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-gx83-3vf8-gh7j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-83557",
+            "https://www.cve.org/CVERecord?id=CVE-2026-83557"
+          ],
+          "PublishedDate": "2026-09-01T15:17:37.987Z",
+          "LastModifiedDate": "2026-09-08T19:29:32.2Z"
+        }
+      ]
+    },
+    {
+      "head": "162a2279dc7878d6631506d3bf1f6600a59e35d3",
+      "run_id": 39107918754,
+      "inventory": {
+        "jar_sha256": "0bc81506ea4b4c4a97ec4f7351ac4b1100388e0d4b4331977d4ec917735431bf",
+        "libraries": {
+          "BOOT-INF/lib/HdrHistogram-2.2.2.jar": "22d1d4316c4ec13a68b559e98c8256d69071593731da96136640f864fa14fad8",
+          "BOOT-INF/lib/HikariCP-7.0.2.jar": "f1e612fa27345be3107a85431e8a8aeb205c15364ab2f2d411e40a9d7bb08095",
+          "BOOT-INF/lib/LatencyUtils-2.0.3.jar": "a32a9ffa06b2f4e01c5360f8f9df7bc5d9454a5d373cd8f361347fa5a57165ec",
+          "BOOT-INF/lib/checker-qual-3.55.1.jar": "857658c8bdcbff794949a8d9922f88d63ee3751c203c7cd7d21ea97f9e745288",
+          "BOOT-INF/lib/classmate-1.7.3.jar": "75fbda45456f123fb6e2028a6189442d8d0730b357adce4c0a6d7e789f70669b",
+          "BOOT-INF/lib/commons-logging-1.3.6.jar": "f8ead8943401081dea0aa824b5b1ba40a0e4ed297a572a0f02258150a0b62357",
+          "BOOT-INF/lib/flyway-core-11.14.1.jar": "45148edbcb55016418ff1ef7ecca3331b55f5216b3af4bd2db40063904db3715",
+          "BOOT-INF/lib/flyway-database-postgresql-11.14.1.jar": "d7142273706f225e6890ff971f0c8ccc4e7fe253ab6ab9f20556b155c68bca8a",
+          "BOOT-INF/lib/h2-2.3.232.jar": "8dae62d22db8982c3dcb3826edb9c727c5d302063a67eef7d63d82de401f07d3",
+          "BOOT-INF/lib/hibernate-validator-9.0.1.Final.jar": "25f40118fa4c50f8522d090d25d52d5a38953b0ccd1250835f052e7bd3164ce0",
+          "BOOT-INF/lib/jackson-annotations-2.21.jar": "53ca085f4a150f703f49e1aabd935bd03b43e1ea3d55d135438292af22cef56b",
+          "BOOT-INF/lib/jackson-core-2.21.5.jar": "b64b5874162b503a0e58a8f7758266e8dd9f91bf49e3a59ae0b5f47589a231b7",
+          "BOOT-INF/lib/jackson-core-3.1.7.jar": "7608c367fd8a92666d28711519599543c180298259963184ce04d2947a8f71e7",
+          "BOOT-INF/lib/jackson-databind-2.21.5.jar": "507418c0fafd38b2b2cfb704521630da613a8e4cc8381195a6f418017883e2c0",
+          "BOOT-INF/lib/jackson-databind-3.1.7.jar": "48c781de87e2016e1f0d973748a27130f11643e7ac080173f40e2d9669d84be3",
+          "BOOT-INF/lib/jakarta.annotation-api-3.0.0.jar": "b01f55552284cfb149411e64eabca75e942d26d2e1786b32914250e4330afaa2",
+          "BOOT-INF/lib/jakarta.validation-api-3.1.1.jar": "63ce00156388c365f3ac1be71fcfaf114682fc0c452020b5df6e7ec236e142ab",
+          "BOOT-INF/lib/jboss-logging-3.6.3.Final.jar": "7c12ee575508f81e22b1db9334b969d0ec54ef0fd1dcba24eeab1a44235fc366",
+          "BOOT-INF/lib/jspecify-1.0.1.jar": "070d75f261fe4c5b8202508366715f7f2d4660f88c8ef7e6d3575e48c9683b66",
+          "BOOT-INF/lib/jul-to-slf4j-2.0.18.jar": "cbb7d1aaaa9e871eb1a06594abd911bf97027152976edf1edc315be75239204e",
+          "BOOT-INF/lib/log4j-api-2.25.5.jar": "64777f73ea0b3104c04eb82befbdccc30a425a19e83ad06cb2f93aa303511863",
+          "BOOT-INF/lib/log4j-to-slf4j-2.25.5.jar": "b68e8b47342dbc9b35644a14fe2efc0b7bf18da703910cd05ad5501ffe07bba1",
+          "BOOT-INF/lib/logback-classic-1.5.38.jar": "afb439c61fa287c9e1925523b13baab03617e724406a389d48b61c2c3e46b700",
+          "BOOT-INF/lib/logback-core-1.5.38.jar": "a855a0fc97b1d06f4efb1c3bba5ebd0eb508d8b58e68e89e4bbc23a85135c883",
+          "BOOT-INF/lib/micrometer-commons-1.16.7.jar": "cd1ad64a94650a2ed3988a4ab48c9a7fad40c4986a81e328194dd757b5170273",
+          "BOOT-INF/lib/micrometer-core-1.16.7.jar": "6a1971bc92310cf8e387118a79d0b9146695d6f8d89d03990e180f9dcb374284",
+          "BOOT-INF/lib/micrometer-jakarta9-1.16.7.jar": "100b600eed6ef9ceafeacee9687b6fd41dd59007f23d1483739b6d9480705863",
+          "BOOT-INF/lib/micrometer-observation-1.16.7.jar": "74f9e4d51ef30c141de8a2409879282e572eef98665e033e8922c2fbee16862d",
+          "BOOT-INF/lib/nimbus-jose-jwt-10.4.jar": "6f13f3480ddc53d820d276f582f54843cff1daf5c6e35e534947e9de7723b46b",
+          "BOOT-INF/lib/postgresql-42.7.14.jar": "73914527305a40cce504b0d3d90b23caf565136912d607ae8ae7c5895512332c",
+          "BOOT-INF/lib/slf4j-api-2.0.18.jar": "44508fd1576500688c790b190acdd16fec4f8c79a3e0b900afd70503cf055f55",
+          "BOOT-INF/lib/snakeyaml-2.5.jar": "e6682acf1ace77508ef13649cbf4f8d09d2cf5457bdb61d25ffb6ac0233d78dd",
+          "BOOT-INF/lib/spring-aop-7.0.9.jar": "b8c5d6bfcb1f4993f2cc124f7ab7fac40edf5256b9e43c2f7250a733cb5510e9",
+          "BOOT-INF/lib/spring-beans-7.0.9.jar": "ff218b827a25c9e8929b0cd56dfb56916cea9d5b669ed97dc7cb262508ff548b",
+          "BOOT-INF/lib/spring-boot-4.0.8.jar": "ef1a4917ff5dfd41de20b7441a7830eaeae0a01229998c3aa2f471b96bc2b38f",
+          "BOOT-INF/lib/spring-boot-actuator-4.0.8.jar": "1f3bd61015e1a6346a7f3b12547b07b47ea312392cfbccbcfa3cbadbe7cc7a4a",
+          "BOOT-INF/lib/spring-boot-actuator-autoconfigure-4.0.8.jar": "f9c3c760c2ac7a8d7b33ac1ad0c886e36f4573c7674e1fd5ca46f81443e5d58e",
+          "BOOT-INF/lib/spring-boot-autoconfigure-4.0.8.jar": "6beeb105cceae1df37957d35e1bf8d060e7bde61537569decae3f976f6b54919",
+          "BOOT-INF/lib/spring-boot-flyway-4.0.8.jar": "a14377e98f8446a2b95bb12ceb3d43d23ef0d482cf22a69a329b363561425738",
+          "BOOT-INF/lib/spring-boot-health-4.0.8.jar": "85dcca38f6d9b33f96af895bfdc99ecfe862f591e677047d58e025b3a94a786c",
+          "BOOT-INF/lib/spring-boot-http-converter-4.0.8.jar": "ea94cd0d84162603266b7ab97f8a4de5661ad0425d0d8a50c50a18f4610dc0be",
+          "BOOT-INF/lib/spring-boot-jackson-4.0.8.jar": "f846da1dc1f78acd3e9446b19d049f0a3a5bd79dac7eb2cff921b256f9dc4b01",
+          "BOOT-INF/lib/spring-boot-jarmode-tools-4.0.8.jar": "7b14818a48bb13e252d0267728eacf3a458b9aab3c63687ee4e292f305c5e026",
+          "BOOT-INF/lib/spring-boot-jdbc-4.0.8.jar": "794570e0962830d4d6ea356ec9dbbfee595afbb8cdf3a95eb7d331e900401f80",
+          "BOOT-INF/lib/spring-boot-micrometer-metrics-4.0.8.jar": "30eb8f95ebcd29375e49eb1834dcc176a8f824cba01214c37d899e2ad5e598f7",
+          "BOOT-INF/lib/spring-boot-micrometer-observation-4.0.8.jar": "4ba481c61798a353114925be837b27b709da5e6b9bdddbd786e7761949d4c2b6",
+          "BOOT-INF/lib/spring-boot-persistence-4.0.8.jar": "663b2018a8820bee73cc99314a7a7e64275706e615c4274efb80f90207098263",
+          "BOOT-INF/lib/spring-boot-security-4.0.8.jar": "7a52b309ac7a604e9c2aefd4389773ba8cacd3d0a01989b55d3a45576654e48a",
+          "BOOT-INF/lib/spring-boot-security-oauth2-resource-server-4.0.8.jar": "f4dca29b44703d660e39ae69c8002cdd64aec1da99e8e9cb24359e96b5eb38c4",
+          "BOOT-INF/lib/spring-boot-servlet-4.0.8.jar": "c632f7a95fb68edd0803ed9b40c0e93591ee572cc755fd78ca4c9a039369661b",
+          "BOOT-INF/lib/spring-boot-sql-4.0.8.jar": "cd88bfdcb52b5aa5b4124c65909cd57c2b414a8a2776c4c087dd75b7427a8e0c",
+          "BOOT-INF/lib/spring-boot-tomcat-4.0.8.jar": "2c704a61e44768d6b5101b2ac0ae0b87399a30abb96712d9fb746b506efcee1e",
+          "BOOT-INF/lib/spring-boot-transaction-4.0.8.jar": "cf86b197ceb6f352ec32c8a1374520c2361c8b2c08ec0dca2753480d097dcfc6",
+          "BOOT-INF/lib/spring-boot-validation-4.0.8.jar": "25b357a3d7cc84cc6ebb14b38ae28cfd27a3e1468fb5d0891b87f6bb30494a52",
+          "BOOT-INF/lib/spring-boot-web-server-4.0.8.jar": "634e37eb6e53cc9d30e54bb8e3969faec289a0cf222e4929446d2af38e6fb6ce",
+          "BOOT-INF/lib/spring-boot-webmvc-4.0.8.jar": "92052c430ea18f39f34c4f05feaebb108ee1a145263f46bbc3b3506fed598b81",
+          "BOOT-INF/lib/spring-context-7.0.9.jar": "7552a2fcfa30cea53eb14d7a65a7a8e1b1dd82e832a7164fb7e6fb105f438858",
+          "BOOT-INF/lib/spring-core-7.0.9.jar": "5195f4722699b39878d99a832549fe65df2890b159d063b88fff31b1ca65ae36",
+          "BOOT-INF/lib/spring-expression-7.0.9.jar": "046434c40f43819729b9b1db0e6c659dfa68184c1c2c2efa5f7b3a5b27c4e2e2",
+          "BOOT-INF/lib/spring-jdbc-7.0.9.jar": "ca0d9af1c5721eef8cac1f94c8b9d27a753248bc33c86e3472bd3d1dbd78f450",
+          "BOOT-INF/lib/spring-security-config-7.0.7.jar": "a601134be90447b371c0679a21fc0c797f9a2e8d05ca8f821020a7d952985464",
+          "BOOT-INF/lib/spring-security-core-7.0.7.jar": "e1f9eacc6a91fadc2d63155ccb8896c19cc945239ac126f2556fffe15effe596",
+          "BOOT-INF/lib/spring-security-crypto-7.0.7.jar": "e03b7570b6bac4a7d4837542e9317bc65158cfc96485564a29e7bb6747f218aa",
+          "BOOT-INF/lib/spring-security-oauth2-core-7.0.7.jar": "ebd2443cfab96e6c84fde0a2e8fd28946c25b21e84f457b49d9deaff2ffdc91e",
+          "BOOT-INF/lib/spring-security-oauth2-jose-7.0.7.jar": "2fa42334847a224b3c28f4c2dbcafe8b2b5afc00ac76db6c99a47081059872af",
+          "BOOT-INF/lib/spring-security-oauth2-resource-server-7.0.7.jar": "c71412e10a18beabd8f38c96577ded32c11d9531e534f9360497f36e6a649652",
+          "BOOT-INF/lib/spring-security-web-7.0.7.jar": "b9935b0ab3ddbf4df963b2c7fa8fc98245687398ef3e22253c26e1d53db75388",
+          "BOOT-INF/lib/spring-tx-7.0.9.jar": "bfb15da6e096e2c0752e9db9987d2415bf0da1d744efc988535c10c6b6c2eedd",
+          "BOOT-INF/lib/spring-web-7.0.9.jar": "941ced476427bde2533872f293da535fd0258de3f3a650a7f1bfe01ed2927302",
+          "BOOT-INF/lib/spring-webmvc-7.0.9.jar": "8f114c1461692c5e534e82b27de23b7fb23370db8dee7ce0c92d5106906c9555",
+          "BOOT-INF/lib/tomcat-embed-core-11.0.26.jar": "062cf4191139c08aef678673039e41ed9d69b6c1b9b30b44820e5a83d0c09cb6",
+          "BOOT-INF/lib/tomcat-embed-el-11.0.26.jar": "a852c99fb5e4e174c08fb4b13cc6c7cd9de9332d46582020aaa219e95092a309",
+          "BOOT-INF/lib/tomcat-embed-websocket-11.0.26.jar": "89184380e3c4b0d3c7af828230b179e35123623f2a5b4231c052d6f2eecb5976"
+        },
+        "library_count": 73,
+        "finding_entries": 7,
+        "fixable_high_critical_entries": 5
+      },
+      "scanner-version": {
+        "Version": "0.75.0",
+        "VulnerabilityDB": {
+          "Version": 2,
+          "NextUpdate": "2026-10-19T00:43:37.96251693Z",
+          "UpdatedAt": "2026-10-18T00:43:37.96251718Z",
+          "DownloadedAt": "2026-10-18T07:31:06.902989503Z"
+        },
+        "JavaDB": {
+          "Version": 1,
+          "NextUpdate": "2026-10-21T00:58:00.305003002Z",
+          "UpdatedAt": "2026-10-18T00:58:00.305003613Z",
+          "DownloadedAt": "2026-10-18T07:31:27.01312818Z"
+        }
+      },
+      "scanner-digests": [
+        "aquasec/trivy@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa"
+      ],
+      "scanner_artifact": "/input",
+      "findings": [
+        {
+          "VulnerabilityID": "CVE-2026-89407",
+          "VendorIDs": [
+            "GHSA-p6pp-m3f8-5c89"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-core",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-core-2.21.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.21.5",
+            "UID": "e57d3f32337605a4"
+          },
+          "InstalledVersion": "2.21.5",
+          "FixedVersion": "2.18.11, 2.21.7, 2.22.3",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-89407",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:fe9dc6fbc03361e277738776851154f8ece5faadc1ad4329f9b61207e6df0fd6",
+          "Title": "com.fasterxml.jackson/jackson-core: tools.jackson.core/jackson-core: Jackson-core: Denial of Service via regular expression backtracking",
+          "Description": "NumberInput.looksLikeValidNumber() in FasterXML jackson-core pre-validates \"stringified numbers\" with two regular expressions: PATTERN_FLOAT ([+-]?[0-9]*[\\.]?[0-9]+([eE][+-]?[0-9]+)?), present since 2.17.0, and PATTERN_FLOAT_TRAILING_DOT, added in 2.17.2. PATTERN_FLOAT places adjacent quantifiers over the same character class -- an optional [0-9]* run, an optional dot, then a required [0-9]+ run -- so input that ultimately fails to match forces Java's backtracking engine to retry every possible split point of the digit run.\u00a0\n\n\n\nMatching cost therefore grows with the square of the input length.\u00a0\n\n\n\nAn attacker who can supply JSON that an application deserializes into a numeric target type reaches this method through jackson-databind's default String-to-number coercion (StdDeserializer and NumberDeserializers for BigDecimal, BigInteger, Double and Float).\u00a0\n\n\n\nBecause StreamReadConstraints.maxStringLength defaults to 20,000,000 characters, no constraint bounds the input before it reaches the regex.\u00a0\n\n\n\nTesting by the reporter confirmed O(n^2) growth across five consecutive input-size doublings, with a single 160,000-character string consuming roughly 74 seconds in one call; a small number of concurrent requests of ordinary body size can therefore exhaust a server's request-handling thread pool.\u00a0\n\n\n\nThe affected method does not exist before 2.17.0, so 2.16.x and earlier releases are not affected.\u00a0\n\n\n\nThe fix replaces both regular expressions with a hand-rolled single-pass scan.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "ghsa": 3,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 5.9
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-89407",
+            "https://advisory.echohq.com/cve/CVE-2026-89407",
+            "https://getsafety.com/vulnerabilities/SFTY-20260922-89449/CVE-2026-89407",
+            "https://github.com/FasterXML/jackson-core",
+            "https://github.com/FasterXML/jackson-core/commit/731e794f62623aa0d86ced52490166be903fbb1d",
+            "https://github.com/FasterXML/jackson-core/commit/e7acd64cc99bd346704423dc2bfea1ab0a08ddff",
+            "https://github.com/FasterXML/jackson-core/issues/1649",
+            "https://github.com/FasterXML/jackson-core/pull/1650",
+            "https://github.com/FasterXML/jackson-core/pull/1701",
+            "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-p6pp-m3f8-5c89",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-89407",
+            "https://www.cve.org/CVERecord?id=CVE-2026-89407"
+          ],
+          "PublishedDate": "2026-09-22T15:17:21.053Z",
+          "LastModifiedDate": "2026-09-22T20:00:03.713Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-89425",
+          "VendorIDs": [
+            "GHSA-7hhh-6rmp-j9qf"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-core",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-core-2.21.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-core@2.21.5",
+            "UID": "e57d3f32337605a4"
+          },
+          "InstalledVersion": "2.21.5",
+          "FixedVersion": "2.21.7, 2.22.3, 2.18.11",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-89425",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:c3aa1748156bbd548117f6b7d986a937a5030b1e5416a0601e7d260404291d85",
+          "Title": "com.fasterxml.jackson.core/jackson-core: Jackson-core: Denial of Service via unbounded StringBuilder growth during malformed token processing",
+          "Description": "UTF8DataInputJsonParser._reportInvalidToken() in FasterXML jackson-core builds the offending-token text for its error message by appending Java identifier characters to a StringBuilder in a loop that has no upper bound. Unlike the three sibling parser implementations, including UTF8StreamJsonParser, it never consults ErrorReportConfiguration.getMaxErrorTokenLength() (default 256). A malformed token supplied to a parser created through JsonFactory.createParser(DataInput) is therefore accumulated in full. No StreamReadConstraints setting mitigates this: maxDocumentLength cannot be applied to DataInput sources at all, and maxStringLength does not cover this path because the accumulation bypasses ReadConstrainedTextBuffer. The reporter measured a 20,000,109-character exception message from a 20-million-character malformed token on the DataInput path, against 367 characters for identical input on the InputStream path. Scaling the payload drives the StringBuilder, which also incurs byte-to-char expansion and internal array doubling, to many times the raw payload size and can trigger OutOfMemoryError for the whole JVM. UTF8DataInputJsonParser was introduced in 2.8.0 together with createParser(DataInput); releases before 2.8.0 do not contain the affected class.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-770"
+          ],
+          "VendorSeverity": {
+            "amazon": 3,
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-89425",
+            "https://advisory.echohq.com/cve/CVE-2026-89425",
+            "https://github.com/FasterXML/jackson-core",
+            "https://github.com/FasterXML/jackson-core/commit/211cf2c5d91abbec38067f37efc1363cd4e88ee3",
+            "https://github.com/FasterXML/jackson-core/pull/1698",
+            "https://github.com/FasterXML/jackson-core/releases/tag/jackson-core-2.18.11",
+            "https://github.com/FasterXML/jackson-core/releases/tag/jackson-core-3.2.3",
+            "https://github.com/FasterXML/jackson-core/security/advisories/GHSA-7hhh-6rmp-j9qf",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-89425",
+            "https://www.cve.org/CVERecord?id=CVE-2026-89425"
+          ],
+          "PublishedDate": "2026-09-23T03:17:04.357Z",
+          "LastModifiedDate": "2026-09-24T20:43:32.537Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-68497",
+          "VendorIDs": [
+            "GHSA-q4xh-88c3-wmh7"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-databind-2.21.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.5",
+            "UID": "3261b84539433a0a"
+          },
+          "InstalledVersion": "2.21.5",
+          "FixedVersion": "2.18.10, 2.21.6, 2.22.2",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-68497",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:64925f94bedf57ffe938e2ed80f68afd9007cf02ece8fa000177306fa97421b1",
+          "Title": "com.fasterxml.jackson.core/jackson-databind: tools.jackson.core/jackson-databind: jackson-databind: CPU Denial of Service via unbounded numeric parsing",
+          "Description": "jackson-databind binds a JSON string to a javax.xml.datatype.Duration or javax.xml.datatype.XMLGregorianCalendar field by passing the raw string verbatim to DatatypeFactory.newDuration(value) or newXMLGregorianCalendar(value) in CoreXMLDeserializers.Std._deserialize. These deserializers are registered by default with no opt-in, so a plain ObjectMapper or JsonMapper with no polymorphic typing and no special configuration reaches this path. The XML Schema lexical grammar permits numeric components of arbitrary length, which the JDK materializes through the native BigInteger(String) and BigDecimal(String) constructors, both quadratic in digit count. Because the digits sit inside a JSON string token rather than a JSON number token, jackson-core's StreamReadConstraints.maxNumberLength guard never applies; jackson's own NumberDeserializers call validateIntegerLength or validateFPLength before parsing a stringified number, but the XML datatype deserializer omits that pre-check. An unauthenticated attacker can therefore submit a single request of a few megabytes, such as a Duration value consisting of the letter P followed by several million digits and the letter Y, and force tens of seconds to several minutes of single-threaded CPU work; a handful of concurrent requests can saturate a server's worker threads. This affects com.fasterxml.jackson.core:jackson-databind from 2.0.0 before 2.18.10, from 2.19.0 before 2.21.6, and from 2.22.0 before 2.22.2, and tools.jackson.core:jackson-databind from 3.0.0 before 3.1.6 and from 3.2.0 before 3.2.2. Users should upgrade to 2.18.10, 2.21.6, 2.22.2, 3.1.6, or 3.2.2.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400",
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "alma": 3,
+            "ghsa": 3,
+            "oracle-oval": 3,
+            "redhat": 3,
+            "rocky": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/errata/RHSA-2026:80504",
+            "https://access.redhat.com/security/cve/CVE-2026-68497",
+            "https://advisory.echohq.com/cve/CVE-2026-68497",
+            "https://bugzilla.redhat.com/2531964",
+            "https://bugzilla.redhat.com/show_bug.cgi?id=2531964",
+            "https://creativecommons.org/licenses/by/4.0/",
+            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2026-68497",
+            "https://errata.almalinux.org/9/ALSA-2026-80504.html",
+            "https://errata.rockylinux.org/RLSA-2026:80504",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/a99b7e74c8928f43f6975773a8c862c8316178bd",
+            "https://github.com/FasterXML/jackson-databind/pull/6127",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.10",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.2",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.2",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-q4xh-88c3-wmh7",
+            "https://linux.oracle.com/cve/CVE-2026-68497.html",
+            "https://linux.oracle.com/errata/ELSA-2026-80504.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-68497",
+            "https://www.cve.org/CVERecord?id=CVE-2026-68497"
+          ],
+          "PublishedDate": "2026-09-11T16:17:39.61Z",
+          "LastModifiedDate": "2026-09-18T19:34:36.657Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-91776",
+          "VendorIDs": [
+            "GHSA-wv8q-qhhj-9h54"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-databind-2.21.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.5",
+            "UID": "3261b84539433a0a"
+          },
+          "InstalledVersion": "2.21.5",
+          "FixedVersion": "2.18.11, 2.21.7, 2.22.3",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-91776",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:ab9a5b20b655e0dcf83a0baf1e54efc82f37352ee056bc1e4e51013ef965b9f3",
+          "Title": "jackson-databind: com.fasterxml.jackson/jackson-core: jackson-databind: Denial of Service via unbounded cache growth in TypeDeserializerBase",
+          "Description": "TypeDeserializerBase._findDeserializer() in FasterXML jackson-databind caches the resolved deserializer under the raw, attacker-supplied type ID. When name-based polymorphism is configured with a fallback, for example @JsonTypeInfo(use = Id.NAME, defaultImpl = ...), every distinct unrecognized type ID resolves to the same fallback deserializer but is retained as its own key in the _deserializers map. That map has no configurable bound and lives for the lifetime of the type deserializer, so an attacker who can repeatedly supply fresh unknown type IDs causes monotonic memory retention across requests. The reporter observed 10,000 retained entries from 10,000 distinct unknown IDs, against a single entry for a control that repeated one unknown ID the same number of times, isolating attacker-controlled key cardinality from request volume. Exploitation requires an application that enables name-based polymorphism with a defaultImpl or equivalent fallback, accepts attacker-influenced type IDs, and reuses a long-lived ObjectMapper across requests. The fix stops caching fallback resolutions for unrecognized IDs and bounds both the number of cached entries and the length of a cacheable type ID.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-91776",
+            "https://advisory.echohq.com/cve/CVE-2026-91776",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/2870d1d6dc1b7e1c07ee11dd5b04ab71cddbb577",
+            "https://github.com/FasterXML/jackson-databind/issues/6203",
+            "https://github.com/FasterXML/jackson-databind/pull/6203",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.11",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.3",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.3",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-wv8q-qhhj-9h54",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-91776",
+            "https://www.cve.org/CVERecord?id=CVE-2026-91776"
+          ],
+          "PublishedDate": "2026-09-23T03:17:04.62Z",
+          "LastModifiedDate": "2026-09-24T20:43:32.537Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-91777",
+          "VendorIDs": [
+            "GHSA-cxp5-3px4-pw24"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-databind-2.21.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.5",
+            "UID": "3261b84539433a0a"
+          },
+          "InstalledVersion": "2.21.5",
+          "FixedVersion": "2.21.7, 2.18.11, 2.22.3",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-91777",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:153db34822ee7275719c0d2045b9e5830e3ac206b233d00c74765bfc6ee2995b",
+          "Title": "com.fasterxml.jackson.core/jackson-databind: tools.jackson.core:jackson-databind: Jackson-databind: Denial of Service via quadratic forward-reference completion",
+          "Description": "Forward-reference completion for @JsonIdentityInfo object IDs in FasterXML jackson-databind performs a linear scan of the pending-reference accumulator for every resolved ID. The affected paths are CollectionDeserializer.CollectionReferringAccumulator.resolveForwardReference() and the equivalent implementation in MapDeserializer. When a document first creates N unresolved object-ID references in an identity-enabled collection or map and then defines those same IDs in reverse order, completion performs on the order of N * (N + 1) / 2 identity comparisons, so a shallow document whose size grows linearly causes quadratic CPU work during deserialization. The reporter instrumented equals() calls on the ID class and measured exactly 2,003,000 comparisons at N = 2,000, against zero comparisons in the pending-reference lookup path for an equally sized control in which every reference was already resolved. The input requires no deep nesting and no syntactically unusual JSON. Exploitation requires an application that deserializes attacker-influenced JSON into an identity-enabled collection or map. The fix replaces the repeated linear lookup with a keyed pending-reference structure.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-400"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-91777",
+            "https://advisory.echohq.com/cve/CVE-2026-91777",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/37ad9b81712cbb9fb62c2d2c1813593252a24b67",
+            "https://github.com/FasterXML/jackson-databind/issues/6204",
+            "https://github.com/FasterXML/jackson-databind/pull/6204",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.11",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.3",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.7",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.3",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-cxp5-3px4-pw24",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-91777",
+            "https://www.cve.org/CVERecord?id=CVE-2026-91777"
+          ],
+          "PublishedDate": "2026-09-23T03:17:04.783Z",
+          "LastModifiedDate": "2026-09-24T20:43:32.537Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-19032",
+          "VendorIDs": [
+            "GHSA-wjgm-6hv5-3cvf"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-databind-2.21.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.5",
+            "UID": "3261b84539433a0a"
+          },
+          "InstalledVersion": "2.21.5",
+          "FixedVersion": "2.18.10, 2.21.6, 2.22.2",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-19032",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:b06377cc3d59dafb157a9b106933abd50038f758e1b9df9dbe5c33860969f531",
+          "Title": "com.fasterxml.jackson.core/jackson-databind: tools.jackson.core/jackson-databind: Jackson-databind: Uncontrolled URI scheme resolution in Path deserialization",
+          "Description": "jackson-databind's deserializer for java.nio.file.Path resolves an attacker-supplied URI without restricting the URI scheme. In JDKFromStringDeserializer.NioPathHelper.deserialize, a string bound from untrusted JSON is passed to new URI(value) and then to Path.of(uri). When that throws FileSystemNotFoundException, the code enumerates ServiceLoader<FileSystemProvider> and calls provider.getPath(uri) on the first provider whose scheme matches the attacker-chosen scheme. Untrusted JSON can therefore select and drive an arbitrary registered FileSystemProvider during readValue under a default JsonMapper, and forces provider class loading at the same time. With only the JDK built-in providers (file, jar/zipfs) present, the resolved path is inert and no mount or network I/O occurs; further impact requires a side-effecting third-party FileSystemProvider on the classpath. This affects com.fasterxml.jackson.core:jackson-databind from 2.8.0 before 2.18.10, from 2.19.0 before 2.21.6, and from 2.22.0 before 2.22.2, and tools.jackson.core:jackson-databind from 3.0.0 before 3.1.6 and from 3.2.0 before 3.2.2. Users should upgrade to 2.18.10, 2.21.6, 2.22.2, 3.1.6, or 3.2.2. Binding java.nio.file.Path from untrusted JSON should be avoided regardless of version.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-470",
+            "CWE-610"
+          ],
+          "VendorSeverity": {
+            "amazon": 2,
+            "ghsa": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-19032",
+            "https://advisory.echohq.com/cve/CVE-2026-19032",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/cc6756b61ed90b6b9227f670e0408d5d9bd48551",
+            "https://github.com/FasterXML/jackson-databind/commit/ce26eda3481cd796f76ba4c53ffe1da23b53f166",
+            "https://github.com/FasterXML/jackson-databind/commit/d94bb632becfe0ba96926b9909ab06d1f87aad6d",
+            "https://github.com/FasterXML/jackson-databind/pull/6129",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.10",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.2",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.2",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-wjgm-6hv5-3cvf",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-19032",
+            "https://www.cve.org/CVERecord?id=CVE-2026-19032"
+          ],
+          "PublishedDate": "2026-09-01T04:18:00.433Z",
+          "LastModifiedDate": "2026-09-08T19:29:32.2Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-83557",
+          "VendorIDs": [
+            "GHSA-gx83-3vf8-gh7j"
+          ],
+          "PkgName": "com.fasterxml.jackson.core:jackson-databind",
+          "PkgPath": "application.jar/BOOT-INF/lib/jackson-databind-2.21.5.jar",
+          "PkgIdentifier": {
+            "PURL": "pkg:maven/com.fasterxml.jackson.core/jackson-databind@2.21.5",
+            "UID": "3261b84539433a0a"
+          },
+          "InstalledVersion": "2.21.5",
+          "FixedVersion": "2.18.10, 2.21.6, 2.22.2",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-83557",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Maven",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Amaven"
+          },
+          "Fingerprint": "sha256:b3ea992e6aa245d740b3ebadee3f9a8147b2931c203cb74688e99e79c8283662",
+          "Title": "com.fasterxml.jackson.core/jackson-databind: tools.jackson.core/jackson-databind: jackson-databind: Path traversal via incomplete type validation",
+          "Description": "DefaultBaseTypeLimitingValidator is the PolymorphicTypeValidator applied automatically whenever @JsonTypeInfo is used without an explicitly configured custom validator. It denies polymorphic resolution only for a fixed set of \"unsafe base types\", and its isSafeSubType method returns true unconditionally for every base type outside that set. java.lang.Comparable was absent from the list despite being implemented by a very large fraction of JDK and application classes, comparable in breadth to java.io.Serializable, which is on the list for that reason. An application declaring an @JsonTypeInfo-annotated property or class with Comparable as its base type, and no custom PolymorphicTypeValidator, will accept a type identifier for essentially any class implementing Comparable. This yields an attacker-controlled object instantiation primitive; a demonstrated case constructs a java.io.File for an arbitrary attacker-chosen path, which becomes path-traversal-adjacent if the application subsequently calls path-sensitive methods on the value. No class implementing Comparable has been identified that yields code execution through deserialization alone. Global Default Typing via activateDefaultTyping is not affected, because that method structurally requires an explicit PolymorphicTypeValidator argument. This affects com.fasterxml.jackson.core:jackson-databind from 2.11.0 before 2.18.10, from 2.19.0 before 2.21.6, and from 2.22.0 before 2.22.2, and tools.jackson.core:jackson-databind from 3.0.0 before 3.1.6 and from 3.2.0 before 3.2.2. Users should upgrade to 2.18.10, 2.21.6, 2.22.2, 3.1.6, or 3.2.2.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-502",
+            "CWE-915"
+          ],
+          "VendorSeverity": {
+            "amazon": 2,
+            "ghsa": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L",
+              "V3Score": 5.6
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L",
+              "V3Score": 5.6
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2026-83557",
+            "https://advisory.echohq.com/cve/CVE-2026-83557",
+            "https://getsafety.com/vulnerabilities/SFTY-20260901-46895/CVE-2026-83557",
+            "https://github.com/FasterXML/jackson-databind",
+            "https://github.com/FasterXML/jackson-databind/commit/eb3b7fc0f9c0d27f471550ac3316b17d1987388f",
+            "https://github.com/FasterXML/jackson-databind/issues/6156",
+            "https://github.com/FasterXML/jackson-databind/pull/6155",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.18.10",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.21.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-2.22.2",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.1.6",
+            "https://github.com/FasterXML/jackson-databind/releases/tag/jackson-databind-3.2.2",
+            "https://github.com/FasterXML/jackson-databind/security/advisories/GHSA-gx83-3vf8-gh7j",
+            "https://nvd.nist.gov/vuln/detail/CVE-2026-83557",
+            "https://www.cve.org/CVERecord?id=CVE-2026-83557"
+          ],
+          "PublishedDate": "2026-09-01T15:17:37.987Z",
+          "LastModifiedDate": "2026-09-08T19:29:32.2Z"
+        }
+      ]
+    },
+    {
+      "head": "5e6538361c35e37f14b22e48e5e13f3b706c9d20",
+      "run_id": 39108083386,
+      "scanner-digests": [
+        "aquasec/trivy@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa"
+      ],
+      "scanner-version": {
+        "Version": "0.75.0",
+        "VulnerabilityDB": {
+          "Version": 2,
+          "NextUpdate": "2026-10-19T00:43:37.96251693Z",
+          "UpdatedAt": "2026-10-18T00:43:37.96251718Z",
+          "DownloadedAt": "2026-10-18T07:33:34.336449526Z"
+        },
+        "JavaDB": {
+          "Version": 1,
+          "NextUpdate": "2026-10-21T00:58:00.305003002Z",
+          "UpdatedAt": "2026-10-18T00:58:00.305003613Z",
+          "DownloadedAt": "2026-10-18T07:33:50.817350189Z"
+        }
+      },
+      "inventory": {
+        "jar_sha256": "3438bb30214eec0798d46d1ccdfbdec4b5f1839d1bfccce9f3b9fb3f1d135f24",
+        "libraries": {
+          "BOOT-INF/lib/HdrHistogram-2.2.2.jar": "22d1d4316c4ec13a68b559e98c8256d69071593731da96136640f864fa14fad8",
+          "BOOT-INF/lib/HikariCP-7.0.2.jar": "f1e612fa27345be3107a85431e8a8aeb205c15364ab2f2d411e40a9d7bb08095",
+          "BOOT-INF/lib/LatencyUtils-2.0.3.jar": "a32a9ffa06b2f4e01c5360f8f9df7bc5d9454a5d373cd8f361347fa5a57165ec",
+          "BOOT-INF/lib/checker-qual-3.55.1.jar": "857658c8bdcbff794949a8d9922f88d63ee3751c203c7cd7d21ea97f9e745288",
+          "BOOT-INF/lib/classmate-1.7.3.jar": "75fbda45456f123fb6e2028a6189442d8d0730b357adce4c0a6d7e789f70669b",
+          "BOOT-INF/lib/commons-logging-1.3.6.jar": "f8ead8943401081dea0aa824b5b1ba40a0e4ed297a572a0f02258150a0b62357",
+          "BOOT-INF/lib/flyway-core-11.14.1.jar": "45148edbcb55016418ff1ef7ecca3331b55f5216b3af4bd2db40063904db3715",
+          "BOOT-INF/lib/flyway-database-postgresql-11.14.1.jar": "d7142273706f225e6890ff971f0c8ccc4e7fe253ab6ab9f20556b155c68bca8a",
+          "BOOT-INF/lib/h2-2.3.232.jar": "8dae62d22db8982c3dcb3826edb9c727c5d302063a67eef7d63d82de401f07d3",
+          "BOOT-INF/lib/hibernate-validator-9.0.1.Final.jar": "25f40118fa4c50f8522d090d25d52d5a38953b0ccd1250835f052e7bd3164ce0",
+          "BOOT-INF/lib/jackson-annotations-2.21.jar": "53ca085f4a150f703f49e1aabd935bd03b43e1ea3d55d135438292af22cef56b",
+          "BOOT-INF/lib/jackson-core-2.21.7.jar": "8c5623b98f32d5f7e1287ff61ed50e08ab7b11381e991fff89327faabba42261",
+          "BOOT-INF/lib/jackson-core-3.1.7.jar": "7608c367fd8a92666d28711519599543c180298259963184ce04d2947a8f71e7",
+          "BOOT-INF/lib/jackson-databind-2.21.7.jar": "1290c2795e93e8a6861a6c4d9ff0d844d32f5ea178362cb2721edf5561e828b1",
+          "BOOT-INF/lib/jackson-databind-3.1.7.jar": "48c781de87e2016e1f0d973748a27130f11643e7ac080173f40e2d9669d84be3",
+          "BOOT-INF/lib/jakarta.annotation-api-3.0.0.jar": "b01f55552284cfb149411e64eabca75e942d26d2e1786b32914250e4330afaa2",
+          "BOOT-INF/lib/jakarta.validation-api-3.1.1.jar": "63ce00156388c365f3ac1be71fcfaf114682fc0c452020b5df6e7ec236e142ab",
+          "BOOT-INF/lib/jboss-logging-3.6.3.Final.jar": "7c12ee575508f81e22b1db9334b969d0ec54ef0fd1dcba24eeab1a44235fc366",
+          "BOOT-INF/lib/jspecify-1.0.1.jar": "070d75f261fe4c5b8202508366715f7f2d4660f88c8ef7e6d3575e48c9683b66",
+          "BOOT-INF/lib/jul-to-slf4j-2.0.18.jar": "cbb7d1aaaa9e871eb1a06594abd911bf97027152976edf1edc315be75239204e",
+          "BOOT-INF/lib/log4j-api-2.25.5.jar": "64777f73ea0b3104c04eb82befbdccc30a425a19e83ad06cb2f93aa303511863",
+          "BOOT-INF/lib/log4j-to-slf4j-2.25.5.jar": "b68e8b47342dbc9b35644a14fe2efc0b7bf18da703910cd05ad5501ffe07bba1",
+          "BOOT-INF/lib/logback-classic-1.5.38.jar": "afb439c61fa287c9e1925523b13baab03617e724406a389d48b61c2c3e46b700",
+          "BOOT-INF/lib/logback-core-1.5.38.jar": "a855a0fc97b1d06f4efb1c3bba5ebd0eb508d8b58e68e89e4bbc23a85135c883",
+          "BOOT-INF/lib/micrometer-commons-1.16.7.jar": "cd1ad64a94650a2ed3988a4ab48c9a7fad40c4986a81e328194dd757b5170273",
+          "BOOT-INF/lib/micrometer-core-1.16.7.jar": "6a1971bc92310cf8e387118a79d0b9146695d6f8d89d03990e180f9dcb374284",
+          "BOOT-INF/lib/micrometer-jakarta9-1.16.7.jar": "100b600eed6ef9ceafeacee9687b6fd41dd59007f23d1483739b6d9480705863",
+          "BOOT-INF/lib/micrometer-observation-1.16.7.jar": "74f9e4d51ef30c141de8a2409879282e572eef98665e033e8922c2fbee16862d",
+          "BOOT-INF/lib/nimbus-jose-jwt-10.4.jar": "6f13f3480ddc53d820d276f582f54843cff1daf5c6e35e534947e9de7723b46b",
+          "BOOT-INF/lib/postgresql-42.7.14.jar": "73914527305a40cce504b0d3d90b23caf565136912d607ae8ae7c5895512332c",
+          "BOOT-INF/lib/slf4j-api-2.0.18.jar": "44508fd1576500688c790b190acdd16fec4f8c79a3e0b900afd70503cf055f55",
+          "BOOT-INF/lib/snakeyaml-2.5.jar": "e6682acf1ace77508ef13649cbf4f8d09d2cf5457bdb61d25ffb6ac0233d78dd",
+          "BOOT-INF/lib/spring-aop-7.0.9.jar": "b8c5d6bfcb1f4993f2cc124f7ab7fac40edf5256b9e43c2f7250a733cb5510e9",
+          "BOOT-INF/lib/spring-beans-7.0.9.jar": "ff218b827a25c9e8929b0cd56dfb56916cea9d5b669ed97dc7cb262508ff548b",
+          "BOOT-INF/lib/spring-boot-4.0.8.jar": "ef1a4917ff5dfd41de20b7441a7830eaeae0a01229998c3aa2f471b96bc2b38f",
+          "BOOT-INF/lib/spring-boot-actuator-4.0.8.jar": "1f3bd61015e1a6346a7f3b12547b07b47ea312392cfbccbcfa3cbadbe7cc7a4a",
+          "BOOT-INF/lib/spring-boot-actuator-autoconfigure-4.0.8.jar": "f9c3c760c2ac7a8d7b33ac1ad0c886e36f4573c7674e1fd5ca46f81443e5d58e",
+          "BOOT-INF/lib/spring-boot-autoconfigure-4.0.8.jar": "6beeb105cceae1df37957d35e1bf8d060e7bde61537569decae3f976f6b54919",
+          "BOOT-INF/lib/spring-boot-flyway-4.0.8.jar": "a14377e98f8446a2b95bb12ceb3d43d23ef0d482cf22a69a329b363561425738",
+          "BOOT-INF/lib/spring-boot-health-4.0.8.jar": "85dcca38f6d9b33f96af895bfdc99ecfe862f591e677047d58e025b3a94a786c",
+          "BOOT-INF/lib/spring-boot-http-converter-4.0.8.jar": "ea94cd0d84162603266b7ab97f8a4de5661ad0425d0d8a50c50a18f4610dc0be",
+          "BOOT-INF/lib/spring-boot-jackson-4.0.8.jar": "f846da1dc1f78acd3e9446b19d049f0a3a5bd79dac7eb2cff921b256f9dc4b01",
+          "BOOT-INF/lib/spring-boot-jarmode-tools-4.0.8.jar": "7b14818a48bb13e252d0267728eacf3a458b9aab3c63687ee4e292f305c5e026",
+          "BOOT-INF/lib/spring-boot-jdbc-4.0.8.jar": "794570e0962830d4d6ea356ec9dbbfee595afbb8cdf3a95eb7d331e900401f80",
+          "BOOT-INF/lib/spring-boot-micrometer-metrics-4.0.8.jar": "30eb8f95ebcd29375e49eb1834dcc176a8f824cba01214c37d899e2ad5e598f7",
+          "BOOT-INF/lib/spring-boot-micrometer-observation-4.0.8.jar": "4ba481c61798a353114925be837b27b709da5e6b9bdddbd786e7761949d4c2b6",
+          "BOOT-INF/lib/spring-boot-persistence-4.0.8.jar": "663b2018a8820bee73cc99314a7a7e64275706e615c4274efb80f90207098263",
+          "BOOT-INF/lib/spring-boot-security-4.0.8.jar": "7a52b309ac7a604e9c2aefd4389773ba8cacd3d0a01989b55d3a45576654e48a",
+          "BOOT-INF/lib/spring-boot-security-oauth2-resource-server-4.0.8.jar": "f4dca29b44703d660e39ae69c8002cdd64aec1da99e8e9cb24359e96b5eb38c4",
+          "BOOT-INF/lib/spring-boot-servlet-4.0.8.jar": "c632f7a95fb68edd0803ed9b40c0e93591ee572cc755fd78ca4c9a039369661b",
+          "BOOT-INF/lib/spring-boot-sql-4.0.8.jar": "cd88bfdcb52b5aa5b4124c65909cd57c2b414a8a2776c4c087dd75b7427a8e0c",
+          "BOOT-INF/lib/spring-boot-tomcat-4.0.8.jar": "2c704a61e44768d6b5101b2ac0ae0b87399a30abb96712d9fb746b506efcee1e",
+          "BOOT-INF/lib/spring-boot-transaction-4.0.8.jar": "cf86b197ceb6f352ec32c8a1374520c2361c8b2c08ec0dca2753480d097dcfc6",
+          "BOOT-INF/lib/spring-boot-validation-4.0.8.jar": "25b357a3d7cc84cc6ebb14b38ae28cfd27a3e1468fb5d0891b87f6bb30494a52",
+          "BOOT-INF/lib/spring-boot-web-server-4.0.8.jar": "634e37eb6e53cc9d30e54bb8e3969faec289a0cf222e4929446d2af38e6fb6ce",
+          "BOOT-INF/lib/spring-boot-webmvc-4.0.8.jar": "92052c430ea18f39f34c4f05feaebb108ee1a145263f46bbc3b3506fed598b81",
+          "BOOT-INF/lib/spring-context-7.0.9.jar": "7552a2fcfa30cea53eb14d7a65a7a8e1b1dd82e832a7164fb7e6fb105f438858",
+          "BOOT-INF/lib/spring-core-7.0.9.jar": "5195f4722699b39878d99a832549fe65df2890b159d063b88fff31b1ca65ae36",
+          "BOOT-INF/lib/spring-expression-7.0.9.jar": "046434c40f43819729b9b1db0e6c659dfa68184c1c2c2efa5f7b3a5b27c4e2e2",
+          "BOOT-INF/lib/spring-jdbc-7.0.9.jar": "ca0d9af1c5721eef8cac1f94c8b9d27a753248bc33c86e3472bd3d1dbd78f450",
+          "BOOT-INF/lib/spring-security-config-7.0.7.jar": "a601134be90447b371c0679a21fc0c797f9a2e8d05ca8f821020a7d952985464",
+          "BOOT-INF/lib/spring-security-core-7.0.7.jar": "e1f9eacc6a91fadc2d63155ccb8896c19cc945239ac126f2556fffe15effe596",
+          "BOOT-INF/lib/spring-security-crypto-7.0.7.jar": "e03b7570b6bac4a7d4837542e9317bc65158cfc96485564a29e7bb6747f218aa",
+          "BOOT-INF/lib/spring-security-oauth2-core-7.0.7.jar": "ebd2443cfab96e6c84fde0a2e8fd28946c25b21e84f457b49d9deaff2ffdc91e",
+          "BOOT-INF/lib/spring-security-oauth2-jose-7.0.7.jar": "2fa42334847a224b3c28f4c2dbcafe8b2b5afc00ac76db6c99a47081059872af",
+          "BOOT-INF/lib/spring-security-oauth2-resource-server-7.0.7.jar": "c71412e10a18beabd8f38c96577ded32c11d9531e534f9360497f36e6a649652",
+          "BOOT-INF/lib/spring-security-web-7.0.7.jar": "b9935b0ab3ddbf4df963b2c7fa8fc98245687398ef3e22253c26e1d53db75388",
+          "BOOT-INF/lib/spring-tx-7.0.9.jar": "bfb15da6e096e2c0752e9db9987d2415bf0da1d744efc988535c10c6b6c2eedd",
+          "BOOT-INF/lib/spring-web-7.0.9.jar": "941ced476427bde2533872f293da535fd0258de3f3a650a7f1bfe01ed2927302",
+          "BOOT-INF/lib/spring-webmvc-7.0.9.jar": "8f114c1461692c5e534e82b27de23b7fb23370db8dee7ce0c92d5106906c9555",
+          "BOOT-INF/lib/tomcat-embed-core-11.0.26.jar": "062cf4191139c08aef678673039e41ed9d69b6c1b9b30b44820e5a83d0c09cb6",
+          "BOOT-INF/lib/tomcat-embed-el-11.0.26.jar": "a852c99fb5e4e174c08fb4b13cc6c7cd9de9332d46582020aaa219e95092a309",
+          "BOOT-INF/lib/tomcat-embed-websocket-11.0.26.jar": "89184380e3c4b0d3c7af828230b179e35123623f2a5b4231c052d6f2eecb5976"
+        },
+        "library_count": 73,
+        "finding_entries": 0,
+        "fixable_high_critical_entries": 0
+      },
+      "scanner_artifact": "/input",
+      "findings": []
+    }
+  ]
+}
