@@ -14,7 +14,7 @@ replace issuer membership verification or tamper-resistant audit storage.
 1. Verify external issuer membership configuration and automatic key rotation/revocation.
    Define tenant administration, export/deletion and operational separation before
    real multi-tenant deployment.
-2. Add tenant fairness and edge/concurrency controls beyond the optional
+2. Add tenant fairness and edge/upload controls beyond the optional
    [process-wide API rate budget](rate-limits.md); define retention and operational
    backup/recovery policy.
    The [logical restore rehearsal](backup-restore.md) checks a quiesced synthetic
@@ -33,7 +33,9 @@ in demo. External issuer membership configuration remains unverified.
 The JSON write endpoints now enforce a 512 KiB body limit before parsing, with
 fixed-length and chunked HTTP cases. See [request bounds](request-bounds.md) for
 the scope; slow uploads and aggregate concurrency still need controls. The optional process
-budget does not bound work across replicas.
+budget does not bound work across replicas. The [concurrent API cap](concurrency-limits.md)
+now bounds admitted synchronous handler lifetimes in one process, not servlet
+queues, all memory or work across replicas.
 
 The [mixed-history experiment](mixed-prepared-plans.md) now supports a query-scoped
 PostgreSQL mitigation for currency browsing. Bound parameters are retained and no
