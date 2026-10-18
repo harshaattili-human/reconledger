@@ -8,8 +8,8 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -230,7 +230,7 @@ class ReconciliationApiTest {
             .andExpect(status().isBadRequest());
         for (String field : List.of("actorSource", "actorIssuer")) {
             var forged = json.valueToTree(new ReviewInput(ReviewState.IN_REVIEW, 0, "demo", "Synthetic note"));
-            ((com.fasterxml.jackson.databind.node.ObjectNode) forged).put(field, "caller-selected");
+            ((tools.jackson.databind.node.ObjectNode) forged).put(field, "caller-selected");
             mvc.perform(post("/api/results/{id}/reviews", id).contentType(MediaType.APPLICATION_JSON)
                 .content(json.writeValueAsString(forged))).andExpect(status().isBadRequest());
         }

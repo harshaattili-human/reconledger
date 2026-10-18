@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
@@ -53,7 +53,7 @@ class BatchListApiTest {
         assertThat(ids(list(date, null, last.at("/batches/4/sequence").asLong(), 5))).isEmpty();
         for (var summary : large.get("batches")) {
             Set<String> fields = new HashSet<>();
-            summary.fieldNames().forEachRemaining(fields::add);
+            summary.propertyNames().forEach(fields::add);
             assertThat(fields).containsExactlyInAnyOrder("id", "sequence", "businessDate", "currency", "createdAt");
         }
         mvc.perform(get("/api/batches/{id}", ids.get(0))).andExpect(status().isOk())

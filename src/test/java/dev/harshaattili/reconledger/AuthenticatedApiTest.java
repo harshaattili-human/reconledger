@@ -3,8 +3,8 @@ package dev.harshaattili.reconledger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
@@ -149,14 +149,14 @@ class AuthenticatedApiTest {
         String id = create().at("/results/0/id").asText();
         String reviewer = token("verified-reviewer", "recon:read recon:review");
         var spoof = json.readTree(REVIEW).deepCopy();
-        ((com.fasterxml.jackson.databind.node.ObjectNode) spoof).put("actor", "another-person");
+        ((tools.jackson.databind.node.ObjectNode) spoof).put("actor", "another-person");
         assertThat(call("POST", "/api/results/" + id + "/reviews", json.writeValueAsString(spoof), reviewer, null)
             .statusCode()).isEqualTo(400);
         assertThat(body(call("GET", "/api/results/" + id, null, reviewer, null)).get("version").asInt()).isZero();
         assertThat(body(call("GET", "/api/results/" + id + "/events", null, reviewer, null)).get("events")).isEmpty();
         for (String field : List.of("actorSource", "actorIssuer")) {
             var forged = json.readTree(REVIEW).deepCopy();
-            ((com.fasterxml.jackson.databind.node.ObjectNode) forged).put(field, "caller-selected");
+            ((tools.jackson.databind.node.ObjectNode) forged).put(field, "caller-selected");
             assertThat(call("POST", "/api/results/" + id + "/reviews", json.writeValueAsString(forged), reviewer, null)
                 .statusCode()).isEqualTo(400);
         }
