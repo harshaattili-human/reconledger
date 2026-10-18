@@ -132,7 +132,8 @@ def main():
             while time.monotonic() < deadline:
                 require(process.poll() is None, "Packaged application exited during startup")
                 try:
-                    require(call("/actuator/health") == {"status": "UP"}, "Unexpected health response")
+                    health = call("/actuator/health")
+                    require(health == {"status": "UP"}, f"Unexpected public health response: {health!r}")
                     return
                 except (OSError, urllib.error.URLError):
                     time.sleep(0.2)
