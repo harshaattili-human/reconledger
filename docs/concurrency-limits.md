@@ -7,13 +7,38 @@ synchronous reconciliation and review-session controllers:
 ```sh
 java -jar target/reconledger-0.1.0-SNAPSHOT-app.jar \
   --recon.concurrency-limit.enabled=true \
-  --recon.concurrency-limit.capacity=8
+  --recon.concurrency-limit.capacity=8 \
+  --recon.concurrency-limit.per-tenant-capacity=2
 ```
 
 Both profiles default to disabled. Enabled capacity defaults to eight, accepts
 1–1,000, and fails startup outside those bounds. Eight is an illustrative setting,
-not measured service or database capacity. There is one semaphore per application
-process, no caller map, waiting queue, background task or per-tenant guarantee.
+not measured service or database capacity. The optional per-tenant capacity defaults
+to the global capacity for compatibility; set it lower to prevent a single tenant
+from occupying every slot. It accepts 1 through the configured global capacity and
+fails startup otherwise. In demo mode all callers share the single `demo` tenant,
+so a lower per-tenant value becomes the effective demo limit.
+
+## Tenant occupancy
+
+Secured admission uses the existing verified `tenant_id`, never a request header,
+body field, subject or client IP. Different subjects in one tenant share its ceiling;
+the same subject in different authorized tenants uses their separate ceilings.
+Missing verified context fails closed. Authentication and scope checks still happen
+before this policy; it does not replace tenant authorization.
+
+One short synchronized section checks and increments both the global count and the
+tenant count. Neither changes on rejection. Completion uses the tenant captured at
+admission, even if the thread's security context has since changed. Zero-count entries
+are removed immediately: the map retains only active tenants and cannot contain more
+entries than the global capacity. Rejected identities create no entries. There is no
+historical tenant cache, idle eviction timer, waiting queue or background task.
+
+This is an occupancy ceiling, not fair scheduling or reserved capacity. Several
+tenants can collectively fill the global cap; a busy tenant can repeatedly reacquire
+its own allowance. The independent rate bucket remains shared, so it can still
+reject another tenant despite free concurrency slots. No per-tenant throughput or
+latency guarantee is made. Each process/replica has independent counters.
 
 ## Lifecycle and response
 
@@ -28,18 +53,18 @@ The request marker prevents duplicate completion from returning a second slot.
 Saturation returns 503 problem details with `Cache-Control: no-store` and detail
 `API concurrency capacity exhausted. No operation was started.` No key, version or
 audit write is attempted, and no rate token is charged. There is no `Retry-After`:
-the semaphore cannot predict when existing work will finish. Back off before a
+the policy cannot predict when existing work will finish. Back off before a
 retry; retain the creation key. An ambiguous review response still requires reading
 current state/history before another submission. The UI never automatically retries
 POST requests. Ordinary database-failure 503 responses retain their separate detail.
 
 Health, review assets, error handlers and rejected authentication/scope requests
 do not acquire slots. This does not reserve servlet threads for health or guarantee
-health latency under a saturated server. All tenants compete for the same cap;
-replicas multiply it. Header parsing, authentication, socket buffers, rejected
+health latency under a saturated server. Tenants compete within both ceilings;
+replicas multiply them. Header parsing, authentication, socket buffers, rejected
 responses, framework queues and work outside these controllers are not bounded.
 The admitted body buffers are individually bounded, but this is not a measured
-aggregate-memory ceiling. Slow uploads can hold all slots: upload/edge timeouts,
+aggregate-memory ceiling. Slow uploads can hold all slots across enough tenants: upload/edge timeouts,
 tenant fairness and operational limits are still needed. Disconnect during a JDBC
 operation does not cancel or roll back that operation merely by releasing a socket.
 
@@ -56,7 +81,7 @@ This is an admission control, not an authorization layer or production-load clai
 ./mvnw verify
 ```
 
-Three unit/configuration cases exercise opt-in bounds, exact-once completion and
+The original three unit/configuration cases exercise opt-in bounds, exact-once completion and
 12 released-at-once callers competing for three retained slots. Two secured
 embedded-Tomcat cases use actual JWT decoding and JDBC: a fixed-length and a chunked
 partial upload occupy both slots, excess requests leave keys/review/audit unchanged,
@@ -66,6 +91,20 @@ capacity. Existing rate HTTP cases enable a single concurrency slot to check rel
 after 429 and the interaction with token refill. These are synthetic correctness
 fixtures, not throughput measurements. Packaged/browser workflows retain the default
 disabled policy.
+
+The tenant extension adds three unit cases: 12 simultaneous callers from two tenants
+compete for three global/two per-tenant slots; 100 sequential tenant identities leave
+no retained map entries; and missing secured context creates no state. Configuration
+checks also cover the inherited default and invalid per-tenant values. Unit JWT contexts
+are trusted fixtures, not signature-verification evidence.
+
+The secured HTTP suite now configures two global/one per-tenant slots. One additional
+case holds a fixed-length then a chunked upload for tenant A: another subject in A
+is rejected without key/review/audit writes, while B can read and create a batch.
+Forged tenant headers do not bypass the ceiling. Closing A's upload permits its
+previously rejected key to succeed; simultaneous A/B uploads also reject tenant C
+at the global cap. The existing error cases verify recovery with both tenants.
+These checks use real JWT decoding, embedded Tomcat and JDBC on each database.
 
 ## Observed execution — October 18, 2026
 

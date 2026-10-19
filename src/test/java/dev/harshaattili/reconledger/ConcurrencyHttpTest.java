@@ -45,6 +45,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = {"recon.concurrency-limit.enabled=true", "recon.concurrency-limit.capacity=2",
+        "recon.concurrency-limit.per-tenant-capacity=1",
         "recon.security.review-ui-enabled=true"})
 @ActiveProfiles({"test", "secured"})
 @Import(ConcurrencyHttpTest.Observation.class)
@@ -131,8 +132,41 @@ class ConcurrencyHttpTest {
             assertThat(call("POST", "/api/batches", BATCH + " ".repeat(524288), token, "capacity-" + UUID.randomUUID()).statusCode()).isEqualTo(413);
             assertThat(call("GET", "/api/batches/missing", null, token, null).statusCode()).isEqualTo(404);
         }
-        try (var held = holdUploads(token, token)) {
+        try (var held = holdUploads(token, token("capacity-other-errors", "recon:read recon:write"))) {
             assertBusy(call("GET", "/api/batches", null, token, null));
+        }
+    }
+
+    @Test void oneTenantCannotOccupyTheOtherSlotOrBypassItsCeilingWithAnotherSubject() throws Exception {
+        String writer = token("tenant-ceiling-a", "recon:read recon:write recon:review");
+        String colleague = token("tenant-ceiling-a", "recon:read recon:write recon:review", "second-reviewer");
+        String other = token("tenant-ceiling-b", "recon:read recon:write");
+        var created = call("POST", "/api/batches", BATCH, writer, "tenant-cap-" + UUID.randomUUID());
+        assertThat(created.statusCode()).isEqualTo(201);
+        String id = json.readTree(created.body()).at("/results/0/id").asText();
+        for (boolean chunked : new boolean[]{false, true}) {
+            String retryKey = "tenant-cap-" + UUID.randomUUID();
+            entered = new CountDownLatch(1);
+            completed = new CountDownLatch(1);
+            try (var socket = new Socket("127.0.0.1", port)) {
+                sendPartial(socket, writer, chunked);
+                assertThat(entered.await(5, TimeUnit.SECONDS)).isTrue();
+                assertBusy(call("GET", "/api/review-session", null, colleague, null));
+                assertBusy(call("POST", "/api/batches", BATCH, colleague, retryKey));
+                assertBusy(call("POST", "/api/results/" + id + "/reviews",
+                    "{\"targetState\":\"IN_REVIEW\",\"expectedVersion\":0,\"note\":\"synthetic\"}", colleague, null));
+                // Same subject, different signed tenant can still read and write.
+                assertThat(call("GET", "/api/review-session", null, other, null).statusCode()).isEqualTo(200);
+                assertThat(call("POST", "/api/batches", BATCH, other, retryKey).statusCode()).isEqualTo(201);
+                assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM recon_batch WHERE tenant_id = ? AND idempotency_key = ?",
+                    Integer.class, "tenant-ceiling-a", retryKey)).isZero();
+                assertThat(jdbc.queryForObject("SELECT version FROM recon_result WHERE id = ?", Integer.class, id)).isZero();
+                assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM review_event WHERE result_id = ?", Integer.class, id)).isZero();
+            } finally { assertThat(completed.await(5, TimeUnit.SECONDS)).isTrue(); }
+            assertThat(call("POST", "/api/batches", BATCH, colleague, retryKey).statusCode()).isEqualTo(201);
+        }
+        try (var held = holdUploads(writer, other)) {
+            assertBusy(call("GET", "/api/review-session", null, token("tenant-ceiling-c", "recon:read"), null));
         }
     }
 
@@ -172,13 +206,18 @@ class ConcurrencyHttpTest {
     private HttpResponse<String> call(String method, String path, String body, String token, String key) throws Exception {
         var request = HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + path)).timeout(Duration.ofSeconds(10));
         if (token != null) request.header("Authorization", "Bearer " + token);
+        // Request headers never select the admission identity, including while A is full.
+        request.header("X-Tenant-Id", "forged-spare-tenant");
         if (key != null) request.header("Idempotency-Key", key);
         if (body != null) request.header("Content-Type", "application/json");
         return client.send(request.method(method, body == null ? HttpRequest.BodyPublishers.noBody()
             : HttpRequest.BodyPublishers.ofString(body)).build(), HttpResponse.BodyHandlers.ofString());
     }
     private static String token(String tenant, String scope) throws Exception {
-        var claims = new JWTClaimsSet.Builder().issuer(ISSUER).audience("concurrency-test").subject("synthetic-reviewer")
+        return token(tenant, scope, "synthetic-reviewer");
+    }
+    private static String token(String tenant, String scope, String subject) throws Exception {
+        var claims = new JWTClaimsSet.Builder().issuer(ISSUER).audience("concurrency-test").subject(subject)
             .claim("tenant_id", tenant).claim("scope", scope).expirationTime(Date.from(Instant.now().plusSeconds(600))).build();
         var jwt = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), claims);
         jwt.sign(new RSASSASigner(KEY.getPrivate()));

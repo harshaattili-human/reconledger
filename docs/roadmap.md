@@ -35,7 +35,9 @@ fixed-length and chunked HTTP cases. See [request bounds](request-bounds.md) for
 the scope; slow uploads and aggregate concurrency still need controls. The optional process
 budget does not bound work across replicas. The [concurrent API cap](concurrency-limits.md)
 now bounds admitted synchronous handler lifetimes in one process, not servlet
-queues, all memory or work across replicas.
+queues, all memory or work across replicas. Its optional per-tenant ceiling prevents
+one tenant from occupying the global allowance when configured lower; fair scheduling,
+tenant-aware rate budgets and edge upload timeouts remain separate work.
 
 The [mixed-history experiment](mixed-prepared-plans.md) now supports a query-scoped
 PostgreSQL mitigation for currency browsing. Bound parameters are retained and no

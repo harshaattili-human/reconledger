@@ -2,7 +2,8 @@ package dev.harshaattili.reconledger;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.concurrent.Semaphore;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -17,8 +18,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ConditionalOnProperty(name = "recon.concurrency-limit.enabled", havingValue = "true")
 class ApiConcurrencyLimit {
     @Bean
-    Admission concurrencyAdmission(@Value("${recon.concurrency-limit.capacity:8}") int capacity) {
-        return new Admission(capacity);
+    Admission concurrencyAdmission(@Value("${recon.concurrency-limit.capacity:8}") int capacity,
+            @Value("${recon.concurrency-limit.per-tenant-capacity:${recon.concurrency-limit.capacity:8}}") int perTenantCapacity,
+            TenantAccess tenants) {
+        return new Admission(capacity, perTenantCapacity, tenants);
     }
 
     @Bean
@@ -33,31 +36,48 @@ class ApiConcurrencyLimit {
 
     static final class Admission implements HandlerInterceptor {
         private static final String LEASE = Admission.class.getName() + ".lease";
-        private final Semaphore slots;
+        private final int capacity;
+        private final int perTenantCapacity;
+        private final TenantAccess tenants;
+        private final Map<String, Integer> activeByTenant = new HashMap<>();
+        private int active;
 
-        Admission(int capacity) {
+        Admission(int capacity, int perTenantCapacity, TenantAccess tenants) {
             if (capacity < 1 || capacity > 1_000) {
                 throw new IllegalArgumentException("Concurrency capacity must be 1..1000");
             }
-            slots = new Semaphore(capacity);
+            if (perTenantCapacity < 1 || perTenantCapacity > capacity) {
+                throw new IllegalArgumentException("Per-tenant concurrency capacity must be 1..capacity");
+            }
+            this.capacity = capacity;
+            this.perTenantCapacity = perTenantCapacity;
+            this.tenants = tenants;
         }
 
-        @Override public boolean preHandle(HttpServletRequest request,
+        @Override public synchronized boolean preHandle(HttpServletRequest request,
                 HttpServletResponse response, Object handler) {
             if (handler instanceof HandlerMethod method
                 && (method.getBeanType() == ReconciliationController.class
                     || method.getBeanType() == ReviewSessionController.class)) {
-                if (!slots.tryAcquire()) throw new Rejected();
-                request.setAttribute(LEASE, Boolean.TRUE);
+                String tenant = tenants.current();
+                int owned = activeByTenant.getOrDefault(tenant, 0);
+                if (active == capacity || owned == perTenantCapacity) throw new Rejected();
+                // Both counters change under one lock; a rejected tenant consumes neither.
+                request.setAttribute(LEASE, tenant);
+                activeByTenant.put(tenant, owned + 1);
+                active++;
             }
             return true;
         }
 
-        @Override public void afterCompletion(HttpServletRequest request,
+        @Override public synchronized void afterCompletion(HttpServletRequest request,
                 HttpServletResponse response, Object handler, Exception failure) {
-            if (request.getAttribute(LEASE) != null) {
+            if (request.getAttribute(LEASE) instanceof String tenant) {
                 request.removeAttribute(LEASE);
-                slots.release();
+                int remaining = activeByTenant.get(tenant) - 1;
+                if (remaining == 0) activeByTenant.remove(tenant);
+                else activeByTenant.put(tenant, remaining);
+                active--;
             }
         }
     }
