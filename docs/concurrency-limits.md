@@ -106,7 +106,30 @@ previously rejected key to succeed; simultaneous A/B uploads also reject tenant 
 at the global cap. The existing error cases verify recovery with both tenants.
 These checks use real JWT decoding, embedded Tomcat and JDBC on each database.
 
-## Observed execution — October 18, 2026
+## Tenant-ceiling verification — October 19, 2026
+
+Implementation `0493d3b4cb0a099ffa2b986153f35f75e9e53eec` passed all five jobs in
+[run 39264322559](https://github.com/harshaattili-human/reconledger/actions/runs/39264322559).
+H2 `118099815045` and PostgreSQL `118099815219` each passed the same 85 Java cases
+with zero failures/errors/skips: four added cases, not eight distinct cases across
+databases. Both jobs also passed default/secured packaged checks, process restarts,
+pinned-key replacement and the Boot 3 retained-data upgrade rehearsal.
+Browser `118099814914` passed the existing 12 demo + six secured Chromium executions;
+restore `118099815307` passed the logical PostgreSQL rehearsal. The per-tenant policy
+is enabled in embedded HTTP tests, not those packaged/browser workflows.
+
+Audit `118099815018` inventoried 73 packaged libraries with zero advisory entries in
+its snapshot; this is not a vulnerability-free claim. Java 17.0.20.1, Boot 4.0.8,
+H2 2.3.232 and PostgreSQL 16.15 ran on hosted Ubuntu 24.04. Local whitespace and
+documentation links passed; offline Maven lacked the Boot parent, so Java/database
+execution was hosted. No UI, schema, query policy or deployment change was made.
+Final-head verification is linked from [PR 23](https://github.com/harshaattili-human/reconledger/pull/23).
+
+Interview exercise: with eight global slots and two per tenant, what happens with
+one busy tenant versus five busy tenants, and why can a shared rate bucket still
+reject a tenant that has an available concurrency slot?
+
+## Global-cap verification — October 18, 2026
 
 Implementation `c1c14ef60eb7a276757d3e655bf8a17f3deb569b` passed all five jobs in
 [run 39134194395](https://github.com/harshaattili-human/reconledger/actions/runs/39134194395).

@@ -1,5 +1,11 @@
 # Verification record
 
+October 19: [per-tenant concurrency ceilings](concurrency-limits.md#tenant-ceiling-verification--october-19-2026)
+passed the same 85 Java cases on H2 and PostgreSQL, all existing packaged/upgrade/
+restore workflows and 18 Chromium executions. Four added cases verify occupancy,
+identity and cleanup. Enabled-policy evidence is embedded HTTP, not packaged load
+testing; the record links the exact implementation, CI jobs, environment and limits.
+
 October 18: the [concurrent API cap](concurrency-limits.md) passed 81 cases on each
 database, all packaged/upgrade/restore workflows and the existing 18 browser
 executions. The enabled policy uses secured embedded-Tomcat tests; packaged checks
