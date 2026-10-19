@@ -89,7 +89,7 @@ additional index was rejected after it failed to fix the measured PostgreSQL sca
 - One business date and currency label per batch; at most 500 records on each side.
 - JSON request bodies capped at 512 KiB before parsing, including chunked requests.
 - Opt-in [process-wide request rate budget](docs/rate-limits.md) with 429 and retry delays.
-- Opt-in [concurrent API cap](docs/concurrency-limits.md) with immediate 503 admission rejection.
+- Opt-in [global and per-tenant concurrency ceilings](docs/concurrency-limits.md) with immediate 503 rejection.
 - Case-sensitive reference matching with five explicit outcomes.
 - Amounts exactly representable to two decimal places, including negative reversals.
 - `Idempotency-Key` replay across process restarts while the database is retained.
