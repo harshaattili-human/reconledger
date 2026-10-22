@@ -41,6 +41,8 @@ import org.springframework.test.context.DynamicPropertySource;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = {"recon.rate-limit.enabled=true", "recon.security.review-ui-enabled=true",
+        "recon.rate-limit.per-tenant-enabled=true", "recon.rate-limit.per-tenant-capacity=2",
+        "recon.rate-limit.max-tracked-tenants=3",
         "recon.concurrency-limit.enabled=true", "recon.concurrency-limit.capacity=1"})
 @ActiveProfiles({"test", "secured"})
 @Import(RateLimitHttpTest.ClockConfiguration.class)
@@ -66,7 +68,10 @@ class RateLimitHttpTest {
     @TestConfiguration(proxyBeanMethods = false)
     static class ClockConfiguration {
         @Bean @Primary RequestRateBudget controlledBudget() {
-            return new RequestRateBudget(2, 60_000, CLOCK::get);
+            return new RequestRateBudget(4, 60_000, CLOCK::get);
+        }
+        @Bean @Primary TenantRequestRateBudget controlledTenantBudget(TenantAccess tenants) {
+            return new TenantRequestRateBudget(2, 60_000, 3, CLOCK::get, tenants);
         }
     }
     @DynamicPropertySource static void properties(DynamicPropertyRegistry registry) {
@@ -91,6 +96,9 @@ class RateLimitHttpTest {
         CLOCK.addAndGet(TimeUnit.SECONDS.toNanos(60));
         var created = call("POST", "/api/batches", BATCH, token, key);
         assertThat(created.statusCode()).isEqualTo(201);
+        var immediateReplay = call("POST", "/api/batches", BATCH, token, key);
+        assertThat(immediateReplay.statusCode()).isEqualTo(200);
+        assertThat(immediateReplay.headers().firstValue("Idempotency-Replayed")).contains("true");
         assertRejected(call("POST", "/api/batches", BATCH, token, key));
         CLOCK.addAndGet(TimeUnit.SECONDS.toNanos(60));
         var replay = call("POST", "/api/batches", BATCH, token, key);
@@ -128,8 +136,9 @@ class RateLimitHttpTest {
         assertThat(call("POST", "/api/batches", BATCH, reader, "rate-" + UUID.randomUUID()).statusCode())
             .isEqualTo(403);
         assertThat(call("GET", "/api/batches", null, reader, null).statusCode()).isEqualTo(200);
-        // New subject/tenant/token does not obtain a separate process budget.
+        // A different verified tenant gets a separate burst, still under the process budget.
         String other = token("rate-d", "recon:read");
+        assertThat(call("GET", "/api/batches", null, other, null).statusCode()).isEqualTo(200);
         assertThat(call("GET", "/api/batches", null, other, null).statusCode()).isEqualTo(200);
         assertRejected(call("GET", "/api/batches", null, other, null));
         assertThat(call("GET", "/api/batches", null, null, null).statusCode()).isEqualTo(401);
@@ -137,7 +146,9 @@ class RateLimitHttpTest {
         for (String path : List.of("/actuator/health", "/review/index.html", "/review/review.js", "/review/review.css")) {
             assertThat(call("GET", path, null, null, null).statusCode()).as(path).isEqualTo(200);
         }
-        assertRejected(call("GET", "/api/batches", null, reader, null));
+        assertThat(call("GET", "/api/batches", null, reader, null).statusCode()).isEqualTo(200);
+        // Tenant E has a fresh tenant burst, but the shared process budget is exhausted.
+        assertRejected(call("GET", "/api/batches", null, token("rate-e", "recon:read"), null));
     }
 
     private void assertRejected(HttpResponse<String> response) throws Exception {

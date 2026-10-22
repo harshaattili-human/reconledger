@@ -23,6 +23,21 @@ final class RequestRateBudget {
 
     /** Zero admits one request; otherwise return a whole-second retry delay. */
     synchronized long acquire() {
+        refill();
+        if (availableNanos >= tokenNanos) {
+            availableNanos -= tokenNanos;
+            return 0;
+        }
+        return (tokenNanos - availableNanos + 999_999_999L) / 1_000_000_000L;
+    }
+
+    /** Used to discard idle tenant buckets only after their entire burst has returned. */
+    synchronized long secondsUntilFull() {
+        refill();
+        return (capacityNanos - availableNanos + 999_999_999L) / 1_000_000_000L;
+    }
+
+    private void refill() {
         long now = clock.getAsLong();
         // nanoTime differences remain valid across signed wrap (interval < 292 years).
         long elapsed = now - previousNanos;
@@ -30,10 +45,5 @@ final class RequestRateBudget {
             availableNanos += Math.min(elapsed, capacityNanos - availableNanos);
             previousNanos = now;
         }
-        if (availableNanos >= tokenNanos) {
-            availableNanos -= tokenNanos;
-            return 0;
-        }
-        return (tokenNanos - availableNanos + 999_999_999L) / 1_000_000_000L;
     }
 }
