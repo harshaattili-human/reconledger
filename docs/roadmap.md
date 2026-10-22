@@ -14,8 +14,8 @@ replace issuer membership verification or tamper-resistant audit storage.
 1. Verify external issuer membership configuration and automatic key rotation/revocation.
    Define tenant administration, export/deletion and operational separation before
    real multi-tenant deployment.
-2. Add tenant fairness and edge/upload controls beyond the optional
-   [process-wide API rate budget](rate-limits.md); define retention and operational
+2. Add fair scheduling and edge/upload controls beyond the optional
+   [process and tenant API rate budgets](rate-limits.md); define retention and operational
    backup/recovery policy.
    The [logical restore rehearsal](backup-restore.md) checks a quiesced synthetic
    PostgreSQL checkpoint; off-host retention, real recovery objectives and H2 backup
@@ -37,7 +37,8 @@ budget does not bound work across replicas. The [concurrent API cap](concurrency
 now bounds admitted synchronous handler lifetimes in one process, not servlet
 queues, all memory or work across replicas. Its optional per-tenant ceiling prevents
 one tenant from occupying the global allowance when configured lower; fair scheduling,
-tenant-aware rate budgets and edge upload timeouts remain separate work.
+the optional tenant rate budget limits a single tenant's burst but does not reserve
+capacity or fairly schedule refill. Edge upload timeouts remain separate work.
 
 The [mixed-history experiment](mixed-prepared-plans.md) now supports a query-scoped
 PostgreSQL mitigation for currency browsing. Bound parameters are retained and no

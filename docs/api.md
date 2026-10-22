@@ -11,11 +11,13 @@ scoped to that tenant. See [the tenant contract](tenants.md). Foreign IDs return
 
 ## Optional request rate limit
 
-When enabled, mapped API requests share a process-wide token bucket. Exhaustion
+When enabled, mapped API requests share a process-wide token bucket. An additional
+opt-in bucket can bound each verified tenant's burst before the process budget is charged. Exhaustion
 returns 429 with `Retry-After` and `Cache-Control: no-store` before parsing or
 controller work; rejected writes do not reserve keys or change review state.
 Authentication/scope failures retain 401/403. See [configuration, retry semantics
-and limitations](rate-limits.md). The limit is disabled by default.
+and limitations](rate-limits.md). Both policies are disabled by default. The tenant
+budget reduces one tenant's burst share but is not fair queuing or a distributed quota.
 
 ## Request body limit
 
