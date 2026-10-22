@@ -108,6 +108,33 @@ Security/health/static precedence, malformed input, idempotent replay and unchan
 review state remain covered. These are deterministic correctness fixtures, not a
 traffic or fairness benchmark.
 
+## Tenant-budget verification — October 22, 2026
+
+Initial [run 39789181778](https://github.com/harshaattili-human/reconledger/actions/runs/39789181778)
+compiled the implementation and ran the suite, but H2 and PostgreSQL each failed the
+same HTTP assertion. The fixture spent both tenant tokens, advanced its controlled
+clock by one 60-second refill interval, then incorrectly expected two immediately
+available requests. Runtime admission behaved as configured: the second request
+received 429. Commit `fa3a5b401ab4d29bc3c3015de3aff5df46baacfa` advances two intervals
+before asserting the restored two-token burst; no policy or production code changed.
+
+Final [run 39789497850](https://github.com/harshaattili-human/reconledger/actions/runs/39789497850)
+passed all five jobs. H2 job `119861416553` and PostgreSQL job `119861417509`
+each passed the same 88 Java cases with zero failures/errors/skips: three added cases,
+not six distinct cases across databases. Both also passed the default and secured
+executable-JAR checks, process restarts, pinned-key replacement and retained-data
+upgrade from the trusted Boot 3 checkpoint. Browser job `119861416540` passed the
+existing 12 demo and six secured Chromium executions. Restore job `119861416137`
+passed the quiesced PostgreSQL logical-backup rehearsal.
+
+Audit job `119861416509` inventoried 73 packaged libraries with zero advisory entries
+in that scanner snapshot; this is not a vulnerability-free claim. Java 17.0.20.1,
+Boot 4.0.8, H2 2.3.232, PostgreSQL 16.15 and Chromium 151.0.7922.34 ran on hosted
+Ubuntu 24.04. Local whitespace, Python syntax and documentation checks passed;
+Maven could not resolve the uncached Boot parent locally, so Java/database execution
+is hosted evidence. The enabled tenant policy is exercised by embedded HTTP tests;
+packaged and browser workflows retain the disabled default.
+
 The existing suite and packaged checks exercise the default disabled mode. [Run 39011501728](https://github.com/harshaattili-human/reconledger/actions/runs/39011501728)
 at implementation `9d3c1d0c43b433c81af24a918cd7689c87fb04fb` passed the same
 76 Java cases on H2 and PostgreSQL, with zero failures/errors/skips. Jobs:

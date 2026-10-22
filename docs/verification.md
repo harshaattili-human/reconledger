@@ -1,5 +1,13 @@
 # Verification record
 
+October 22: the [per-tenant request budget](rate-limits.md#tenant-budget-verification--october-22-2026)
+passed the same 88 Java cases on H2 and PostgreSQL, the default/secured packaged and
+Boot 3 upgrade checks, logical restore, Java audit and 18 Chromium executions. Three
+new unit/configuration cases cover bounded tenant state and concurrent bursts; the
+existing three secured HTTP cases now exercise separate tenant bursts under one
+process budget. This is correctness evidence with a controlled clock, not load or
+fair-scheduling evidence. The linked record preserves the initial timing-fixture failure.
+
 October 19: [per-tenant concurrency ceilings](concurrency-limits.md#tenant-ceiling-verification--october-19-2026)
 passed the same 85 Java cases on H2 and PostgreSQL, all existing packaged/upgrade/
 restore workflows and 18 Chromium executions. Four added cases verify occupancy,
