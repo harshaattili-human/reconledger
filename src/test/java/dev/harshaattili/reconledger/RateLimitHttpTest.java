@@ -93,7 +93,8 @@ class RateLimitHttpTest {
         assertRejected(call("POST", "/api/batches", "{", token, key));
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM recon_batch WHERE idempotency_key = ?",
             Integer.class, key)).isZero();
-        CLOCK.addAndGet(TimeUnit.SECONDS.toNanos(60));
+        // Two refill intervals restore the configured two-token tenant burst.
+        CLOCK.addAndGet(TimeUnit.SECONDS.toNanos(120));
         var created = call("POST", "/api/batches", BATCH, token, key);
         assertThat(created.statusCode()).isEqualTo(201);
         var immediateReplay = call("POST", "/api/batches", BATCH, token, key);
