@@ -36,6 +36,27 @@ async function emptyStorage(page) {
   expect(await page.evaluate(() => [localStorage.length, sessionStorage.length, document.cookie])).toEqual([0, 0, ""]);
 }
 
+async function rejectWithCredential(page, path, method, token, status) {
+  const observed = [];
+  await page.route((url) => url.pathname === path, async (route) => {
+    expect(route.request().method()).toBe(method);
+    const forwarded = { ...await route.request().allHeaders(), authorization: `Bearer ${token}` };
+    expect(Object.keys(forwarded).filter((name) => name.toLowerCase() === "authorization")).toHaveLength(1);
+    // Check the real decoder/scope response before delivering it to the page.
+    let response;
+    try {
+      response = await route.fetch({ headers: forwarded, maxRedirects: 0, maxRetries: 0 });
+    } catch {
+      // Transport errors may include request headers; never attach that diagnostic.
+      throw new Error("Credential-forwarding request failed before receiving a response.");
+    }
+    observed.push(response.status());
+    expect(response.status()).toBe(status);
+    await route.fulfill({ response });
+  }, { times: 1 });
+  return observed;
+}
+
 test("verified reviewer saves with tenant isolation and clears credentials on disconnect/reload", async ({ page, request }, info) => {
   const t = tokens(), date = `2041-01-${info.project.name === "desktop" ? "15" : "16"}`;
   const alpha = await create(request, t.alpha, date), beta = await create(request, t.beta, date);
@@ -132,20 +153,12 @@ test("access rejection clears a draft and an uncertain save requires inspection 
   await page.getByRole("button", { name: "Save review" }).click();
   await expect(page.locator("#review-block")).toContainText("Save was not confirmed");
   expect(writes).toBe(1);
-  // Replace the lower-case header rather than adding a second Authorization key.
   const resultPath = `/api/results/${result.id}`;
-  let replacements = 0;
-  await page.route((url) => url.pathname === resultPath, async (route) => {
-    expect(route.request().method()).toBe("GET");
-    const forwarded = { ...await route.request().allHeaders(), authorization: `Bearer ${t.expired}` };
-    expect(Object.keys(forwarded).filter((name) => name.toLowerCase() === "authorization")).toHaveLength(1);
-    replacements++;
-    await route.continue({ headers: forwarded });
-  }, { times: 1 });
+  const rejections = await rejectWithCredential(page, resultPath, "GET", t.expired, 401);
   const rejected = page.waitForResponse((response) => new URL(response.url()).pathname === resultPath);
   await page.getByRole("button", { name: "Reload result and history" }).click();
   expect((await rejected).status()).toBe(401);
-  expect(replacements).toBe(1);
+  expect(rejections).toEqual([401]);
   await expect(page.locator("#connection")).toBeVisible();
   await expect(page.locator("#note")).toHaveValue("");
   await expect(page.locator("#events")).toBeEmpty();
@@ -156,4 +169,59 @@ test("access rejection clears a draft and an uncertain save requires inspection 
   await expect(page.locator("#result-state")).toContainText("Version 1");
   await expect(page.locator("#events li")).toHaveCount(1);
   expect(writes).toBe(1);
+});
+
+test("rejected review saves preserve or clear drafts without committing or retrying", async ({ page, request }, info) => {
+  const t = tokens(), batch = await create(request, t.alpha, `2041-04-${info.project.name === "desktop" ? "15" : "16"}`);
+  await connect(page, t.alpha);
+  const result = await select(page, batch);
+  const resultPath = `/api/results/${result.id}`, reviewPath = `${resultPath}/reviews`;
+  let writes = 0;
+  page.on("request", (outgoing) => {
+    if (outgoing.method() === "POST" && new URL(outgoing.url()).pathname === reviewPath) writes++;
+  });
+  const unchanged = async () => {
+    const current = await (await request.get(resultPath, { headers: headers(t.alpha) })).json();
+    expect(current.version).toBe(0);
+    expect(current.reviewState).toBe("OPEN");
+    expect((await (await request.get(`${resultPath}/events`, { headers: headers(t.alpha) })).json()).events).toHaveLength(0);
+  };
+  const denied = await rejectWithCredential(page, reviewPath, "POST", t.reader, 403);
+  const draft = "Permission changed after the workspace connected.";
+  await page.getByLabel("Review note", { exact: true }).fill(draft);
+  await page.getByRole("button", { name: "Save review" }).click();
+  await expect(page.locator("#review-block")).toContainText("Review rejected:");
+  await expect(page.locator("#note")).toHaveValue(draft);
+  await expect(page.getByRole("button", { name: "Save review" })).toBeDisabled();
+  await expect(page.locator("#identity")).toContainText("browser-alpha");
+  expect(denied).toEqual([403]);
+  expect(writes).toBe(1);
+  await unchanged();
+  await info.attach("scope-rejected-draft", { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
+
+  await page.getByRole("button", { name: "Reload result and history" }).click();
+  await expect(page.getByRole("button", { name: "Save review" })).toBeEnabled();
+  await expect(page.locator("#note")).toHaveValue(draft);
+  const expired = await rejectWithCredential(page, reviewPath, "POST", t.expired, 401);
+  await page.getByRole("button", { name: "Save review" }).click();
+  await expect(page.locator("#connection")).toBeVisible();
+  await expect(page.locator("#note")).toHaveValue("");
+  await expect(page.locator("#identity")).toBeEmpty();
+  await expect(page.locator("#left-evidence")).toBeEmpty();
+  await expect(page.locator("#events")).toBeEmpty();
+  await expect(page.locator("#notice")).toContainText("Access expired or was rejected");
+  expect(expired).toEqual([401]);
+  expect(writes).toBe(2);
+  await unchanged();
+  await emptyStorage(page);
+  await info.attach("expired-save-cleared", { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
+
+  await connect(page, t.alpha);
+  await select(page, batch);
+  await expect(page.locator("#result-state")).toContainText("Version 0");
+  await page.getByLabel("Review note", { exact: true }).fill("Reconnected and inspected unchanged history before deciding.");
+  await page.getByRole("button", { name: "Save review" }).click();
+  await expect(page.locator("#status")).toContainText("Review saved at version 1");
+  await expect(page.locator("#events li")).toHaveCount(1);
+  expect(writes).toBe(3);
 });
