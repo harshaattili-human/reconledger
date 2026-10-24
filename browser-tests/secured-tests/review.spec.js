@@ -159,12 +159,12 @@ test("access rejection clears a draft and an uncertain save requires inspection 
   // The route helper already asserts the exact forwarded request's server status.
   // A page-wide response waiter can also observe the route.fetch exchange and is
   // therefore not an identity for the response delivered to the application.
-  expect(rejections).toEqual([401]);
   await expect(page.locator("#connection")).toBeVisible();
   await expect(page.locator("#note")).toHaveValue("");
   await expect(page.locator("#events")).toBeEmpty();
   await expect(page.locator("#left-evidence")).toBeEmpty();
   await expect(page.locator("#notice")).toContainText("Access expired or was rejected");
+  expect(rejections).toEqual([401]);
   await connect(page, t.alpha);
   await select(page, batch);
   await expect(page.locator("#result-state")).toContainText("Version 1");
