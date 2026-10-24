@@ -155,9 +155,10 @@ test("access rejection clears a draft and an uncertain save requires inspection 
   expect(writes).toBe(1);
   const resultPath = `/api/results/${result.id}`;
   const rejections = await rejectWithCredential(page, resultPath, "GET", t.expired, 401);
-  const rejected = page.waitForResponse((response) => new URL(response.url()).pathname === resultPath);
   await page.getByRole("button", { name: "Reload result and history" }).click();
-  expect((await rejected).status()).toBe(401);
+  // The route helper already asserts the exact forwarded request's server status.
+  // A page-wide response waiter can also observe the route.fetch exchange and is
+  // therefore not an identity for the response delivered to the application.
   expect(rejections).toEqual([401]);
   await expect(page.locator("#connection")).toBeVisible();
   await expect(page.locator("#note")).toHaveValue("");
