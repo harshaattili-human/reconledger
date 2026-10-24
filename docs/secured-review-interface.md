@@ -159,6 +159,9 @@ The first repeat run exposed a separate assertion problem: five of ten execution
 observed HTTP 200 through a page-wide response waiter even though the route helper
 had already received and asserted the exact forwarded request's HTTP 401 response.
 That waiter did not uniquely identify the response delivered after `route.fetch`.
-The corrected check uses the route helper's exact response plus the application's
-disconnected/cleared state. It retains the real decoder request and does not replace
-the response with a synthetic rejection.
+After removing that waiter, the next run showed that `click()` can resolve before
+the page's asynchronous reload completes: both widths read the route's observation
+array while it was still empty. The corrected check first waits for the application's
+disconnected/cleared state, then asserts the route helper's exact 401 response. It
+retains the real decoder request and does not replace the response with a synthetic
+rejection.
