@@ -154,3 +154,11 @@ ten executions repeat one workflow; they are not ten distinct behaviors or proof
 that every source of nondeterminism is eliminated. The extra run uses a line reporter
 and separate output directory; token traces/video remain disabled. This changes the
 test harness and its evidence, not runtime authentication, the UI or database policy.
+
+The first repeat run exposed a separate assertion problem: five of ten executions
+observed HTTP 200 through a page-wide response waiter even though the route helper
+had already received and asserted the exact forwarded request's HTTP 401 response.
+That waiter did not uniquely identify the response delivered after `route.fetch`.
+The corrected check uses the route helper's exact response plus the application's
+disconnected/cleared state. It retains the real decoder request and does not replace
+the response with a synthetic rejection.
