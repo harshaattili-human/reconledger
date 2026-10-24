@@ -153,6 +153,7 @@ test("access rejection clears a draft and an uncertain save requires inspection 
   await page.getByRole("button", { name: "Save review" }).click();
   await expect(page.locator("#review-block")).toContainText("Save was not confirmed");
   expect(writes).toBe(1);
+  await expect(page.getByRole("button", { name: "Reload result and history" })).toBeEnabled();
   const resultPath = `/api/results/${result.id}`;
   const rejections = await rejectWithCredential(page, resultPath, "GET", t.expired, 401);
   await page.getByRole("button", { name: "Reload result and history" }).click();
