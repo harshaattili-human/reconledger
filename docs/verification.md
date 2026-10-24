@@ -5,6 +5,10 @@ review saves. It checks that 403 retains a draft but blocks another submission u
 reload, while 401 clears the workspace; neither rejection may change result version
 or audit history. The earlier access-rejection workflow is repeated five times at
 each of two widths. See [the protocol and preserved failure](secured-review-interface.md#explicit-rejection-forwarding--october-23-2026).
+Final-head [run 40099384456](https://github.com/harshaattili-human/reconledger/actions/runs/40099384456)
+passed all five jobs: 88 cases on each database, 12 demo browser executions, eight
+secured executions and ten repetitions of the existing rejection workflow, plus
+the packaged, retained-data upgrade, restore and audit checks.
 
 October 22: the [per-tenant request budget](rate-limits.md#tenant-budget-verification--october-22-2026)
 passed the same 88 Java cases on H2 and PostgreSQL, the default/secured packaged and
