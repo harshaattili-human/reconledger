@@ -178,5 +178,13 @@ claim. The browser used Chromium 151.0.7922.34 on hosted Ubuntu 24.04.
 
 Desktop and narrow screenshots from the first implementation run were inspected:
 the 403 state retained the draft and disabled saving, while the 401 state showed a
-cleared disconnected workspace. No token was visible. The final correction changed
-assertion ordering only; it did not change the rendered interface or runtime code.
+cleared disconnected workspace. No token was visible.
+
+The next documentation-head run repeated the workflow and failed three of ten
+executions before making the reload request. The review block becomes visible inside
+the failed-save action, just before its shared `finally` clears the busy flag. During
+that interval the reload button remained enabled, so a fast click reached `run`,
+which deliberately ignores overlapping operations. The button now follows the same
+busy state as the other operation controls, and the browser check waits for it to
+be enabled before clicking. This is a UI operation-ordering fix; review persistence,
+authorization and retry behavior are unchanged.
