@@ -1,5 +1,11 @@
 # Verification record
 
+October 23: the secured review browser increment adds a fourth workflow for rejected
+review saves. It checks that 403 retains a draft but blocks another submission until
+reload, while 401 clears the workspace; neither rejection may change result version
+or audit history. The earlier access-rejection workflow is repeated five times at
+each of two widths. See [the protocol and preserved failure](secured-review-interface.md#explicit-rejection-forwarding--october-23-2026).
+
 October 22: the [per-tenant request budget](rate-limits.md#tenant-budget-verification--october-22-2026)
 passed the same 88 Java cases on H2 and PostgreSQL, the default/secured packaged and
 Boot 3 upgrade checks, logical restore, Java audit and 18 Chromium executions. Three
