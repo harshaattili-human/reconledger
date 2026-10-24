@@ -61,12 +61,16 @@ npx playwright test --config=playwright.secured.config.js
 ```
 
 The separate secured runner starts the actual executable JAR on loopback 8802 with
-an isolated H2 database, temporary RSA key and synthetic signed tokens. Three
-workflows run at 1440×1000 and 390×844 (six executions): verified reviews and tenant
+an isolated H2 database, temporary RSA key and synthetic signed tokens. Four
+workflows run at 1440×1000 and 390×844 (eight executions): verified reviews and tenant
 switching (including a held response after a simulated pagehide event);
 read-only/invalid/expired credentials; and response loss after commit
-followed by a real decoder rejection using an expired token substituted in transit.
-The last case verifies recovery without a second POST. Existing demo workflows
+followed by a real decoder rejection using an expired token; and rejected review
+saves (403 retains the draft with saving blocked until reload; 401 clears the
+workspace). The lost-response case verifies recovery without a second POST. The
+rejected-save case checks version zero and an empty audit after each rejection,
+then reconnects, inspects history and records exactly one successful transition.
+Existing demo workflows
 remain separate. Java HTTP coverage checks session-context scopes and identity on
 both configured databases and retains default secured asset denial.
 
@@ -124,3 +128,69 @@ values remain absent from logs/traces. The original failure lacked network trace
 so it does not establish which duplicate reached the server. No application or
 security validation was relaxed; final verification is recorded in
 [PR 20](https://github.com/harshaattili-human/reconledger/pull/20).
+
+## Explicit rejection forwarding — October 23, 2026
+
+The lower-case override still received 200 in one narrow execution of
+[run 39790031810](https://github.com/harshaattili-human/reconledger/actions/runs/39790031810)
+on October 22; rerunning the unchanged job passed. The exact browser/transport cause
+was not captured and remains unproven. The test now uses
+[route.fetch](https://playwright.dev/docs/api/class-route#route-fetch) with the
+substituted credential, no redirects and no network retries. It asserts the actual
+server status before forwarding that response unchanged to the page. It does not
+invent a 401/403 response or claim to verify Chromium's header-override behavior.
+Transport exceptions are replaced with a credential-free diagnostic.
+
+The same helper covers a rejected review POST after a previously authorized
+connection. A read-only credential returns 403 without changing version/audit;
+the draft stays visible and saving stays blocked until explicit reload. An expired
+credential returns 401 without mutation, clears the workspace, and requires
+reconnection and inspection before a successful save. The test counts browser POSTs
+and checks the final single audit transition to catch automatic retry.
+
+CI additionally repeats the previously intermittent lost-save/access-rejection
+workflow five times at each of two widths, with one worker and zero retries. These
+ten executions repeat one workflow; they are not ten distinct behaviors or proof
+that every source of nondeterminism is eliminated. The extra run uses a line reporter
+and separate output directory; token traces/video remain disabled. This changes the
+test harness and its evidence, not runtime authentication, the UI or database policy.
+
+The first repeat run exposed a separate assertion problem: five of ten executions
+observed HTTP 200 through a page-wide response waiter even though the route helper
+had already received and asserted the exact forwarded request's HTTP 401 response.
+That waiter did not uniquely identify the response delivered after `route.fetch`.
+After removing that waiter, the next run showed that `click()` can resolve before
+the page's asynchronous reload completes: both widths read the route's observation
+array while it was still empty. The corrected check first waits for the application's
+disconnected/cleared state, then asserts the route helper's exact 401 response. It
+retains the real decoder request and does not replace the response with a synthetic
+rejection.
+
+[Final-head run 40099384456](https://github.com/harshaattili-human/reconledger/actions/runs/40099384456)
+passed all five jobs. The browser job ran 12 demo executions, eight secured
+executions and ten repetitions of the existing access-rejection workflow (five at
+each width), with one worker and no retries. The same 88 Java cases passed on H2
+2.3.232 and PostgreSQL 16.15 with zero failures, errors or skips; packaged demo,
+secured restart/key-replacement, Boot 3 retained-data upgrade, PostgreSQL restore
+and the Java audit also passed. The audit inventoried 73 packaged libraries with
+zero advisory entries in that dated snapshot; this is not a vulnerability-free
+claim. The browser used Chromium 151.0.7922.34 on hosted Ubuntu 24.04.
+
+Desktop and narrow screenshots from the first implementation run were inspected:
+the 403 state retained the draft and disabled saving, while the 401 state showed a
+cleared disconnected workspace. No token was visible.
+
+The next documentation-head run repeated the workflow and failed three of ten
+executions before making the reload request. The review block becomes visible inside
+the failed-save action, just before its shared `finally` clears the busy flag. During
+that interval the reload button remained enabled, so a fast click reached `run`,
+which deliberately ignores overlapping operations. The button now follows the same
+busy state as the other operation controls, and the browser check waits for it to
+be enabled before clicking. This is a UI operation-ordering fix; review persistence,
+authorization and retry behavior are unchanged.
+
+[Final run 40100058590](https://github.com/harshaattili-human/reconledger/actions/runs/40100058590)
+passed all five jobs. Its browser job passed the 12 demo executions, eight secured
+executions and all ten repeated access-rejection executions with one worker and no
+retries. The same 88 Java cases passed on each database, alongside the packaged,
+retained-data upgrade, restore and audit workflows.

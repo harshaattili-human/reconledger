@@ -98,6 +98,7 @@ function controls() {
   $("workspace").setAttribute("aria-busy", String(busy));
   $("older-batches").disabled = !batchCursor;
   $("next-events").disabled = !eventCursor;
+  $("reload-result").disabled = busy || !result;
   $("review-fields").disabled =
     busy || !session?.canReview || blocked || !result || !transitions[result.reviewState]?.length;
 }

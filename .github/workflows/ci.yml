@@ -164,6 +164,9 @@ jobs:
       - name: Exercise opt-in secured review workflows
         run: npx playwright test --config=playwright.secured.config.js
         working-directory: browser-tests
+      - name: Repeat the previously intermittent access-rejection workflow
+        run: npx playwright test --config=playwright.secured.config.js --grep 'access rejection clears' --repeat-each=5 --reporter=line --output=test-results-secured-repeat
+        working-directory: browser-tests
       - uses: actions/upload-artifact@v7
         if: always()
         with:

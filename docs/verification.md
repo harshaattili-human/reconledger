@@ -1,5 +1,20 @@
 # Verification record
 
+October 23: the secured review browser increment adds a fourth workflow for rejected
+review saves. It checks that 403 retains a draft but blocks another submission until
+reload, while 401 clears the workspace; neither rejection may change result version
+or audit history. The earlier access-rejection workflow is repeated five times at
+each of two widths. See [the protocol and preserved failure](secured-review-interface.md#explicit-rejection-forwarding--october-23-2026).
+Final-head [run 40099384456](https://github.com/harshaattili-human/reconledger/actions/runs/40099384456)
+passed all five jobs: 88 cases on each database, 12 demo browser executions, eight
+secured executions and ten repetitions of the existing rejection workflow, plus
+the packaged, retained-data upgrade, restore and audit checks.
+Documentation-head run 40099686040 then exposed a reload-control race in three of
+ten repetitions; the control now remains disabled until failed-save cleanup ends.
+[Final run 40100058590](https://github.com/harshaattili-human/reconledger/actions/runs/40100058590)
+passed all five jobs, including all ten repeated browser executions with one worker
+and no retries.
+
 October 22: the [per-tenant request budget](rate-limits.md#tenant-budget-verification--october-22-2026)
 passed the same 88 Java cases on H2 and PostgreSQL, the default/secured packaged and
 Boot 3 upgrade checks, logical restore, Java audit and 18 Chromium executions. Three
