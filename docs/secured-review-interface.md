@@ -188,3 +188,9 @@ which deliberately ignores overlapping operations. The button now follows the sa
 busy state as the other operation controls, and the browser check waits for it to
 be enabled before clicking. This is a UI operation-ordering fix; review persistence,
 authorization and retry behavior are unchanged.
+
+[Final run 40100058590](https://github.com/harshaattili-human/reconledger/actions/runs/40100058590)
+passed all five jobs. Its browser job passed the 12 demo executions, eight secured
+executions and all ten repeated access-rejection executions with one worker and no
+retries. The same 88 Java cases passed on each database, alongside the packaged,
+retained-data upgrade, restore and audit workflows.
