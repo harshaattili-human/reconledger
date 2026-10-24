@@ -165,3 +165,18 @@ array while it was still empty. The corrected check first waits for the applicat
 disconnected/cleared state, then asserts the route helper's exact 401 response. It
 retains the real decoder request and does not replace the response with a synthetic
 rejection.
+
+[Final-head run 40099384456](https://github.com/harshaattili-human/reconledger/actions/runs/40099384456)
+passed all five jobs. The browser job ran 12 demo executions, eight secured
+executions and ten repetitions of the existing access-rejection workflow (five at
+each width), with one worker and no retries. The same 88 Java cases passed on H2
+2.3.232 and PostgreSQL 16.15 with zero failures, errors or skips; packaged demo,
+secured restart/key-replacement, Boot 3 retained-data upgrade, PostgreSQL restore
+and the Java audit also passed. The audit inventoried 73 packaged libraries with
+zero advisory entries in that dated snapshot; this is not a vulnerability-free
+claim. The browser used Chromium 151.0.7922.34 on hosted Ubuntu 24.04.
+
+Desktop and narrow screenshots from the first implementation run were inspected:
+the 403 state retained the draft and disabled saving, while the 401 state showed a
+cleared disconnected workspace. No token was visible. The final correction changed
+assertion ordering only; it did not change the rendered interface or runtime code.
