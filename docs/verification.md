@@ -9,6 +9,8 @@ Final-head [run 40099384456](https://github.com/harshaattili-human/reconledger/a
 passed all five jobs: 88 cases on each database, 12 demo browser executions, eight
 secured executions and ten repetitions of the existing rejection workflow, plus
 the packaged, retained-data upgrade, restore and audit checks.
+Documentation-head run 40099686040 then exposed a reload-control race in three of
+ten repetitions; the control now remains disabled until failed-save cleanup ends.
 
 October 22: the [per-tenant request budget](rate-limits.md#tenant-budget-verification--october-22-2026)
 passed the same 88 Java cases on H2 and PostgreSQL, the default/secured packaged and
