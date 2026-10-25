@@ -19,7 +19,9 @@ replace issuer membership verification or tamper-resistant audit storage.
    backup/recovery policy.
    The [logical restore rehearsal](backup-restore.md) checks a quiesced synthetic
    PostgreSQL checkpoint; off-host retention, real recovery objectives and H2 backup
-   remain unverified. Add structured diagnostics that do not log sensitive input values.
+   remain unverified. [Request diagnostics](request-diagnostics.md) now correlate
+   responses and route-template completion events without logging input values;
+   log transport, retention, integrity and distributed tracing remain deployment work.
 3. Verify manual assistive-technology behavior and external issuer login for the
    [review workspace](secured-review-interface.md). The opt-in secured screen accepts
    existing tokens; it does not implement provider login. Keep source corrections

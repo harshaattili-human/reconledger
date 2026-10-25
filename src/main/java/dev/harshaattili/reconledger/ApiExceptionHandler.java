@@ -2,6 +2,7 @@ package dev.harshaattili.reconledger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -52,7 +53,8 @@ public class ApiExceptionHandler {
     @ExceptionHandler(DataAccessException.class)
     public ResponseEntity<ProblemDetail> database(DataAccessException exception) {
         // Avoid logging request data or returning SQL/schema details to clients.
-        LOG.error("Database operation failed ({})", exception.getClass().getSimpleName());
+        LOG.error("database_operation_failed request_id={} exception_type={}",
+            MDC.get(RequestDiagnosticsFilter.MDC_KEY), exception.getClass().getSimpleName());
         return problem(HttpStatus.SERVICE_UNAVAILABLE, "Database operation could not be completed. Retry using the same idempotency key or fetch the latest review state.");
     }
 

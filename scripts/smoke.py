@@ -37,12 +37,21 @@ def main():
     base = f"http://127.0.0.1:{port}"
     # The service is local; avoid sending these requests through an external proxy.
     client = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    observed_request_ids = set()
+
+    def record_request_id(headers):
+        value = headers.get("X-Request-ID")
+        parsed = uuid.UUID(value or "")
+        assert parsed.version == 4 and str(parsed) == value, "Expected a canonical server request UUID"
+        assert value not in observed_request_ids, "Server reused a request ID"
+        observed_request_ids.add(value)
 
     def call(path, body=None, headers=None):
         request = urllib.request.Request(base + path,
             data=None if body is None else json.dumps(body).encode(),
             headers={"Content-Type": "application/json", **(headers or {})})
         with client.open(request, timeout=5) as response:
+            record_request_id(response.headers)
             return response.status, json.load(response)
 
     def check_body_limit():
@@ -57,6 +66,7 @@ def main():
                 connection.request("POST", "/api/batches", body=body, encode_chunked=chunked,
                     headers={"Content-Type": "application/json", "Idempotency-Key": key})
                 response = connection.getresponse()
+                record_request_id(response.headers)
                 problem = json.loads(response.read())
                 assert response.status == 413 and problem["status"] == 413
             finally:
@@ -133,7 +143,16 @@ def main():
                 payload = json.loads((ROOT / "examples/mixed-batch.json").read_text())
                 status, replay = call("/api/batches", payload, {"Idempotency-Key": receipt["idempotencyKey"]})
                 assert status == 200 and replay["id"] == receipt["batchId"]
+                stop()
+                completion_lines = [line for line in log_path.read_text().splitlines()
+                                    if "request_completed " in line]
+                assert len(completion_lines) >= len(observed_request_ids)
+                for request_id in observed_request_ids:
+                    assert sum(("request_id=" + request_id) in line for line in completion_lines) == 1
+                for private in (receipt["idempotencyKey"], receipt["batchId"], receipt["resultId"]):
+                    assert all(private not in line for line in completion_lines)
                 print(f"Restart check passed ({args.database}): source evidence, review state, audit cursor and idempotency survived.")
+                print(f"Request diagnostics check passed: {len(observed_request_ids)} response IDs matched redacted completion events.")
         except Exception:
             print(log_path.read_text()[-8000:], file=sys.stderr)
             raise

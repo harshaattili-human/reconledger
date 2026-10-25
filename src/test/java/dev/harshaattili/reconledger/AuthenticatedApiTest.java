@@ -90,6 +90,22 @@ class AuthenticatedApiTest {
         assertThat(client.send(forged, HttpResponse.BodyHandlers.ofString()).statusCode()).isEqualTo(401);
     }
 
+    @Test void assignsServerCorrelationIdsAcrossSecurityAndMvcResponses() throws Exception {
+        var forged = HttpRequest.newBuilder(uri("/api/batches?access_token=not-a-token"))
+            .header("X-Request-ID", "caller-selected-id").GET().build();
+        var unauthorized = client.send(forged, HttpResponse.BodyHandlers.ofString());
+        assertThat(unauthorized.statusCode()).isEqualTo(401);
+        String deniedId = requestId(unauthorized);
+        assertThat(deniedId).isNotEqualTo("caller-selected-id");
+
+        var health = call("GET", "/actuator/health", null, null, null);
+        var missing = call("GET", "/api/results/private-result-id", null,
+            token("reader", "recon:read"), null);
+        assertThat(health.statusCode()).isEqualTo(200);
+        assertThat(missing.statusCode()).isEqualTo(404);
+        assertThat(List.of(deniedId, requestId(health), requestId(missing))).doesNotHaveDuplicates();
+    }
+
     @Test void validatesSignatureAlgorithmIssuerAudienceTimesAndSubjectBeforeWrites() throws Exception {
         var badClaims = List.of(
             claims("reviewer", "recon:write").issuer("https://wrong.example.invalid"),
@@ -350,6 +366,11 @@ class AuthenticatedApiTest {
 
     private URI uri(String path) { return URI.create("http://127.0.0.1:" + port + path); }
     private JsonNode body(HttpResponse<String> response) throws Exception { return json.readTree(response.body()); }
+    private static String requestId(HttpResponse<?> response) {
+        String value = response.headers().firstValue("X-Request-ID").orElseThrow();
+        assertThat(value).matches("[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}");
+        return value;
+    }
     private static String key() { return "security-" + UUID.randomUUID(); }
     private static String bearer(String raw) { return "Bearer " + raw; }
     private static String token(String subject, String scopes) throws Exception {

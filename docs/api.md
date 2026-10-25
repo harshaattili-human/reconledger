@@ -9,6 +9,13 @@ Authentication failures return 401; insufficient scopes return 403. Those securi
 filter responses are not MVC problem details. Each token needs an issuer-signed `tenant_id`; data and keys are
 scoped to that tenant. See [the tenant contract](tenants.md). Foreign IDs return 404.
 
+Every response that reaches the application filter includes a server-generated
+`X-Request-ID`, including security rejections and unmapped routes. A supplied value
+is replaced at this service boundary.
+The ID correlates the response with the service's minimal route-template completion
+event; it is not an idempotency key or authorization credential. See the
+[diagnostic field and redaction contract](request-diagnostics.md).
+
 ## Optional request rate limit
 
 When enabled, mapped API requests share a process-wide token bucket. An additional
