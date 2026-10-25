@@ -62,3 +62,26 @@ ID and result ID do not occur in those events.
 
 Run the shared contract on both database engines with `./mvnw verify`; see
 [the verification record](verification.md) for the observed run and environment.
+
+### Hosted verification — October 25, 2026
+
+[Run 40196813968](https://github.com/harshaattili-human/reconledger/actions/runs/40196813968)
+at implementation commit `1f239ce5` passed all five jobs. The same 91 Java cases
+passed on H2 2.3.232 and PostgreSQL 16.15 with zero failures, errors or skips; this
+is 91 cases exercised against two engines, not 182 distinct cases. The three added
+cases are two direct filter cases and one embedded-Tomcat case with the real secured
+profile.
+
+The default packaged smoke check observed 11 requests on each database path. Every
+response had a distinct canonical UUID, each UUID occurred in one completion event,
+and the workflow's synthetic idempotency key, batch ID and result ID were absent from
+those events. Existing secured-package and Boot 3 retained-data upgrade checks also
+passed on both engines. The PostgreSQL restore rehearsal and 30 existing Chromium
+executions passed. The dated Java audit inventoried 73 packaged libraries and reported
+zero advisory entries in that snapshot; it is not a vulnerability-free claim.
+
+Jobs: H2 `121179313500`, PostgreSQL `121179313442`, browser `121179313448`,
+restore `121179313547`, and Java audit `121179313252`. The hosted environment used
+Temurin Java 17.0.20.1 and Ubuntu 24.04.5. Local Python syntax, documentation links
+and whitespace checks passed; the local Maven cache lacked the Boot 4.0.8 parent POM,
+so Java, database, packaged-process, browser, restore and audit execution was hosted.

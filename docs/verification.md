@@ -1,5 +1,14 @@
 # Verification record
 
+October 25: [privacy-bounded request diagnostics](request-diagnostics.md) add a
+server-generated response ID and one route-template completion event without raw
+paths, query strings, identities, headers or bodies. [Run 40196813968](https://github.com/harshaattili-human/reconledger/actions/runs/40196813968)
+passed all five jobs: the same 91 Java cases on H2 and PostgreSQL, default/secured
+packaged and retained-data upgrade checks on both engines, PostgreSQL restore, 30
+existing Chromium executions and the 73-library Java audit. The default packaged
+workflow matched 11 response IDs to redacted events on each database path. See the
+linked record for the exact protocol, job IDs, environment and limits.
+
 October 23: the secured review browser increment adds a fourth workflow for rejected
 review saves. It checks that 403 retains a draft but blocks another submission until
 reload, while 401 clears the workspace; neither rejection may change result version
