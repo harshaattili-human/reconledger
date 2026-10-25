@@ -74,6 +74,7 @@ fresh disposable cluster.
 | Competing reviewers | Version-checked SQL update | Two reviewers: one succeeds, one receives HTTP 409 |
 | Partial database failure | One transaction per batch or review transition | Injected result/audit write failures leave prior state intact |
 | Traceability | Immutable source records, result IDs and ordered review events | API lifecycle test and runnable demo |
+| Request diagnostics | Server-generated response ID and route-template completion event | Redaction-focused unit cases and embedded HTTP across security/MVC outcomes |
 
 Start with [the design decisions](docs/design.md), then inspect
 [the integration tests](src/test/java/dev/harshaattili/reconledger/ReconciliationApiTest.java).
@@ -98,6 +99,7 @@ additional index was rejected after it failed to fix the measured PostgreSQL sca
 - Tenant-scoped data access and idempotency using an issuer-signed tenant claim.
 - Paginated batch summaries with exact business-date and currency filters.
 - A packaged local review screen with source comparison, notes and audit paging.
+- [Request correlation](docs/request-diagnostics.md) without logging input values or identities.
 - Flyway schema migrations, JDBC persistence and a local health endpoint.
 
 Resolving an exception records a human-entered review decision. It does **not**
