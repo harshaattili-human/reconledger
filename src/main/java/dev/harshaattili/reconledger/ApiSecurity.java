@@ -76,6 +76,7 @@ public class ApiSecurity {
                           @Value("${recon.security.issuer}") String issuer,
                           @Value("${recon.security.audience}") String audience,
                           ResourceLoader resources) throws IOException {
+        validateClaimsConfiguration(issuer, audience);
         boolean hasPublicKey = publicKeyLocation != null && !publicKeyLocation.isBlank();
         boolean hasJwks = jwkSetUri != null && !jwkSetUri.isBlank();
         Assert.isTrue(hasPublicKey != hasJwks,
@@ -94,6 +95,7 @@ public class ApiSecurity {
 
     /** Retained as a narrow construction seam for pinned-key configuration tests. */
     JwtDecoder jwtDecoder(Resource publicKey, String issuer, String audience) throws IOException {
+        validateClaimsConfiguration(issuer, audience);
         var decoder = pinnedDecoder(publicKey);
         configureValidation(decoder, issuer, audience);
         return decoder;
@@ -109,10 +111,13 @@ public class ApiSecurity {
         return NimbusJwtDecoder.withPublicKey(key).build(); // RS256 only.
     }
 
-    private void configureValidation(NimbusJwtDecoder decoder, String issuer, String audience) {
+    private void validateClaimsConfiguration(String issuer, String audience) {
         Assert.hasText(issuer, "recon.security.issuer must not be blank");
         Assert.isTrue(issuer.length() <= 2048, "recon.security.issuer must be at most 2048 characters");
         Assert.hasText(audience, "recon.security.audience must not be blank");
+    }
+
+    private void configureValidation(NimbusJwtDecoder decoder, String issuer, String audience) {
         decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<Jwt>(
             JwtValidators.createDefaultWithIssuer(issuer), token -> {
                 String subject = token.getSubject();
