@@ -11,7 +11,10 @@ Remaining priorities are planned work, not claims of completed features.
 verified issuer on new audit events. Earlier rows remain unknown; this does not
 replace issuer membership verification or tamper-resistant audit storage.
 
-1. Verify external issuer membership configuration and automatic key rotation/revocation.
+1. Verify external issuer membership configuration and revocation.
+   The opt-in [JWKS trust mode](jwks-rotation.md) now exercises unknown-key refresh
+   against a synthetic loopback issuer; external provider login, discovery, TLS/DNS,
+   outage behavior, cache policy and user revocation remain unverified.
    Define tenant administration, export/deletion and operational separation before
    real multi-tenant deployment.
 2. Add fair scheduling and edge/upload controls beyond the optional
@@ -60,8 +63,9 @@ uncommitted review; the demo resumes a cursor after application restart.
 
 The [secured executable-JAR check](secured-package-checks.md) now covers profile
 startup, file-based trust configuration, retained tenant state and manual pinned-key
-replacement on restart. External membership, automatic rotation and user revocation
-remain separate work; the test signer does not substitute for an identity provider.
+replacement on restart. The embedded HTTP JWKS fixture separately covers a live
+unknown-key refresh. External membership and user revocation remain separate work;
+neither test signer substitutes for an identity provider.
 
 [Tenant-filtered characterization](tenant-query-characterization.md) now covers
 uneven ownership and first/continuation pages. A tenant/currency index alone failed
