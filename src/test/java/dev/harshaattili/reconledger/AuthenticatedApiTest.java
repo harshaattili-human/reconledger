@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -222,6 +223,21 @@ class AuthenticatedApiTest {
         assertThatThrownBy(() -> config.jwtDecoder(badKey, "x".repeat(2049), AUDIENCE))
             .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("2048");
         assertThatThrownBy(() -> config.jwtDecoder(badKey, ISSUER, AUDIENCE)).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test void rejectsAmbiguousOrUnsafeDynamicTrustConfiguration() {
+        var config = new ApiSecurity();
+        var resources = new DefaultResourceLoader();
+        assertThatThrownBy(() -> config.jwtDecoder("", "", ISSUER, AUDIENCE, resources))
+            .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("exactly one");
+        assertThatThrownBy(() -> config.jwtDecoder(PUBLIC_KEY.toUri().toString(),
+            "https://issuer.example.invalid/jwks", ISSUER, AUDIENCE, resources))
+            .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("exactly one");
+        for (String uri : List.of("http://issuer.example.invalid/jwks", "ftp://127.0.0.1/jwks",
+                "https://user@issuer.example.invalid/jwks", "https://issuer.example.invalid/jwks#fragment")) {
+            assertThatThrownBy(() -> config.jwtDecoder("", uri, ISSUER, AUDIENCE, resources))
+                .as(uri).isInstanceOf(IllegalArgumentException.class);
+        }
     }
 
     @Test void requiresAnIssuerSuppliedTenantAndIgnoresTenantHeaders() throws Exception {

@@ -11,9 +11,9 @@ prototype publicly or load real customer data.
 
 ## Start the profile
 
-Supply an X.509 PEM RSA public key (at least 2048 bits), exact issuer and intended
-audience. The service holds only the public key; it does not issue tokens or store
-a signing key. Use a token signed by the corresponding trusted issuer.
+Choose exactly one trust source: an X.509 PEM RSA public key (at least 2048 bits),
+or an HTTPS JWK Set URI. Supply the exact issuer and intended audience in either
+mode. The service does not issue tokens or store a signing key.
 
 ```bash
 java -jar target/reconledger-0.1.0-SNAPSHOT-app.jar \
@@ -23,9 +23,24 @@ java -jar target/reconledger-0.1.0-SNAPSHOT-app.jar \
   --recon.security.audience=reconledger
 ```
 
+For an issuer that publishes rotating verification keys:
+
+```bash
+java -jar target/reconledger-0.1.0-SNAPSHOT-app.jar \
+  --spring.profiles.active=postgres,secured \
+  --recon.security.jwk-set-uri=https://issuer.example/.well-known/jwks.json \
+  --recon.security.issuer=https://issuer.example \
+  --recon.security.audience=reconledger
+```
+
+The two trust properties are mutually exclusive. A remote JWK Set URI must use
+HTTPS; plain HTTP is accepted only for loopback verification. User information and
+fragments are rejected. The URI is trusted operator configuration, not a request
+value. RS256 remains fixed even if the published set advertises other algorithms.
+
 Combine profiles as `postgres,secured` to use the [PostgreSQL configuration](postgresql.md).
-Missing trust properties, a blank issuer/audience or an invalid key prevent this
-profile from starting. Omitting `secured` starts the unauthenticated demo: profile
+Missing or ambiguous trust properties, a blank issuer/audience or an invalid pinned
+key prevent this profile from starting. Omitting `secured` starts the unauthenticated demo: profile
 selection is an operator responsibility, not an automatic network-safety check.
 The original demo and restart scripts target that default mode. The separate
 [secured JAR check](secured-package-checks.md) exercises actual profile startup,
@@ -101,16 +116,23 @@ data route, separate scopes, actor spoofing, unchanged state after rejection,
 optimistic conflict, body bounds and session/token transport behavior. A separate
 default-mode HTTP case retains the demo actor contract. See [observed results](verification.md).
 
-The profile does not supply TLS, automatic key rotation/JWKS, revocation, rate limits or tamper-resistant audit storage. A valid stolen bearer token
-is usable until expiry; replacing the pinned public key requires restarting the app.
+The JWKS test publishes key A, replaces it with key B, and observes a second endpoint
+fetch when a B token presents an unknown key ID. The removed A key, RS512, reserved
+demo tenant and missing scope are rejected without reserving the tested idempotency
+key. This is a loopback synthetic issuer, not evidence for an external provider,
+DNS/TLS, endpoint outages, cache durability, overlap timing or user revocation.
+See [the rotation boundary](jwks-rotation.md).
+
+The profile does not supply TLS, user revocation, provider login, rate limits or tamper-resistant audit storage. A valid stolen bearer token
+is usable until expiry or its verification key is no longer accepted; replacing the pinned public key requires restarting the app.
 Manual pinned-key replacement on restart is covered by the [packaged check](secured-package-checks.md).
-Provider integration, automatic rotation and deployment controls need separate verification.
+Provider integration, rotation operations and deployment controls need separate verification.
 
 Tenant scoping trusts signed issuer membership; it does not validate an external
 provider configuration or supply a membership administration system.
 
-References: Spring Security 6.5 [JWT resource servers](https://docs.spring.io/spring-security/reference/6.5/servlet/oauth2/resource-server/jwt.html)
-and [request authorization](https://docs.spring.io/spring-security/reference/6.5/servlet/authorization/authorize-http-requests.html).
+References: Spring Security [JWT resource servers](https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html)
+and [request authorization](https://docs.spring.io/spring-security/reference/servlet/authorization/authorize-http-requests.html).
 
 Interview exercise: why does verifying a JWT's signature alone not establish its
 intended API or grant access to a particular customer's batch?
