@@ -37,5 +37,29 @@ mode and exposes the RS256 builder constraint used here:
 - <https://docs.spring.io/spring-security/reference/servlet/oauth2/resource-server/jwt.html>
 - <https://docs.spring.io/spring-security/reference/api/java/org/springframework/security/oauth2/jwt/NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder.html>
 
+## Observed verification — October 26, 2026
+
+The first implementation run, `40330838814`, compiled and passed the new JWKS HTTP
+case on both database jobs, but failed one pre-existing configuration assertion on
+each. The refactor loaded the deliberately invalid PEM before rejecting the test's
+blank issuer, changing established startup-validation order. Commit
+`88e25ffd1c431ad42a7ea5fa5ee3bd651dfdb270` restores issuer/audience validation before
+trust-material loading; no token policy or JWKS behavior changed.
+
+[Run 40331965601](https://github.com/harshaattili-human/reconledger/actions/runs/40331965601)
+then passed all five jobs. H2 job `121603415996` and PostgreSQL job `121603415636`
+each ran the same 93 cases with zero failures, errors or skips; these are 93 cases on
+two engines, not 186 distinct cases. The new test used embedded Tomcat, real JWT
+decoding and JDBC against each engine. Existing packaged default/secured, pinned-key
+restart and Boot 3 retained-data upgrade workflows also passed on both engines.
+
+Browser job `121603416014` passed 12 demo, eight secured and ten repeated Chromium
+executions. Restore job `121603415793` passed the existing PostgreSQL 16.15 rehearsal.
+Audit job `121603416071` inventoried 73 packaged libraries and returned zero advisory
+entries in that scan; this is not a vulnerability-free claim. Hosted execution used
+Java 17.0.20.1, Spring Boot 4.0.8 and Ubuntu 24.04. Local whitespace, documentation
+links and Python syntax checks passed; Java execution was hosted because the Boot
+parent POM was not cached locally and Maven Central DNS was unavailable.
+
 Interview exercise: why should a key-rotation test check tenant and scope enforcement
 again, and why does rejecting a removed key still fail to prove per-user revocation?

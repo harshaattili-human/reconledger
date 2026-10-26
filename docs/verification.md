@@ -1,5 +1,17 @@
 # Verification record
 
+October 26: [JWKS trust mode](jwks-rotation.md) adds an alternative to the pinned
+public key while retaining RS256, issuer, audience, expiry, subject, tenant and scope
+checks. Implementation [run 40331965601](https://github.com/harshaattili-human/reconledger/actions/runs/40331965601)
+passed all five jobs: the same 93 Java cases on H2 2.3.232 and PostgreSQL 16.15,
+including the new real-HTTP unknown-key refresh; packaged default/secured checks,
+manual pinned-key replacement and Boot 3 retained-data upgrades on both engines;
+PostgreSQL restore; 12 demo, eight secured and ten repeated Chromium executions; and
+the 73-library Java audit with zero advisory entries in that dated snapshot. This is
+synthetic loopback rotation evidence, not external-provider, TLS/DNS, outage, cache
+policy or user-revocation verification. The initial run's one existing startup-order
+assertion failure and correction are preserved in the linked rotation record.
+
 October 25: [privacy-bounded request diagnostics](request-diagnostics.md) add a
 server-generated response ID and one route-template completion event without raw
 paths, query strings, identities, headers or bodies. [Run 40196813968](https://github.com/harshaattili-human/reconledger/actions/runs/40196813968)
