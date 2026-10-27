@@ -4,25 +4,21 @@ The optional JWKS decoder uses a dedicated GET-only transport. A trusted operato
 still chooses the URI; token claims cannot select an endpoint. The pinned PEM
 mode does not use this transport.
 
-Each fetch requests identity encoding, disables redirects and URLConnection
-caching, and accepts only HTTP 200 with absent or identity Content-Encoding.
-Non-200 and encoded responses are rejected before reading their bodies. A declared
-length over 65,536 bytes is rejected from headers. Otherwise, at most 65,537 bytes
-are read: the last byte detects excess, including chunked responses. A shorter
-body than its declared length is rejected even if it contains valid JSON. Excess is
-rejected, never truncated. Only a complete accepted byte array is passed to Spring
-and Nimbus for JSON/JWK parsing. The connection is disconnected in `finally`;
-Spring receives a detached bounded response, so its response cleanup cannot drain
-an unbounded network body. Connections are requested closed instead of pooled.
+Each fetch requests identity encoding, disables redirects and accepts only HTTP 200
+with absent or identity Content-Encoding. Non-200, encoded and declared oversized
+responses cancel their body subscription without consuming that body. The bounded
+subscriber counts buffers before copying and accumulates at most 65,536 bytes;
+excess is rejected, never truncated. Premature EOF also rejects. Only a complete
+accepted byte array is passed to Spring and Nimbus for JSON/JWK parsing. Spring
+receives a detached response, so its cleanup cannot drain a live network body.
 
-The connect and read-inactivity timeouts are each 2,000 ms. This is not a total
-fetch deadline: continuous progress, DNS resolution, scheduling, TLS/transport
-implementation details and parsing have separate behavior. The byte cap bounds
-application body accumulation plus one lookahead byte, not headers, socket buffers,
-copies, all simultaneous requests or total process memory. There is no fetch
-admission limit, fair queue, circuit breaker or new retry policy. Nimbus retains
-its own cache/refresh behavior; this change does not establish a cache-expiry or
-revocation guarantee. Large legitimate key sets require a reviewed policy change.
+The [fetch deadline](jwks-deadline.md) now replaces the earlier read-inactivity
+policy. A shared Java HTTP client can reuse completed connections; cancellation
+may close an incomplete exchange. The byte cap bounds application accumulation,
+not delivered transport buffers, parser copies, headers or total process memory.
+Nimbus retains its own cache/refresh behavior. There is no fetch admission limit,
+fair queue, circuit breaker, application retry or revocation guarantee. Large
+legitimate key sets require a reviewed policy change.
 
 Failures use the existing sanitized 503/no-store bearer failure response and
 cannot dispatch an application write. No upstream body or exception message is
@@ -36,11 +32,11 @@ see [the cache/outage checks](jwks-rotation.md).
 ./mvnw verify
 ```
 
-Ten new direct transport executions use real loopback HTTP: exact-cap fixed and
+The initial ten direct transport executions use real loopback HTTP: exact-cap fixed and
 chunked responses; declared excess with no body and chunked excess held open;
 premature EOF containing valid partial JSON; 302/307 with a target counter proving
 no follow; encoding/error-body rejection;
-and stalled headers/body with the stock read timeout followed by recovery. The
+and stalled headers/body with the then-current read timeout followed by recovery. The
 server remains latched while the client must finish, detecting response cleanup
 that waits for the rest of a rejected reply. These are controlled protocol
 fixtures, not throughput or upstream-service measurements.
@@ -50,7 +46,7 @@ otherwise valid JWKS, verifies 503 and no idempotency-row mutation, replaces it
 with a valid key set, then verifies create/replay and exactly one batch. Existing
 rotation, malformed/empty-set, cached-key, scope and tenant checks also run.
 
-## Observed verification — October 27, 2026
+## Earlier transport verification — October 27, 2026
 
 Implementation `95c07d79037c84fdb49e7b9df162985f37064df9` passed all five jobs in
 [run 40532666233](https://github.com/harshaattili-human/reconledger/actions/runs/40532666233).
@@ -82,7 +78,7 @@ Packaged checks still use pinned keys. These loopback checks do not establish an
 external issuer, HTTPS certificate/proxy behavior, cache expiry, total deadline,
 connect-timeout behavior against a blackholed network or user-level revocation.
 
-The adapter follows the Spring [request abstraction](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/http/client/AbstractClientHttpRequest.html)
+The original adapter followed the Spring [request abstraction](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/http/client/AbstractClientHttpRequest.html)
 and Java 17 [connection API](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/net/HttpURLConnection.html).
 
 Optional exercise: why can a response byte cap and a read-inactivity timeout both

@@ -527,3 +527,11 @@ executions and one secured decoder/JDBC workflow. Run `40532666233` passed all f
 jobs and the same 106 cases on H2 and PostgreSQL; packaged pinned-key/restart/upgrade,
 30 Chromium executions, PostgreSQL restore and the Java audit also passed. The
 byte/read-inactivity policy does not establish a total deadline or external issuer.
+
+## JWKS completion deadline — October 27, 2026
+
+[Deadline evidence](jwks-deadline.md) supersedes the prior inactivity-only policy.
+Run `40574005513` passed all five jobs and the same 111 cases on each database,
+including continuous header/fixed/chunked progress, caller interruption and secured
+no-write recovery. This is a per-fetch budget; decoder cache-lock waiting and
+external issuer/TLS verification remain outside the claim.

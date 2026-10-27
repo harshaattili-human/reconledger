@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.web.client.ResourceAccessException;
 
+@org.junit.jupiter.api.Timeout(15)
 class JwksHttpTest {
     private final AtomicReference<HttpHandler> handler = new AtomicReference<>();
     private final AtomicInteger redirects = new AtomicInteger();
@@ -28,9 +29,11 @@ class JwksHttpTest {
     private java.util.concurrent.ExecutorService threads;
     private HttpServer server;
     private URI uri;
+    private org.springframework.web.client.RestOperations transport;
 
     @BeforeEach void start() throws Exception {
         threads = Executors.newCachedThreadPool();
+        transport = JwksHttp.create();
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.setExecutor(threads);
         server.createContext("/jwks", exchange -> {
@@ -151,7 +154,96 @@ class JwksHttpTest {
         recover();
     }
 
-    private String fetch() { return JwksHttp.create().getForObject(uri, String.class); }
+    @ParameterizedTest @ValueSource(strings = {"headers", "fixed", "chunked"})
+    void continuousProgressCannotResetTheFetchDeadline(String phase) throws Exception {
+        try (var listener = new java.net.ServerSocket(0, 1, java.net.InetAddress.getLoopbackAddress())) {
+            var entered = new CountDownLatch(1);
+            var eof = new CountDownLatch(1);
+            var finished = new CountDownLatch(1);
+            var progress = new AtomicInteger();
+            var serving = threads.submit(() -> {
+                try (var peer = listener.accept()) {
+                    peer.setSoTimeout(6_000);
+                    readRequest(peer);
+                    threads.submit(() -> {
+                        try { if (peer.getInputStream().read() == -1) eof.countDown(); }
+                        catch (java.io.IOException ignored) { }
+                    });
+                    String headers = phase.equals("headers") ? "HTTP/1.1 200 OK\r\nX-Slow: "
+                        : "HTTP/1.1 200 OK\r\n" + (phase.equals("fixed")
+                            ? "Content-Length: 10000\r\n\r\n" : "Transfer-Encoding: chunked\r\n\r\n");
+                    peer.getOutputStream().write(headers.getBytes(StandardCharsets.US_ASCII));
+                    for (int i = 0; i < 50; i++) {
+                        String part = phase.equals("chunked") ? "1\r\n \r\n" : " ";
+                        peer.getOutputStream().write(part.getBytes(StandardCharsets.US_ASCII));
+                        peer.getOutputStream().flush();
+                        progress.incrementAndGet();
+                        entered.countDown();
+                        if (eof.await(100, TimeUnit.MILLISECONDS)) break;
+                    }
+                } catch (java.io.IOException disconnected) {
+                    // The independent reader must also observe EOF; write failure alone is insufficient.
+                } finally { finished.countDown(); }
+                return null;
+            });
+            URI slow = URI.create("http://127.0.0.1:" + listener.getLocalPort() + "/jwks");
+            var result = threads.submit(() -> transport.getForObject(slow, String.class));
+            assertThat(entered.await(5, TimeUnit.SECONDS)).isTrue();
+            assertThatThrownBy(() -> result.get(4, TimeUnit.SECONDS))
+                .hasRootCauseInstanceOf(java.net.SocketTimeoutException.class)
+                .hasRootCauseMessage("JWKS fetch deadline exceeded");
+            assertThat(progress.get()).isGreaterThan(2).isLessThan(50);
+            assertThat(eof.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThat(finished.await(2, TimeUnit.SECONDS)).isTrue();
+            serving.get(1, TimeUnit.SECONDS);
+        }
+        recover(); // Same transport instance after cancellation.
+    }
+
+    @Test void callerInterruptionCancelsTheExchangeAndRestoresInterruptStatus() throws Exception {
+        try (var listener = new java.net.ServerSocket(0, 1, java.net.InetAddress.getLoopbackAddress())) {
+            var entered = new CountDownLatch(1);
+            var eof = new CountDownLatch(1);
+            var serving = threads.submit(() -> {
+                try (var peer = listener.accept()) {
+                    peer.setSoTimeout(5_000);
+                    readRequest(peer);
+                    entered.countDown();
+                    if (peer.getInputStream().read() == -1) eof.countDown();
+                }
+                return null;
+            });
+            var failure = new AtomicReference<Throwable>();
+            var interrupted = new java.util.concurrent.atomic.AtomicBoolean();
+            URI stalled = URI.create("http://127.0.0.1:" + listener.getLocalPort() + "/jwks");
+            Thread caller = new Thread(() -> {
+                try { transport.getForObject(stalled, String.class); }
+                catch (Throwable error) { failure.set(error); }
+                finally { interrupted.set(Thread.currentThread().isInterrupted()); }
+            });
+            caller.start();
+            try {
+                assertThat(entered.await(5, TimeUnit.SECONDS)).isTrue();
+                caller.interrupt();
+                caller.join(1_000);
+                assertThat(caller.isAlive()).isFalse();
+                assertThat(failure.get()).isInstanceOf(ResourceAccessException.class)
+                    .hasRootCauseInstanceOf(java.io.InterruptedIOException.class);
+                assertThat(interrupted.get()).isTrue();
+                assertThat(eof.await(2, TimeUnit.SECONDS)).isTrue();
+                serving.get(1, TimeUnit.SECONDS);
+            } finally { caller.interrupt(); caller.join(3_000); }
+        }
+        recover();
+    }
+
+    private static void readRequest(java.net.Socket peer) throws java.io.IOException {
+        var reader = new java.io.BufferedReader(new java.io.InputStreamReader(
+            peer.getInputStream(), StandardCharsets.US_ASCII));
+        for (String line; (line = reader.readLine()) != null && !line.isEmpty();) { }
+    }
+
+    private String fetch() { return transport.getForObject(uri, String.class); }
     private void recover() {
         handler.set(exchange -> send(exchange, "{\"keys\":[]}", false));
         assertThat(fetch()).isEqualTo("{\"keys\":[]}");

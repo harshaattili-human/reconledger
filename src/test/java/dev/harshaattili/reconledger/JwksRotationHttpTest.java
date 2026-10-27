@@ -52,6 +52,8 @@ class JwksRotationHttpTest {
     private static final AtomicReference<String> JWKS = new AtomicReference<>(jwks("key-a", KEY_A));
     private static final AtomicInteger STATUS = new AtomicInteger(200);
     private static final AtomicInteger FETCHES = new AtomicInteger();
+    private static final java.util.concurrent.atomic.AtomicBoolean SLOW = new java.util.concurrent.atomic.AtomicBoolean();
+    private static final java.util.concurrent.ExecutorService ENDPOINT_THREADS = java.util.concurrent.Executors.newCachedThreadPool();
     private static final HttpServer SERVER = server();
     private static final String JWK_SET_URI = "http://127.0.0.1:" + SERVER.getAddress().getPort() + "/jwks";
     private static final String BATCH = """
@@ -77,9 +79,10 @@ class JwksRotationHttpTest {
         JWKS.set(jwks("key-a", KEY_A));
         STATUS.set(200);
         FETCHES.set(0);
+        SLOW.set(false);
     }
 
-    @AfterAll static void stopServer() { SERVER.stop(0); }
+    @AfterAll static void stopServer() { SERVER.stop(0); ENDPOINT_THREADS.shutdownNow(); }
 
     @Test void refreshesUnknownKeyIdsWithoutWeakeningClaimsScopesOrTenantIsolation() throws Exception {
         String keyA = token(KEY_A, "key-a", "tenant-a", "writer-a", "recon:write", JWSAlgorithm.RS256);
@@ -195,6 +198,22 @@ class JwksRotationHttpTest {
         assertThat(output.getAll()).doesNotContain("Servlet.service()");
     }
 
+    @Test void tricklingKeySetTimesOutWithoutWritingAndThenRecovers(CapturedOutput output) throws Exception {
+        String keyA = token(KEY_A, "key-a", "slow-set", "writer", "recon:read recon:write",
+            JWSAlgorithm.RS256);
+        String pending = idempotency();
+        SLOW.set(true);
+        try {
+            assertUnavailable(post(BATCH, keyA, pending));
+            assertNoBatch(pending);
+        } finally { SLOW.set(false); }
+        assertThat(post(BATCH, keyA, pending).statusCode()).isEqualTo(201);
+        assertThat(post(BATCH, keyA, pending).statusCode()).isEqualTo(200);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM recon_batch WHERE idempotency_key = ?",
+            Integer.class, pending)).isEqualTo(1);
+        assertThat(output.getAll()).doesNotContain("Servlet.service()", JWK_SET_URI);
+    }
+
     private void assertUnavailable(HttpResponse<String> response) throws Exception {
         assertThat(response.statusCode()).isEqualTo(503);
         assertThat(body(response).get("title").asText()).isEqualTo("Token verification unavailable");
@@ -238,6 +257,7 @@ class JwksRotationHttpTest {
     private static HttpServer server() {
         try {
             var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+            server.setExecutor(ENDPOINT_THREADS);
             server.createContext("/jwks", exchange -> {
                 FETCHES.incrementAndGet();
                 byte[] body = (STATUS.get() == 200 ? JWKS.get() : "synthetic-jwks-body-marker")
@@ -245,7 +265,19 @@ class JwksRotationHttpTest {
                 exchange.getResponseHeaders().set("Content-Type", "application/jwk-set+json");
                 exchange.getResponseHeaders().set("Cache-Control", "max-age=3600");
                 exchange.sendResponseHeaders(STATUS.get(), body.length);
-                try (var output = exchange.getResponseBody()) { output.write(body); }
+                boolean slow = SLOW.get();
+                try (var output = exchange.getResponseBody()) {
+                    if (slow) {
+                        for (byte value : body) {
+                            output.write(value);
+                            output.flush();
+                            try { Thread.sleep(100); }
+                            catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); return; }
+                        }
+                    } else output.write(body);
+                } catch (java.io.IOException disconnected) {
+                    if (!slow) throw disconnected;
+                } finally { exchange.close(); }
             });
             server.start();
             return server;
