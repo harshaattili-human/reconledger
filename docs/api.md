@@ -5,8 +5,10 @@ domain errors use Spring `ProblemDetail` (`application/problem+json`).
 
 Examples below use the unauthenticated loopback demo. The [secured profile](authentication.md)
 requires bearer tokens with endpoint scopes and derives reviewer identity from `sub`.
-Authentication failures return 401; insufficient scopes return 403. Those security
-filter responses are not MVC problem details. Each token needs an issuer-signed `tenant_id`; data and keys are
+Invalid authentication returns 401; insufficient scopes return 403. Unavailable
+token verification returns a fixed 503 problem body with no-store and no bearer
+challenge or retry delay; see [JWKS failures](jwks-rotation.md). These responses
+originate in security filters, before MVC. Each token needs an issuer-signed `tenant_id`; data and keys are
 scoped to that tenant. See [the tenant contract](tenants.md). Foreign IDs return 404.
 
 Every response that reaches the application filter includes a server-generated
