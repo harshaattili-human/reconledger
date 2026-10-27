@@ -228,14 +228,19 @@ class AuthenticatedApiTest {
     @Test void rejectsAmbiguousOrUnsafeDynamicTrustConfiguration() {
         var config = new ApiSecurity();
         var resources = new DefaultResourceLoader();
-        assertThatThrownBy(() -> config.jwtDecoder("", "", ISSUER, AUDIENCE, resources))
+        assertThatThrownBy(() -> config.jwtDecoder("", "", ISSUER, AUDIENCE, 8, resources))
             .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("exactly one");
         assertThatThrownBy(() -> config.jwtDecoder(PUBLIC_KEY.toUri().toString(),
-            "https://issuer.example.invalid/jwks", ISSUER, AUDIENCE, resources))
+            "https://issuer.example.invalid/jwks", ISSUER, AUDIENCE, 8, resources))
             .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("exactly one");
+        for (int capacity : new int[]{0, -1, 1001}) {
+            assertThatThrownBy(() -> config.jwtDecoder(PUBLIC_KEY.toUri().toString(), "",
+                ISSUER, AUDIENCE, capacity, resources)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("max-concurrent-decodes");
+        }
         for (String uri : List.of("http://issuer.example.invalid/jwks", "ftp://127.0.0.1/jwks",
                 "https://user@issuer.example.invalid/jwks", "https://issuer.example.invalid/jwks#fragment")) {
-            assertThatThrownBy(() -> config.jwtDecoder("", uri, ISSUER, AUDIENCE, resources))
+            assertThatThrownBy(() -> config.jwtDecoder("", uri, ISSUER, AUDIENCE, 8, resources))
                 .as(uri).isInstanceOf(IllegalArgumentException.class);
         }
     }

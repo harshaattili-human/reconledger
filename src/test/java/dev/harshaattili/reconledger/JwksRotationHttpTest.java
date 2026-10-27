@@ -54,6 +54,8 @@ class JwksRotationHttpTest {
     private static final AtomicInteger FETCHES = new AtomicInteger();
     private static final java.util.concurrent.atomic.AtomicBoolean SLOW = new java.util.concurrent.atomic.AtomicBoolean();
     private static final java.util.concurrent.ExecutorService ENDPOINT_THREADS = java.util.concurrent.Executors.newCachedThreadPool();
+    private static final AtomicReference<java.util.concurrent.CountDownLatch> HOLD = new AtomicReference<>();
+    private static final AtomicReference<java.util.concurrent.CountDownLatch> ENTERED = new AtomicReference<>();
     private static final HttpServer SERVER = server();
     private static final String JWK_SET_URI = "http://127.0.0.1:" + SERVER.getAddress().getPort() + "/jwks";
     private static final String BATCH = """
@@ -70,6 +72,7 @@ class JwksRotationHttpTest {
 
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry registry) {
+        registry.add("recon.security.max-concurrent-decodes", () -> "1");
         registry.add("recon.security.jwk-set-uri", () -> JWK_SET_URI);
         registry.add("recon.security.issuer", () -> ISSUER);
         registry.add("recon.security.audience", () -> AUDIENCE);
@@ -80,6 +83,8 @@ class JwksRotationHttpTest {
         STATUS.set(200);
         FETCHES.set(0);
         SLOW.set(false);
+        HOLD.set(null);
+        ENTERED.set(null);
     }
 
     @AfterAll static void stopServer() { SERVER.stop(0); ENDPOINT_THREADS.shutdownNow(); }
@@ -214,6 +219,45 @@ class JwksRotationHttpTest {
         assertThat(output.getAll()).doesNotContain("Servlet.service()", JWK_SET_URI);
     }
 
+    @Test void saturationRejectsEvenCachedTokensBeforeDecoderWorkAndRecovers(CapturedOutput output) throws Exception {
+        String keyA = token(KEY_A, "key-a", "admission-a", "writer-a", "recon:read recon:write",
+            JWSAlgorithm.RS256);
+        String keyB = token(KEY_B, "key-b", "admission-b", "writer-b", "recon:read recon:write",
+            JWSAlgorithm.RS256);
+        assertThat(post(BATCH, keyA, idempotency()).statusCode()).isEqualTo(201); // Warm A.
+        JWKS.set(jwks("key-b", KEY_B));
+        var entered = new java.util.concurrent.CountDownLatch(1);
+        var release = new java.util.concurrent.CountDownLatch(1);
+        ENTERED.set(entered);
+        HOLD.set(release);
+        String firstKey = idempotency();
+        String rejectedKey = idempotency();
+        var first = client.sendAsync(HttpRequest.newBuilder(uri("/api/batches"))
+            .timeout(Duration.ofSeconds(10)).header("Content-Type", "application/json")
+            .header("Authorization", "Bearer " + keyB).header("Idempotency-Key", firstKey)
+            .POST(HttpRequest.BodyPublishers.ofString(BATCH)).build(), HttpResponse.BodyHandlers.ofString());
+        try {
+            assertThat(entered.await(5, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
+            int fetches = FETCHES.get();
+            assertUnavailable(post(BATCH, keyA, rejectedKey)); // A is cached, but admission precedes Nimbus.
+            assertThat(first.isDone()).isFalse();
+            assertThat(FETCHES.get()).isEqualTo(fetches);
+            assertNoBatch(firstKey);
+            assertNoBatch(rejectedKey);
+            assertThat(client.send(HttpRequest.newBuilder(uri("/actuator/health")).GET().build(),
+                HttpResponse.BodyHandlers.ofString()).statusCode()).isEqualTo(200);
+            assertThat(client.send(HttpRequest.newBuilder(uri("/api/batches")).GET().build(),
+                HttpResponse.BodyHandlers.ofString()).statusCode()).isEqualTo(401);
+        } finally { HOLD.set(null); ENTERED.set(null); release.countDown(); }
+        assertThat(first.get(5, java.util.concurrent.TimeUnit.SECONDS).statusCode()).isEqualTo(201);
+        assertThat(post(BATCH, keyB, rejectedKey).statusCode()).isEqualTo(201);
+        assertThat(post(BATCH, keyB, rejectedKey).statusCode()).isEqualTo(200);
+        assertThat(get("/api/batches", "synthetic-invalid-token").statusCode()).isEqualTo(401);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM recon_batch WHERE idempotency_key = ?",
+            Integer.class, rejectedKey)).isEqualTo(1);
+        assertThat(output.getAll()).doesNotContain("Token verification capacity unavailable", "Servlet.service()");
+    }
+
     private void assertUnavailable(HttpResponse<String> response) throws Exception {
         assertThat(response.statusCode()).isEqualTo(503);
         assertThat(body(response).get("title").asText()).isEqualTo("Token verification unavailable");
@@ -260,6 +304,13 @@ class JwksRotationHttpTest {
             server.setExecutor(ENDPOINT_THREADS);
             server.createContext("/jwks", exchange -> {
                 FETCHES.incrementAndGet();
+                var hold = HOLD.get();
+                var entered = ENTERED.get();
+                if (hold != null) {
+                    if (entered != null) entered.countDown();
+                    try { hold.await(5, java.util.concurrent.TimeUnit.SECONDS); }
+                    catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); exchange.close(); return; }
+                }
                 byte[] body = (STATUS.get() == 200 ? JWKS.get() : "synthetic-jwks-body-marker")
                     .getBytes(java.nio.charset.StandardCharsets.UTF_8);
                 exchange.getResponseHeaders().set("Content-Type", "application/jwk-set+json");
