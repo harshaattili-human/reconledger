@@ -535,3 +535,11 @@ Run `40574005513` passed all five jobs and the same 111 cases on each database,
 including continuous header/fixed/chunked progress, caller interruption and secured
 no-write recovery. This is a per-fetch budget; decoder cache-lock waiting and
 external issuer/TLS verification remain outside the claim.
+
+## JWT decoding admission — October 27, 2026
+
+[Admission evidence](jwt-admission.md) records 114 identical cases on H2 and
+PostgreSQL in run `40575329332`, plus all five hosted jobs. The limit precedes
+Nimbus parsing/cache waits; a held unknown-key refresh rejects even a cached
+token with 503 and no write, then explicit recovery succeeds. The wrapper bounds
+concurrent decoding, not its duration, arrival rate or tenant fairness.

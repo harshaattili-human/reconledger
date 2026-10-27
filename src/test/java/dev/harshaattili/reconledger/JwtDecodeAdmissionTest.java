@@ -26,11 +26,13 @@ class JwtDecodeAdmissionTest {
         var entered = new CountDownLatch(3);
         var rejected = new CountDownLatch(9);
         var release = new CountDownLatch(1);
+        var hold = new java.util.concurrent.atomic.AtomicReference<>(release);
+        var arrivals = new java.util.concurrent.atomic.AtomicReference<>(entered);
         var calls = new AtomicInteger();
         var decoder = new JwtDecodeAdmission(token -> {
             calls.incrementAndGet();
-            entered.countDown();
-            try { if (!release.await(5, TimeUnit.SECONDS)) throw new AssertionError("fixture not released"); }
+            arrivals.get().countDown();
+            try { if (!hold.get().await(5, TimeUnit.SECONDS)) throw new AssertionError("fixture not released"); }
             catch (InterruptedException interrupted) { Thread.currentThread().interrupt(); throw new AssertionError(interrupted); }
             return result();
         }, 3);
@@ -56,9 +58,18 @@ class JwtDecodeAdmissionTest {
             int accepted = 0;
             for (var future : futures) if (future.get(2, TimeUnit.SECONDS)) accepted++;
             assertThat(accepted).isEqualTo(3);
-            assertThat(decoder.decode("recovery").getSubject()).isEqualTo("fixture");
+            var recovered = new CountDownLatch(3);
+            var finishRecovery = new CountDownLatch(1);
+            hold.set(finishRecovery);
+            arrivals.set(recovered);
+            var recovery = new ArrayList<java.util.concurrent.Future<Jwt>>();
+            for (int i = 0; i < 3; i++) recovery.add(threads.submit(() -> decoder.decode("recovery")));
+            assertThat(recovered.await(2, TimeUnit.SECONDS)).isTrue();
+            assertThatThrownBy(() -> decoder.decode("still-full")).isExactlyInstanceOf(JwtException.class);
+            finishRecovery.countDown();
+            for (var future : recovery) assertThat(future.get(2, TimeUnit.SECONDS).getSubject()).isEqualTo("fixture");
         } finally {
-            start.countDown(); release.countDown(); threads.shutdownNow();
+            start.countDown(); release.countDown(); hold.get().countDown(); threads.shutdownNow();
             assertThat(threads.awaitTermination(2, TimeUnit.SECONDS)).isTrue();
         }
     }

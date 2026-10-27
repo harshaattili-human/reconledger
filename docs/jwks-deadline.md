@@ -33,8 +33,9 @@ Nimbus cache-lock waiting before the transport, key parsing, signature/claim
 validation, servlet scheduling and response delivery are outside this transport
 budget. Cancellation requests transport cleanup; it cannot stop DNS resolver
 threads, remote work or arbitrary JVM pauses. Loopback EOF observations below
-show cleanup for those fixtures, not every TLS/proxy failure. There is no new
-concurrency admission, fairness, distributed budget or external issuer claim.
+show cleanup for those fixtures, not every TLS/proxy failure. The later [decoder admission](jwt-admission.md) bounds simultaneous decoder
+calls, including cache-lock waiters. It does not add fairness, a distributed budget
+or an external issuer claim.
 
 ## Reproduce and observed evidence
 
