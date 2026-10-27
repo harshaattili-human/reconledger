@@ -27,7 +27,7 @@ causes another JWK fetch and creates tenant-B data. The check also verifies:
 This is deterministic protocol evidence with ephemeral synthetic keys. It is not an
 external identity-provider integration, a rotation-frequency recommendation or a
 revocation guarantee. Immediate cached-key and endpoint-failure behavior is checked below. Cache expiry,
-TLS/DNS, redirects, issuer discovery, overlapping-key rollout, provider membership
+TLS/DNS, issuer discovery, overlapping-key rollout, provider membership
 administration and multi-process timing still require separate verification. Removing
 a signing key is also a coarse issuer action, not user-level token revocation.
 
@@ -89,8 +89,8 @@ The Spring Security 7.0 [JWT documentation](https://docs.spring.io/spring-securi
 describes an in-memory key-set cache and configurable HTTP/cache adapters. This
 fixture verifies immediate cache/refresh behavior of the resolved dependencies; it
 makes no measured expiry-duration, stale-cache, outage-SLA or user-revocation claim.
-DNS/TLS, slow responses, redirect policy and simultaneous refresh pressure remain
-separate verification work. No real issuer or token is used.
+DNS/TLS and simultaneous refresh pressure remain separate verification work.
+Slow-response and redirect policies are now checked in the transport boundary below. No real issuer or token is used.
 
 ### Failure found and corrected
 

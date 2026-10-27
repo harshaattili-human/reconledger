@@ -149,3 +149,7 @@ permits the three static review assets; data routes still require bearer scopes 
 tenant ownership. See [credential lifecycle and browser checks](secured-review-interface.md).
 GET `/api/review-session` requires `recon:read` and returns verified display context
 without creating a session or returning the token.
+
+The JWKS mode has a dedicated [HTTP boundary](jwks-transport.md): a 64 KiB body
+limit, identity encoding, no redirects, and two-second connect/read-inactivity
+timeouts. This is not a total request deadline or a refresh-admission limit.

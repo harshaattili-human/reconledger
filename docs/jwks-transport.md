@@ -50,8 +50,34 @@ otherwise valid JWKS, verifies 503 and no idempotency-row mutation, replaces it
 with a valid key set, then verifies create/replay and exactly one batch. Existing
 rotation, malformed/empty-set, cached-key, scope and tenant checks also run.
 
-Implementation validation is pending hosted CI. Local Maven offline execution
-could not resolve the uncached Spring Boot 4.0.8 parent; `git diff --check` passed.
+## Observed verification — October 27, 2026
+
+Implementation `95c07d79037c84fdb49e7b9df162985f37064df9` passed all five jobs in
+[run 40532666233](https://github.com/harshaattili-human/reconledger/actions/runs/40532666233).
+H2 `122289404617` and PostgreSQL `122289404561` each passed the same 106 cases with
+zero failures, errors or skips. These are 106 cases on two engines, not 212 distinct
+cases. Ten direct transport executions and the additional secured oversized-set
+workflow account for 11 added cases. Both declared and chunked excess returned
+while the server remained latched, and both stalled-response cases timed out before
+the fixture released its response. The raw-socket truncated response was rejected;
+exact-cap UTF-8 responses were preserved.
+
+The earlier implementation run `40532245969` passed its 105-case suites, packaged
+workflows, restore and audit. Its browser job was still installing system packages
+when the truncated-response refinement was published. No runtime/test failure was
+observed in that run; the complete run above is the acceptance evidence.
+
+Browser `122289404654` passed 12 demo, eight secured and ten repeated Chromium
+executions. Both database jobs passed existing default/secured JAR checks, restart,
+pinned-key replacement and retained Boot 3 data upgrades. Restore `122289404367`
+passed the existing PostgreSQL rehearsal. Audit `122289404501` inventoried 73
+packaged libraries and zero advisory entries in its dated snapshot; this is not a
+vulnerability-free claim.
+
+Execution used Boot 4.0.8, H2 2.3.232, PostgreSQL 16.15 and Ubuntu 24.04. Database
+and browser jobs resolved Java 17.0.20.1; the audit job resolved 17.0.21. Local
+Maven offline execution could not resolve the uncached Spring Boot 4.0.8 parent;
+relative documentation links and `git diff --check` passed.
 Packaged checks still use pinned keys. These loopback checks do not establish an
 external issuer, HTTPS certificate/proxy behavior, cache expiry, total deadline,
 connect-timeout behavior against a blackholed network or user-level revocation.
