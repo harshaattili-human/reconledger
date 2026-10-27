@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-27",
+  "implementation_commit": "2dc0565076366adeca9cbcc46f9f2370556e5f0d",
+  "workflow_run": 40579128829,
+  "protocol": "docs/jwks-https-package.md",
+  "receipts": {
+    "h2": {
+      "schema_version": 1,
+      "database": "h2",
+      "jar_sha256": "3c814305f8b7ed5825fedd2f2eb257d2005dfebb103ec1249f4d57fc94ec6c2f",
+      "python": "3.12.3",
+      "openssl": "OpenSSL 3.0.13 30 Jan 2024",
+      "java": "openjdk version \"17.0.20.1\" 2026-08-18",
+      "observations": [
+        {
+          "certificate": "untrusted",
+          "http_jwks_requests": 0,
+          "expected_auth_status": 503
+        },
+        {
+          "certificate": "wrong-host",
+          "http_jwks_requests": 0,
+          "expected_auth_status": 503
+        },
+        {
+          "certificate": "valid",
+          "http_jwks_requests": 3,
+          "expected_auth_status": 200
+        }
+      ],
+      "checks": [
+        "untrusted chain rejected before HTTP",
+        "trusted chain wrong host rejected before HTTP",
+        "explicit JVM truststore accepts matching host",
+        "TLS-rejected keys later create new batches",
+        "scope rejection",
+        "verified review provenance",
+        "unknown kid rotation without JAR restart",
+        "removed unexpired key rejected without audit mutation",
+        "idempotency retained after rotation"
+      ],
+      "limits": "Local synthetic HTTPS issuer only; no external IdP membership, discovery, revocation or deployment proof."
+    },
+    "postgres": {
+      "schema_version": 1,
+      "database": "postgres",
+      "jar_sha256": "3c814305f8b7ed5825fedd2f2eb257d2005dfebb103ec1249f4d57fc94ec6c2f",
+      "python": "3.12.3",
+      "openssl": "OpenSSL 3.0.13 30 Jan 2024",
+      "java": "openjdk version \"17.0.20.1\" 2026-08-18",
+      "observations": [
+        {
+          "certificate": "untrusted",
+          "http_jwks_requests": 0,
+          "expected_auth_status": 503
+        },
+        {
+          "certificate": "wrong-host",
+          "http_jwks_requests": 0,
+          "expected_auth_status": 503
+        },
+        {
+          "certificate": "valid",
+          "http_jwks_requests": 3,
+          "expected_auth_status": 200
+        }
+      ],
+      "checks": [
+        "untrusted chain rejected before HTTP",
+        "trusted chain wrong host rejected before HTTP",
+        "explicit JVM truststore accepts matching host",
+        "TLS-rejected keys later create new batches",
+        "scope rejection",
+        "verified review provenance",
+        "unknown kid rotation without JAR restart",
+        "removed unexpired key rejected without audit mutation",
+        "idempotency retained after rotation"
+      ],
+      "limits": "Local synthetic HTTPS issuer only; no external IdP membership, discovery, revocation or deployment proof."
+    }
+  }
+}
