@@ -153,3 +153,12 @@ without creating a session or returning the token.
 The JWKS mode has a dedicated [HTTP boundary](jwks-transport.md): a 64 KiB body
 limit, identity encoding, no redirects, and two-second connect/read-inactivity
 timeouts. This is not a total request deadline or a refresh-admission limit.
+
+## Decoder capacity
+
+The secured profile applies [JWT decoding admission](jwt-admission.md) before
+parsing, key-cache waits and signature validation. The default maximum is 32
+simultaneous decode calls per application decoder, configurable with
+`recon.security.max-concurrent-decodes` (1..1000). Saturation returns sanitized
+503/no-store; admitted invalid tokens still return 401. This shared allowance
+is separate from the later MVC concurrency and rate budgets.

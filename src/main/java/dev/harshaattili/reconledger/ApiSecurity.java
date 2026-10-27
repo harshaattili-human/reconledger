@@ -86,6 +86,7 @@ public class ApiSecurity {
                           @Value("${recon.security.jwk-set-uri:}") String jwkSetUri,
                           @Value("${recon.security.issuer}") String issuer,
                           @Value("${recon.security.audience}") String audience,
+                          @Value("${recon.security.max-concurrent-decodes:32}") int decodeCapacity,
                           ResourceLoader resources) throws IOException {
         validateClaimsConfiguration(issuer, audience);
         boolean hasPublicKey = publicKeyLocation != null && !publicKeyLocation.isBlank();
@@ -101,7 +102,7 @@ public class ApiSecurity {
                 .jwsAlgorithm(SignatureAlgorithm.RS256).restOperations(JwksHttp.create()).build();
         }
         configureValidation(decoder, issuer, audience);
-        return decoder;
+        return new JwtDecodeAdmission(decoder, decodeCapacity);
     }
 
     /** Retained as a narrow construction seam for pinned-key configuration tests. */
