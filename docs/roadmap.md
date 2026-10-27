@@ -17,7 +17,9 @@ replace issuer membership verification or tamper-resistant audit storage.
    cache expiry and user revocation remain unverified. The [JWKS transport](jwks-transport.md)
    now checks bounded bodies, no-follow redirects and a [complete-fetch deadline](jwks-deadline.md),
    including trickling headers/body, interruption and recovery. Concurrent refresh
-   pressure and external HTTPS remain separate work. [Decoder admission](jwt-admission.md)
+   pressure and external provider integration remain separate work. The
+   [packaged HTTPS rehearsal](jwks-https-package.md) checks local CA trust and host
+   validation using the real JVM; it does not verify an external provider. [Decoder admission](jwt-admission.md)
    bounds simultaneous decoding/cache-lock waiters, not their duration or fairness.
    Immediate endpoint failure, cached-key continuity, malformed/empty-set rejection
    and recovery now have real-decoder checks; failures return sanitized 503 responses.

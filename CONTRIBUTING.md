@@ -42,3 +42,6 @@ assistance and synthetic-data provenance accurate.
 
 For secured UI changes also run `npx playwright test --config=playwright.secured.config.js`
 from `browser-tests`. Keep bearer headers out of traces, logs and artifacts.
+
+For JWKS transport changes, also run the [packaged HTTPS check](docs/jwks-https-package.md)
+on H2 and disposable PostgreSQL after packaging.
