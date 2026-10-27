@@ -51,6 +51,15 @@ jobs:
         run: python3 scripts/secured_smoke.py
       - name: Show secured H2 check receipt
         run: cat target/secured-smoke-h2.json
+      - name: Verify packaged HTTPS JWKS trust and rotation
+        run: python3 scripts/jwks_smoke.py --database h2
+      - run: cat target/jwks-smoke-h2.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: jwks-https-h2
+          path: target/jwks-smoke-h2.json
+          if-no-files-found: error
+          retention-days: 30
       - uses: actions/checkout@v7
         with:
           ref: 844c11767a8b0c7db516a47fb569999b1ad6877e
@@ -107,6 +116,15 @@ jobs:
         run: python3 scripts/secured_smoke.py --database postgres
       - name: Show secured PostgreSQL check receipt
         run: cat target/secured-smoke-postgres.json
+      - name: Verify packaged HTTPS JWKS trust and rotation
+        run: python3 scripts/jwks_smoke.py --database postgres
+      - run: cat target/jwks-smoke-postgres.json
+      - uses: actions/upload-artifact@v7
+        with:
+          name: jwks-https-postgres
+          path: target/jwks-smoke-postgres.json
+          if-no-files-found: error
+          retention-days: 30
       - uses: actions/checkout@v7
         with:
           ref: 844c11767a8b0c7db516a47fb569999b1ad6877e

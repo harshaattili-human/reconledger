@@ -1,5 +1,10 @@
 # Verification record
 
+October 27: the [packaged HTTPS JWKS rehearsal](jwks-https-package.md) passed on H2
+and PostgreSQL using the actual JAR, an explicit JVM truststore, rejected certificate
+chains/hostnames and live unknown-key rotation. See its dated receipts and limits;
+this is a local synthetic issuer, not external-provider verification.
+
 October 27: [JWKS outage checks and sanitized failure handling](jwks-rotation.md)
 found that endpoint 503/malformed responses escaped as 500 and logged nested upstream
 details. The bearer filter now distinguishes verification-unavailable 503 from
