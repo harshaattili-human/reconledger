@@ -83,7 +83,7 @@ hit from a successful network call. These checks do not wait for cache expiry or
 change the framework cache/transport configuration.
 
 Run `./mvnw -Dtest=JwksRotationHttpTest test` on H2 or with the PostgreSQL test
-variables. Hosted verification is pending for this increment. Java execution is not
+variables. Hosted verification is pending for the runtime correction below. Java execution is not
 available locally because the Boot 4.0.8 parent POM is absent from the Maven cache.
 
 The Spring Security 7.0 [JWT documentation](https://docs.spring.io/spring-security/reference/7.0/servlet/oauth2/resource-server/jwt.html)
@@ -92,3 +92,22 @@ fixture verifies immediate cache/refresh behavior of the resolved dependencies; 
 makes no measured expiry-duration, stale-cache, outage-SLA or user-revocation claim.
 DNS/TLS, slow responses, redirect policy and simultaneous refresh pressure remain
 separate verification work. No real issuer or token is used.
+
+### Failure found and corrected
+
+Initial run `40526948454` failed both new workflows on H2 and PostgreSQL:
+endpoint 503 and malformed JSON escaped through `AuthenticationServiceException`
+as HTTP 500. The container logged nested exceptions, including the upstream URI
+and body. No token or private key was logged by the synthetic fixture.
+
+The bearer filter now uses an explicit failure handler. Verification infrastructure
+failures return a fixed 503 problem body with `Cache-Control: no-store`, no bearer
+challenge and no invented retry delay. Invalid signatures/claims/unknown keys in a
+successfully fetched set still use Spring's 401 bearer challenge; scope failure stays
+403. The handler never logs or echoes remote exception details. Existing request
+completion diagnostics retain the request ID, route and status. Rejected requests
+cannot reach MVC, consume an API admission budget or mutate JDBC state.
+
+The tests now distinguish unavailable verification (503) from a known unusable token
+(401), assert redaction and headers, and retain the initial failure. Cached-key
+availability does not mean key-removal revocation is immediate or globally coordinated.

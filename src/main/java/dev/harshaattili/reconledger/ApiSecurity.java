@@ -12,6 +12,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -25,6 +26,7 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.util.Assert;
 
 @Configuration(proxyBeanMethods = false)
@@ -55,7 +57,16 @@ public class ApiSecurity {
                 .requestMatchers(HttpMethod.POST, "/api/results/*/reviews").hasAuthority("SCOPE_recon:review")
                 .anyRequest().denyAll();
             })
-            .oauth2ResourceServer(server -> server.jwt(Customizer.withDefaults()))
+            .oauth2ResourceServer(server -> {
+                server.jwt(Customizer.withDefaults());
+                server.addObjectPostProcessor(new ObjectPostProcessor<BearerTokenAuthenticationFilter>() {
+                    @Override
+                    public <O extends BearerTokenAuthenticationFilter> O postProcess(O filter) {
+                        filter.setAuthenticationFailureHandler(new BearerFailureHandler());
+                        return filter;
+                    }
+                });
+            })
             .build();
     }
 
