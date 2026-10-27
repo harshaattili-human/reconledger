@@ -35,11 +35,8 @@ final class JwksHttp {
 
     private JwksHttp() {}
 
-    static RestOperations create() { return create(Duration.ofMillis(TIMEOUT_MILLIS)); }
-
-    // Package-private duration seam for controlled transport fixtures, not request input/configuration.
-    static RestOperations create(Duration budget) {
-        if (budget.isZero() || budget.isNegative()) throw new IllegalArgumentException("positive JWKS budget required");
+    static RestOperations create() {
+        Duration budget = Duration.ofMillis(TIMEOUT_MILLIS);
         long budgetNanos = budget.toNanos();
         var client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1)
             .followRedirects(HttpClient.Redirect.NEVER).connectTimeout(budget).build();

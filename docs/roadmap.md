@@ -15,8 +15,9 @@ replace issuer membership verification or tamper-resistant audit storage.
    The opt-in [JWKS trust mode](jwks-rotation.md) now exercises unknown-key refresh
    against a synthetic loopback issuer; external provider login, discovery, TLS/DNS,
    cache expiry and user revocation remain unverified. The [JWKS transport](jwks-transport.md)
-   now checks bounded bodies, no-follow redirects, read stalls and recovery; total
-   deadlines, concurrent refresh pressure and external HTTPS remain separate work.
+   now checks bounded bodies, no-follow redirects and a [complete-fetch deadline](jwks-deadline.md),
+   including trickling headers/body, interruption and recovery. Concurrent refresh
+   pressure, cache-lock waiters and external HTTPS remain separate work.
    Immediate endpoint failure, cached-key continuity, malformed/empty-set rejection
    and recovery now have real-decoder checks; failures return sanitized 503 responses.
    Define tenant administration, export/deletion and operational separation before
