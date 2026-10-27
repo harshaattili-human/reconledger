@@ -63,3 +63,32 @@ parent POM was not cached locally and Maven Central DNS was unavailable.
 
 Interview exercise: why should a key-rotation test check tenant and scope enforcement
 again, and why does rejecting a removed key still fail to prove per-user revocation?
+
+## Outage and invalid-response contract
+
+Two additional embedded-Tomcat workflows exercise the real decoder against an
+operator-controlled loopback endpoint. A fresh application context gives each case
+an empty process-local decoder cache. A cold 503 must reject the write; restoring
+the endpoint lets the same idempotency key create exactly one batch. After warming
+key A, a 503 does not prevent a cached-A read and must cause no additional fetch.
+An unknown B key during that outage must fail without inserting a batch; A remains
+usable after the failed refresh. Restoring a B-only set permits B, rejects removed
+A, and preserves cross-tenant 404 behavior.
+
+The second workflow supplies malformed JSON, then a valid empty key set, and finally
+key B. Failed writes must not reserve their key; the final create and replay must
+produce exactly one batch. The empty set is a successful key-set replacement, so
+previously cached A must then fail too. Endpoint fetch counters distinguish a cache
+hit from a successful network call. These checks do not wait for cache expiry or
+change the framework cache/transport configuration.
+
+Run `./mvnw -Dtest=JwksRotationHttpTest test` on H2 or with the PostgreSQL test
+variables. Hosted verification is pending for this increment. Java execution is not
+available locally because the Boot 4.0.8 parent POM is absent from the Maven cache.
+
+The Spring Security 7.0 [JWT documentation](https://docs.spring.io/spring-security/reference/7.0/servlet/oauth2/resource-server/jwt.html)
+describes an in-memory key-set cache and configurable HTTP/cache adapters. This
+fixture verifies immediate cache/refresh behavior of the resolved dependencies; it
+makes no measured expiry-duration, stale-cache, outage-SLA or user-revocation claim.
+DNS/TLS, slow responses, redirect policy and simultaneous refresh pressure remain
+separate verification work. No real issuer or token is used.

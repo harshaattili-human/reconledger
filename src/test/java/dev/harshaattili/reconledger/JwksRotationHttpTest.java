@@ -26,23 +26,27 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles({"test", "secured"})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class JwksRotationHttpTest {
     private static final String ISSUER = "https://issuer.example.invalid/jwks-test";
     private static final String AUDIENCE = "reconledger-jwks-test";
     private static final KeyPair KEY_A = keyPair();
     private static final KeyPair KEY_B = keyPair();
     private static final AtomicReference<String> JWKS = new AtomicReference<>(jwks("key-a", KEY_A));
+    private static final AtomicInteger STATUS = new AtomicInteger(200);
     private static final AtomicInteger FETCHES = new AtomicInteger();
     private static final HttpServer SERVER = server();
     private static final String JWK_SET_URI = "http://127.0.0.1:" + SERVER.getAddress().getPort() + "/jwks";
@@ -63,6 +67,12 @@ class JwksRotationHttpTest {
         registry.add("recon.security.jwk-set-uri", () -> JWK_SET_URI);
         registry.add("recon.security.issuer", () -> ISSUER);
         registry.add("recon.security.audience", () -> AUDIENCE);
+    }
+
+    @BeforeEach void resetEndpoint() {
+        JWKS.set(jwks("key-a", KEY_A));
+        STATUS.set(200);
+        FETCHES.set(0);
     }
 
     @AfterAll static void stopServer() { SERVER.stop(0); }
@@ -101,6 +111,73 @@ class JwksRotationHttpTest {
             JWSAlgorithm.RS256)).statusCode()).isEqualTo(403);
     }
 
+    @Test void unavailableEndpointFailsClosedAndCachedKeySurvivesFailedRefresh() throws Exception {
+        String keyA = token(KEY_A, "key-a", "outage-a", "writer-a", "recon:read recon:write",
+            JWSAlgorithm.RS256);
+        String rejectedKey = idempotency();
+        STATUS.set(503);
+        assertThat(post(BATCH, keyA, rejectedKey).statusCode()).isEqualTo(401);
+        assertNoBatch(rejectedKey);
+        assertThat(FETCHES.get()).isPositive();
+
+        STATUS.set(200);
+        var created = post(BATCH, keyA, rejectedKey);
+        assertThat(created.statusCode()).isEqualTo(201);
+        String batchId = body(created).get("id").asText();
+        int warmed = FETCHES.get();
+        STATUS.set(503);
+        assertThat(get("/api/batches/" + batchId, keyA).statusCode()).isEqualTo(200);
+        assertThat(FETCHES.get()).isEqualTo(warmed); // Cached key; no network required yet.
+
+        String keyB = token(KEY_B, "key-b", "outage-b", "writer-b", "recon:read recon:write",
+            JWSAlgorithm.RS256);
+        String pending = idempotency();
+        assertThat(post(BATCH, keyB, pending).statusCode()).isEqualTo(401);
+        assertNoBatch(pending);
+        assertThat(FETCHES.get()).isGreaterThan(warmed);
+        int failedRefresh = FETCHES.get();
+        assertThat(get("/api/batches/" + batchId, keyA).statusCode()).isEqualTo(200);
+        assertThat(FETCHES.get()).isEqualTo(failedRefresh);
+
+        STATUS.set(200);
+        JWKS.set(jwks("key-b", KEY_B));
+        assertThat(post(BATCH, keyB, pending).statusCode()).isEqualTo(201);
+        assertThat(get("/api/batches/" + batchId, keyB).statusCode()).isEqualTo(404);
+        assertThat(get("/api/batches/" + batchId, keyA).statusCode()).isEqualTo(401);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM recon_batch WHERE idempotency_key = ?",
+            Integer.class, pending)).isEqualTo(1);
+    }
+
+    @Test void malformedAndEmptyKeySetsRejectUnknownKeysThenRecoverWithoutRestart() throws Exception {
+        String keyA = token(KEY_A, "key-a", "invalid-set", "writer", "recon:read recon:write",
+            JWSAlgorithm.RS256);
+        assertThat(post(BATCH, keyA, idempotency()).statusCode()).isEqualTo(201);
+        String keyB = token(KEY_B, "key-b", "invalid-set", "writer", "recon:read recon:write",
+            JWSAlgorithm.RS256);
+        String rejected = idempotency();
+        JWKS.set("{broken json");
+        int before = FETCHES.get();
+        assertThat(post(BATCH, keyB, rejected).statusCode()).isEqualTo(401);
+        assertThat(FETCHES.get()).isGreaterThan(before);
+        assertNoBatch(rejected);
+
+        JWKS.set("{\"keys\":[]}");
+        assertThat(post(BATCH, keyB, rejected).statusCode()).isEqualTo(401);
+        assertThat(post(BATCH, keyA, rejected).statusCode()).isEqualTo(401);
+        assertNoBatch(rejected);
+
+        JWKS.set(jwks("key-b", KEY_B));
+        assertThat(post(BATCH, keyB, rejected).statusCode()).isEqualTo(201);
+        assertThat(post(BATCH, keyB, rejected).statusCode()).isEqualTo(200);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM recon_batch WHERE idempotency_key = ?",
+            Integer.class, rejected)).isEqualTo(1);
+    }
+
+    private void assertNoBatch(String key) {
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM recon_batch WHERE idempotency_key = ?",
+            Integer.class, key)).isZero();
+    }
+
     private HttpResponse<String> post(String body, String token, String key) throws Exception {
         return client.send(HttpRequest.newBuilder(uri("/api/batches")).timeout(Duration.ofSeconds(10))
             .header("Content-Type", "application/json").header("Authorization", "Bearer " + token)
@@ -135,7 +212,7 @@ class JwksRotationHttpTest {
                 byte[] body = JWKS.get().getBytes(java.nio.charset.StandardCharsets.UTF_8);
                 exchange.getResponseHeaders().set("Content-Type", "application/jwk-set+json");
                 exchange.getResponseHeaders().set("Cache-Control", "max-age=3600");
-                exchange.sendResponseHeaders(200, body.length);
+                exchange.sendResponseHeaders(STATUS.get(), body.length);
                 try (var output = exchange.getResponseBody()) { output.write(body); }
             });
             server.start();
