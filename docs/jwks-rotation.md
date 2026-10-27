@@ -137,3 +137,6 @@ packaged secured scripts still use pinned keys.
 
 Exercise: why can a cached key keep working during an issuer outage, while an unknown
 key requires a 503 rather than evidence that the token itself is invalid?
+
+The [JWKS HTTP boundary](jwks-transport.md) specifies byte, encoding, redirect and
+read-inactivity policies independently of the cache/rotation behavior above.
