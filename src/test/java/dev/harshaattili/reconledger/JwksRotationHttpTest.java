@@ -179,6 +179,22 @@ class JwksRotationHttpTest {
         assertThat(output.getAll()).doesNotContain("synthetic-jwks-body-marker", "Servlet.service()");
     }
 
+    @Test void oversizedKeySetCannotWriteAndValidReplacementRecovers(CapturedOutput output) throws Exception {
+        String keyA = token(KEY_A, "key-a", "bounded-set", "writer", "recon:read recon:write",
+            JWSAlgorithm.RS256);
+        String pending = idempotency();
+        String valid = jwks("key-a", KEY_A);
+        JWKS.set(valid + " ".repeat(JwksHttp.MAX_BYTES + 1 - valid.length()));
+        assertUnavailable(post(BATCH, keyA, pending));
+        assertNoBatch(pending);
+        JWKS.set(valid);
+        assertThat(post(BATCH, keyA, pending).statusCode()).isEqualTo(201);
+        assertThat(post(BATCH, keyA, pending).statusCode()).isEqualTo(200);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM recon_batch WHERE idempotency_key = ?",
+            Integer.class, pending)).isEqualTo(1);
+        assertThat(output.getAll()).doesNotContain("Servlet.service()");
+    }
+
     private void assertUnavailable(HttpResponse<String> response) throws Exception {
         assertThat(response.statusCode()).isEqualTo(503);
         assertThat(body(response).get("title").asText()).isEqualTo("Token verification unavailable");

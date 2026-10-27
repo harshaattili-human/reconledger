@@ -519,3 +519,11 @@ The executable archive has an explicit `app` classifier, distinct from the plain
 
 The tests and small synthetic demo verify specific behaviors. They are not a code
 coverage percentage, a benchmark or proof of production readiness.
+
+## JWKS transport — October 27, 2026
+
+[Transport verification](jwks-transport.md) records ten new real loopback protocol
+executions and one secured decoder/JDBC workflow. Run `40532666233` passed all five
+jobs and the same 106 cases on H2 and PostgreSQL; packaged pinned-key/restart/upgrade,
+30 Chromium executions, PostgreSQL restore and the Java audit also passed. The
+byte/read-inactivity policy does not establish a total deadline or external issuer.

@@ -98,7 +98,7 @@ public class ApiSecurity {
         } else {
             validateJwkSetUri(jwkSetUri);
             decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
-                .jwsAlgorithm(SignatureAlgorithm.RS256).build();
+                .jwsAlgorithm(SignatureAlgorithm.RS256).restOperations(JwksHttp.create()).build();
         }
         configureValidation(decoder, issuer, audience);
         return decoder;
