@@ -54,10 +54,12 @@ final class JwksHttp {
             if (encoding != null && !encoding.equalsIgnoreCase("identity")) {
                 throw new IOException("JWKS content encoding is not supported");
             }
-            if (connection.getContentLengthLong() > MAX_BYTES) throw new IOException("JWKS response is too large");
+            long declared = connection.getContentLengthLong();
+            if (declared > MAX_BYTES) throw new IOException("JWKS response is too large");
             // One lookahead byte detects excess even for unknown/chunked lengths. Never silently truncate.
             byte[] bytes = connection.getInputStream().readNBytes(MAX_BYTES + 1);
             if (bytes.length > MAX_BYTES) throw new IOException("JWKS response is too large");
+            if (declared >= 0 && bytes.length != declared) throw new IOException("JWKS response ended early");
             var responseHeaders = new HttpHeaders();
             responseHeaders.set(HttpHeaders.CONTENT_TYPE, "application/json;charset=UTF-8");
             responseHeaders.setContentLength(bytes.length);

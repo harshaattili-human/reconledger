@@ -8,7 +8,8 @@ Each fetch requests identity encoding, disables redirects and URLConnection
 caching, and accepts only HTTP 200 with absent or identity Content-Encoding.
 Non-200 and encoded responses are rejected before reading their bodies. A declared
 length over 65,536 bytes is rejected from headers. Otherwise, at most 65,537 bytes
-are read: the last byte detects excess, including chunked responses. Excess is
+are read: the last byte detects excess, including chunked responses. A shorter
+body than its declared length is rejected even if it contains valid JSON. Excess is
 rejected, never truncated. Only a complete accepted byte array is passed to Spring
 and Nimbus for JSON/JWK parsing. The connection is disconnected in `finally`;
 Spring receives a detached bounded response, so its response cleanup cannot drain
@@ -35,9 +36,10 @@ see [the cache/outage checks](jwks-rotation.md).
 ./mvnw verify
 ```
 
-Nine new direct transport executions use real loopback HTTP: exact-cap fixed and
+Ten new direct transport executions use real loopback HTTP: exact-cap fixed and
 chunked responses; declared excess with no body and chunked excess held open;
-302/307 with a target counter proving no follow; encoding/error-body rejection;
+premature EOF containing valid partial JSON; 302/307 with a target counter proving
+no follow; encoding/error-body rejection;
 and stalled headers/body with the stock read timeout followed by recovery. The
 server remains latched while the client must finish, detecting response cleanup
 that waits for the rest of a rejected reply. These are controlled protocol

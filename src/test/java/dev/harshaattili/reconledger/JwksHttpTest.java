@@ -52,7 +52,8 @@ class JwksHttpTest {
 
     @ParameterizedTest @ValueSource(booleans = {false, true})
     void acceptsExactByteLimitWithFixedOrChunkedFraming(boolean chunked) {
-        String text = "{\"keys\":[]}" + " ".repeat(JwksHttp.MAX_BYTES - 11);
+        String prefix = "{\"keys\":[],\"note\":\"é\"}";
+        String text = prefix + " ".repeat(JwksHttp.MAX_BYTES - prefix.getBytes(StandardCharsets.UTF_8).length);
         handler.set(exchange -> send(exchange, text, chunked));
         assertThat(fetch()).isEqualTo(text);
         assertThat(encoding.get()).isEqualTo("identity");
@@ -78,6 +79,27 @@ class JwksHttpTest {
                 .hasRootCauseMessage("JWKS response is too large");
             assertThat(release.getCount()).isEqualTo(1); // Endpoint has not finished the response.
         } finally { release.countDown(); }
+        recover();
+    }
+
+    @Test void rejectsPrematureEofEvenWhenThePartialBodyIsValidJson() throws Exception {
+        try (var socket = new java.net.ServerSocket(0, 1, java.net.InetAddress.getLoopbackAddress())) {
+            var sent = threads.submit(() -> {
+                try (var client = socket.accept()) {
+                    var reader = new java.io.BufferedReader(new java.io.InputStreamReader(
+                        client.getInputStream(), StandardCharsets.US_ASCII));
+                    for (String line; (line = reader.readLine()) != null && !line.isEmpty();) { }
+                    client.getOutputStream().write(("HTTP/1.1 200 OK\r\nContent-Length: 21\r\n"
+                        + "Connection: close\r\n\r\n{\"keys\":[]}").getBytes(StandardCharsets.US_ASCII));
+                    client.getOutputStream().flush();
+                }
+                return null;
+            });
+            URI truncated = URI.create("http://127.0.0.1:" + socket.getLocalPort() + "/jwks");
+            assertThatThrownBy(() -> JwksHttp.create().getForObject(truncated, String.class))
+                .isInstanceOf(ResourceAccessException.class);
+            sent.get(5, TimeUnit.SECONDS);
+        }
         recover();
     }
 
