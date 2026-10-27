@@ -78,6 +78,9 @@ authentication; no cookie login or external identity-provider login is added.
 
 Send `Authorization: Bearer <token>`. Missing or invalid authentication returns 401
 with a Bearer challenge; a valid token lacking the required scope returns 403.
+Unavailable verification infrastructure (for example a failed or malformed JWKS
+response) returns a fixed 503 problem body with no-store, no bearer challenge and no
+retry delay. Remote error details are neither returned nor logged by that handler.
 These filter-level errors are not the MVC `ProblemDetail` contract. Once authorized,
 ordinary validation, body bounds, idempotency and optimistic locking still apply.
 A request rejected at authentication/authorization cannot reserve a batch key or
@@ -120,7 +123,9 @@ The JWKS test publishes key A, replaces it with key B, and observes a second end
 fetch when a B token presents an unknown key ID. The removed A key, RS512, reserved
 demo tenant and missing scope are rejected without reserving the tested idempotency
 key. This is a loopback synthetic issuer, not evidence for an external provider,
-DNS/TLS, endpoint outages, cache durability, overlap timing or user revocation.
+DNS/TLS, cache expiry/durability, overlap timing or user revocation. Immediate
+503/malformed/empty-set failures, cached-key continuity and recovery are now checked
+separately with the same synthetic loopback endpoint.
 See [the rotation boundary](jwks-rotation.md).
 
 The profile does not supply TLS, user revocation, provider login, rate limits or tamper-resistant audit storage. A valid stolen bearer token

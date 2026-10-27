@@ -1,5 +1,16 @@
 # Verification record
 
+October 27: [JWKS outage checks and sanitized failure handling](jwks-rotation.md)
+found that endpoint 503/malformed responses escaped as 500 and logged nested upstream
+details. The bearer filter now distinguishes verification-unavailable 503 from
+invalid-token 401, without echoing remote errors. Correction
+[run 40527685155](https://github.com/harshaattili-human/reconledger/actions/runs/40527685155)
+passed all five jobs: the same 95 cases per H2/PostgreSQL, existing package/restart,
+key replacement/upgrade/restore workflows, 30 Chromium executions and the 73-library
+audit (zero entries in that snapshot). The linked record preserves the initial
+failure, exact job IDs, differing Java patch versions, cache boundaries and remaining
+external-issuer gaps.
+
 October 26: [JWKS trust mode](jwks-rotation.md) adds an alternative to the pinned
 public key while retaining RS256, issuer, audience, expiry, subject, tenant and scope
 checks. Implementation [run 40331965601](https://github.com/harshaattili-human/reconledger/actions/runs/40331965601)

@@ -14,7 +14,9 @@ replace issuer membership verification or tamper-resistant audit storage.
 1. Verify external issuer membership configuration and revocation.
    The opt-in [JWKS trust mode](jwks-rotation.md) now exercises unknown-key refresh
    against a synthetic loopback issuer; external provider login, discovery, TLS/DNS,
-   outage behavior, cache policy and user revocation remain unverified.
+   cache expiry, slow responses, redirect policy and user revocation remain unverified.
+   Immediate endpoint failure, cached-key continuity, malformed/empty-set rejection
+   and recovery now have real-decoder checks; failures return sanitized 503 responses.
    Define tenant administration, export/deletion and operational separation before
    real multi-tenant deployment.
 2. Add fair scheduling and edge/upload controls beyond the optional

@@ -96,6 +96,7 @@ additional index was rejected after it failed to fix the measured PostgreSQL sca
 - `Idempotency-Key` replay across process restarts while the database is retained.
 - Review transitions with mandatory notes, optimistic concurrency and paginated audit history.
 - Optional JWT authentication with separate read, batch-create and review scopes.
+- [JWKS rotation and outage handling](docs/jwks-rotation.md), including sanitized verification-unavailable responses.
 - Tenant-scoped data access and idempotency using an issuer-signed tenant claim.
 - Paginated batch summaries with exact business-date and currency filters.
 - A packaged local review screen with source comparison, notes and audit paging.

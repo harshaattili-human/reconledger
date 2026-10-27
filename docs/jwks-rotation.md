@@ -26,9 +26,9 @@ causes another JWK fetch and creates tenant-B data. The check also verifies:
 
 This is deterministic protocol evidence with ephemeral synthetic keys. It is not an
 external identity-provider integration, a rotation-frequency recommendation or a
-revocation guarantee. Cached keys, endpoint outages, TLS/DNS, redirects, issuer
-discovery, overlapping-key rollout, provider membership administration and
-multi-process cache timing still require deployment-specific verification. Removing
+revocation guarantee. Immediate cached-key and endpoint-failure behavior is checked below. Cache expiry,
+TLS/DNS, redirects, issuer discovery, overlapping-key rollout, provider membership
+administration and multi-process timing still require separate verification. Removing
 a signing key is also a coarse issuer action, not user-level token revocation.
 
 Spring Security documents automatic key rotation for its JWK Set resource-server
@@ -63,3 +63,77 @@ parent POM was not cached locally and Maven Central DNS was unavailable.
 
 Interview exercise: why should a key-rotation test check tenant and scope enforcement
 again, and why does rejecting a removed key still fail to prove per-user revocation?
+
+## Outage and invalid-response contract
+
+Two additional embedded-Tomcat workflows exercise the real decoder against an
+operator-controlled loopback endpoint. A fresh application context gives each case
+an empty process-local decoder cache. A cold 503 must reject the write; restoring
+the endpoint lets the same idempotency key create exactly one batch. After warming
+key A, a 503 does not prevent a cached-A read and must cause no additional fetch.
+An unknown B key during that outage must fail without inserting a batch; A remains
+usable after the failed refresh. Restoring a B-only set permits B, rejects removed
+A, and preserves cross-tenant 404 behavior.
+
+The second workflow supplies malformed JSON, then a valid empty key set, and finally
+key B. Failed writes must not reserve their key; the final create and replay must
+produce exactly one batch. The empty set is a successful key-set replacement, so
+previously cached A must then fail too. Endpoint fetch counters distinguish a cache
+hit from a successful network call. These checks do not wait for cache expiry or
+change the framework cache/transport configuration.
+
+Run `./mvnw -Dtest=JwksRotationHttpTest test` on H2 or with the PostgreSQL test
+variables. Java execution is not available locally because the Boot 4.0.8 parent POM is absent from the Maven cache.
+
+The Spring Security 7.0 [JWT documentation](https://docs.spring.io/spring-security/reference/7.0/servlet/oauth2/resource-server/jwt.html)
+describes an in-memory key-set cache and configurable HTTP/cache adapters. This
+fixture verifies immediate cache/refresh behavior of the resolved dependencies; it
+makes no measured expiry-duration, stale-cache, outage-SLA or user-revocation claim.
+DNS/TLS, slow responses, redirect policy and simultaneous refresh pressure remain
+separate verification work. No real issuer or token is used.
+
+### Failure found and corrected
+
+Initial run `40526948454` failed both new workflows on H2 and PostgreSQL:
+endpoint 503 and malformed JSON escaped through `AuthenticationServiceException`
+as HTTP 500. The container logged nested exceptions, including the upstream URI
+and body. No token or private key was logged by the synthetic fixture.
+
+The bearer filter now uses an explicit failure handler. Verification infrastructure
+failures return a fixed 503 problem body with `Cache-Control: no-store`, no bearer
+challenge and no invented retry delay. Invalid signatures/claims/unknown keys in a
+successfully fetched set still use Spring's 401 bearer challenge; scope failure stays
+403. The handler never logs or echoes remote exception details. Existing request
+completion diagnostics retain the request ID, route and status. Rejected requests
+cannot reach MVC, consume an API admission budget or mutate JDBC state.
+
+The tests now distinguish unavailable verification (503) from a known unusable token
+(401), assert redaction and headers, and retain the initial failure. Cached-key
+availability does not mean key-removal revocation is immediate or globally coordinated.
+
+### Observed correction — October 27, 2026
+
+Correction `651d9415c082c15a05606faede735b83c498a541` passed all five jobs in
+[run 40527685155](https://github.com/harshaattili-human/reconledger/actions/runs/40527685155).
+H2 job `122271594894` and PostgreSQL job `122271595678` each passed the same 95 cases
+with zero failures, errors or skips (two added workflows, not 190 distinct cases).
+All three JWKS workflows passed on each engine. The captured-log assertions found
+neither the synthetic upstream-body marker nor an escaped servlet exception, while
+the HTTP checks verified fixed 503 bodies, no-store, no challenge/retry delay, 401
+for unusable keys and recovery with one stored batch.
+
+Both database jobs also passed the existing default/secured packaged checks, pinned
+key replacement and retained Boot 3 data upgrade. Browser job `122271594593` passed
+12 demo, eight secured and ten repeated Chromium executions. Restore job
+`122271594899` passed the existing PostgreSQL rehearsal. Audit job `122271595088`
+inventoried 73 packaged libraries and zero advisory entries in that dated snapshot;
+this is not a vulnerability-free claim.
+
+Execution used H2 2.3.232, PostgreSQL 16.15, Boot 4.0.8 and Ubuntu 24.04; Java resolved
+to 17.0.21 for H2/audit and 17.0.20.1 for PostgreSQL. These hosted runner resolutions
+are recorded rather than described as identical environments. Local whitespace and
+documentation checks passed. JWKS failure injection remains embedded HTTP evidence;
+packaged secured scripts still use pinned keys.
+
+Exercise: why can a cached key keep working during an issuer outage, while an unknown
+key requires a 503 rather than evidence that the token itself is invalid?
