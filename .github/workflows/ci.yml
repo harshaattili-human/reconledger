@@ -174,7 +174,7 @@ jobs:
         run: ./mvnw --batch-mode --no-transfer-progress -DskipTests package
       - run: npm ci
         working-directory: browser-tests
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --with-deps chromium firefox webkit
         working-directory: browser-tests
       - name: Exercise review workflows against the executable JAR
         run: npm test
@@ -183,7 +183,7 @@ jobs:
         run: npx playwright test --config=playwright.secured.config.js
         working-directory: browser-tests
       - name: Repeat the previously intermittent access-rejection workflow
-        run: npx playwright test --config=playwright.secured.config.js --grep 'access rejection clears' --repeat-each=5 --reporter=line --output=test-results-secured-repeat
+        run: npx playwright test --config=playwright.secured.config.js --grep 'access rejection clears' --project=chromium-desktop --project=chromium-narrow --repeat-each=5 --reporter=line --output=test-results-secured-repeat
         working-directory: browser-tests
       - uses: actions/upload-artifact@v7
         if: always()

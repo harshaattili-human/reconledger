@@ -194,3 +194,7 @@ passed all five jobs. Its browser job passed the 12 demo executions, eight secur
 executions and all ten repeated access-rejection executions with one worker and no
 retries. The same 88 Java cases passed on each database, alongside the packaged,
 retained-data upgrade, restore and audit workflows.
+
+The same secured workflows now use the [three-engine matrix](browser-engines.md),
+with credential artifact restrictions preserved. Existing repeated stability checks
+remain Chromium-only; Firefox/WebKit executions are not counted as extra workflows.

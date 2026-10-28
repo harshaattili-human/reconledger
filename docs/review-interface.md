@@ -138,3 +138,7 @@ documentation links and whitespace checks passed. Local Maven lacked the parent
 POM cache, so Java/database/browser execution evidence is hosted. A subsequent
 copy edit corrects singular source counts and keeps implementation terminology out
 of the evidence explanation; it does not alter API or review behavior.
+
+Current reproduction and matrix coverage are described in the
+[three-engine browser checks](browser-engines.md). Earlier Chromium-only counts
+above remain historical checkpoints.

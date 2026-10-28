@@ -33,7 +33,7 @@ replace issuer membership verification or tamper-resistant audit storage.
    remain unverified. [Request diagnostics](request-diagnostics.md) now correlate
    responses and route-template completion events without logging input values;
    log transport, retention, integrity and distributed tracing remain deployment work.
-3. Verify manual assistive-technology behavior and external issuer login for the
+3. Verify manual assistive-technology behavior, physical devices and external issuer login for the
    [review workspace](secured-review-interface.md). The opt-in secured screen accepts
    existing tokens; it does not implement provider login. Keep source corrections
    separate from review notes.
@@ -90,3 +90,7 @@ promoting it. No new index or statistics migration has been released.
 An opt-in [explicit JWKS cache age](jwks-cache-expiry.md) now has controlled-clock
 decoder checks and a real-TTL packaged HTTPS workflow. Default caching remains
 unchanged; external issuer revocation and concurrent refresh fairness remain open.
+
+The [three-engine browser matrix](browser-engines.md) extends existing demo and
+secured workflows to Chromium, Firefox and WebKit at two desktop-context widths.
+This does not substitute for the remaining device/assistive-technology checks.
