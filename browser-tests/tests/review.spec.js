@@ -1,12 +1,12 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
+import { fixtureDate } from "../projects.js";
 
 const fixture = JSON.parse(
   readFileSync(new URL("../../examples/mixed-batch.json", import.meta.url)),
 );
-const dateFor = (info, month) =>
-  `2040-${month}-${info.project.name === "desktop" ? "15" : "16"}`;
+const dateFor = (info, month) => fixtureDate(info, "2040", month);
 
 async function create(request, date) {
   const response = await request.post("/api/batches", {
@@ -62,7 +62,7 @@ test("keyboard review preserves evidence and displays notes as text", async ({
   request,
   browser,
 }, info) => {
-  console.log(`Chromium ${browser.version()} / ${info.project.name}`);
+  console.log(`${info.project.use.browserName} ${browser.version()} / ${info.project.name}`);
   const date = dateFor(info, "01"),
     batch = await create(request, date);
   await openBatch(page, date);

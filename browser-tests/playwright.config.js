@@ -1,4 +1,5 @@
 import { defineConfig } from "@playwright/test";
+import { projects } from "./projects.js";
 
 export default defineConfig({
   testDir: "./tests",
@@ -7,14 +8,10 @@ export default defineConfig({
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: "http://127.0.0.1:8801",
-    browserName: "chromium",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
-  projects: [
-    { name: "desktop", use: { viewport: { width: 1440, height: 1000 } } },
-    { name: "narrow", use: { viewport: { width: 390, height: 844 } } },
-  ],
+  projects,
   webServer: {
     command: "python3 ../scripts/browser_server.py",
     url: "http://127.0.0.1:8801/actuator/health",

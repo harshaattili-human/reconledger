@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
+import { fixtureDate } from "../projects.js";
 
 const input = JSON.parse(readFileSync(new URL("../../examples/mixed-batch.json", import.meta.url)));
 const tokens = () => JSON.parse(readFileSync(new URL("../../.local/browser-auth.json", import.meta.url)));
@@ -57,8 +58,9 @@ async function rejectWithCredential(page, path, method, token, status) {
   return observed;
 }
 
-test("verified reviewer saves with tenant isolation and clears credentials on disconnect/reload", async ({ page, request }, info) => {
-  const t = tokens(), date = `2041-01-${info.project.name === "desktop" ? "15" : "16"}`;
+test("verified reviewer saves with tenant isolation and clears credentials on disconnect/reload", async ({ page, request, browser }, info) => {
+  console.log(`${info.project.use.browserName} ${browser.version()} / ${info.project.name}`);
+  const t = tokens(), date = fixtureDate(info, "2041", "01");
   const alpha = await create(request, t.alpha, date), beta = await create(request, t.beta, date);
   for (const path of ["/review/index.html", "/review/review.js", "/review/review.css"])
     expect((await request.get(path)).status()).toBe(200);
@@ -118,7 +120,7 @@ test("verified reviewer saves with tenant isolation and clears credentials on di
 });
 
 test("read-only permission and rejected credentials never enable a review", async ({ page, request }, info) => {
-  const t = tokens(), batch = await create(request, t.alpha, `2041-02-${info.project.name === "desktop" ? "15" : "16"}`);
+  const t = tokens(), batch = await create(request, t.alpha, fixtureDate(info, "2041", "02"));
   for (const value of [t.expired, t.writer, "invalid-token"]) {
     await page.goto("/review/index.html");
     await expect(page.locator("#connection")).toBeVisible();
@@ -139,7 +141,7 @@ test("read-only permission and rejected credentials never enable a review", asyn
 });
 
 test("access rejection clears a draft and an uncertain save requires inspection after reconnect", async ({ page, request }, info) => {
-  const t = tokens(), batch = await create(request, t.alpha, `2041-03-${info.project.name === "desktop" ? "15" : "16"}`);
+  const t = tokens(), batch = await create(request, t.alpha, fixtureDate(info, "2041", "03"));
   await connect(page, t.alpha);
   const result = await select(page, batch);
   let writes = 0;
@@ -174,7 +176,7 @@ test("access rejection clears a draft and an uncertain save requires inspection 
 });
 
 test("rejected review saves preserve or clear drafts without committing or retrying", async ({ page, request }, info) => {
-  const t = tokens(), batch = await create(request, t.alpha, `2041-04-${info.project.name === "desktop" ? "15" : "16"}`);
+  const t = tokens(), batch = await create(request, t.alpha, fixtureDate(info, "2041", "04"));
   await connect(page, t.alpha);
   const result = await select(page, batch);
   const resultPath = `/api/results/${result.id}`, reviewPath = `${resultPath}/reviews`;

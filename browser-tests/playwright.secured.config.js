@@ -1,4 +1,5 @@
 import { defineConfig } from "@playwright/test";
+import { projects } from "./projects.js";
 export default defineConfig({
   testDir: "./secured-tests",
   workers: 1,
@@ -7,14 +8,10 @@ export default defineConfig({
   outputDir: "test-results-secured",
   use: {
     baseURL: "http://127.0.0.1:8802",
-    browserName: "chromium",
     // Network traces can contain bearer headers. Keep them out of artifacts.
     trace: "off", video: "off", screenshot: "off",
   },
-  projects: [
-    { name: "desktop", use: { viewport: { width: 1440, height: 1000 } } },
-    { name: "narrow", use: { viewport: { width: 390, height: 844 } } },
-  ],
+  projects,
   webServer: {
     command: "python3 ../scripts/secured_browser_server.py",
     url: "http://127.0.0.1:8802/actuator/health",
