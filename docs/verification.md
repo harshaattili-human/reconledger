@@ -548,3 +548,6 @@ PostgreSQL in run `40575329332`, plus all five hosted jobs. The limit precedes
 Nimbus parsing/cache waits; a held unknown-key refresh rejects even a cached
 token with 503 and no write, then explicit recovery succeeds. The wrapper bounds
 concurrent decoding, not its duration, arrival rate or tenant fairness.
+
+The [explicit JWKS cache age checks](jwks-cache-expiry.md) extend the packaged HTTPS
+workflow with known-key expiry, outage rejection and retained-state recovery.

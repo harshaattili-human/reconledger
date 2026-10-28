@@ -162,3 +162,7 @@ simultaneous decode calls per application decoder, configurable with
 `recon.security.max-concurrent-decodes` (1..1000). Saturation returns sanitized
 503/no-store; admitted invalid tokens still return 401. This shared allowance
 is separate from the later MVC concurrency and rate budgets.
+
+JWKS mode optionally accepts [an explicit cache lifetime](jwks-cache-expiry.md)
+through `recon.security.jwks-cache-ttl-seconds`. The default 0 preserves Nimbus
+caching; the opt-in policy deliberately rejects expired keys during an outage.

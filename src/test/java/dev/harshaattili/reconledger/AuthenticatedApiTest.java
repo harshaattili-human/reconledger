@@ -228,19 +228,24 @@ class AuthenticatedApiTest {
     @Test void rejectsAmbiguousOrUnsafeDynamicTrustConfiguration() {
         var config = new ApiSecurity();
         var resources = new DefaultResourceLoader();
-        assertThatThrownBy(() -> config.jwtDecoder("", "", ISSUER, AUDIENCE, 8, resources))
+        assertThatThrownBy(() -> config.jwtDecoder("", "", ISSUER, AUDIENCE, 8, 0, resources))
             .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("exactly one");
         assertThatThrownBy(() -> config.jwtDecoder(PUBLIC_KEY.toUri().toString(),
-            "https://issuer.example.invalid/jwks", ISSUER, AUDIENCE, 8, resources))
+            "https://issuer.example.invalid/jwks", ISSUER, AUDIENCE, 8, 0, resources))
             .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("exactly one");
         for (int capacity : new int[]{0, -1, 1001}) {
             assertThatThrownBy(() -> config.jwtDecoder(PUBLIC_KEY.toUri().toString(), "",
-                ISSUER, AUDIENCE, capacity, resources)).isInstanceOf(IllegalArgumentException.class)
+                ISSUER, AUDIENCE, capacity, 0, resources)).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("max-concurrent-decodes");
+        }
+        for (int ttl : new int[]{-1, 3601}) {
+            assertThatThrownBy(() -> config.jwtDecoder("", "https://issuer.example.invalid/jwks",
+                ISSUER, AUDIENCE, 8, ttl, resources)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("jwks-cache-ttl-seconds");
         }
         for (String uri : List.of("http://issuer.example.invalid/jwks", "ftp://127.0.0.1/jwks",
                 "https://user@issuer.example.invalid/jwks", "https://issuer.example.invalid/jwks#fragment")) {
-            assertThatThrownBy(() -> config.jwtDecoder("", uri, ISSUER, AUDIENCE, 8, resources))
+            assertThatThrownBy(() -> config.jwtDecoder("", uri, ISSUER, AUDIENCE, 8, 0, resources))
                 .as(uri).isInstanceOf(IllegalArgumentException.class);
         }
     }

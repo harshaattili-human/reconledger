@@ -86,3 +86,7 @@ across blocked and shuffled allocations. Only the combination changed the large
 rare-currency scan; the common-currency blocked scan remained. Verify the candidate
 on ordinary tables with repeated trials and maintenance/write-cost checks before
 promoting it. No new index or statistics migration has been released.
+
+An opt-in [explicit JWKS cache age](jwks-cache-expiry.md) now has controlled-clock
+decoder checks and a real-TTL packaged HTTPS workflow. Default caching remains
+unchanged; external issuer revocation and concurrent refresh fairness remain open.
