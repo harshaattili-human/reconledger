@@ -62,3 +62,22 @@ and [Spring Cache contract](https://docs.spring.io/spring-framework/docs/current
 
 Interview exercise: why can a removed signing key remain usable until cache refresh,
 and why does a shorter TTL trade outage availability for fresher key selection?
+
+## Hosted evidence — October 28, 2026
+
+Implementation `8aa452da8f1a9b6344e39223a7e861534ea0f13c` passed all five jobs in
+[run 40694890756](https://github.com/harshaattili-human/reconledger/actions/runs/40694890756):
+H2 122838905164, PostgreSQL 122838904847, browser 122838905196, restore 122838904944
+and Java audit 122838904936. The same 118 Java cases passed on each database
+(H2 2.3.232 and PostgreSQL 16.15), including four new cache/decoder cases. These
+are 118 distinct cases, not 236. Default and secured packages, pinned-key replacement,
+retained Boot 3 upgrade, PostgreSQL restore, and the existing browser workflows passed.
+
+Both executable HTTPS workflows observed 0 HTTP JWKS requests for an untrusted
+certificate, 0 for a trusted certificate with a wrong host, and 8 in the valid-host
+phase including expiry/outage/recovery. The [receipts](../reports/jwks-cache-expiry-2026-10-28.json)
+retain JAR hashes, environments, TTL and declared checks. Java 17.0.21, Python
+3.12.3, OpenSSL 3.0.13 and hosted Ubuntu 24.04 were used. The Java audit inventoried
+73 packaged libraries with zero advisory entries in that snapshot; this is not
+vulnerability-free or external-issuer deployment evidence. Local syntax/whitespace
+checks passed; Java/database execution remained hosted.
