@@ -73,7 +73,7 @@ def certificates(directory):
 
 @contextmanager
 def jwks_server(directory, certificate, initial_key):
-    state = {"keys": [initial_key], "requests": 0}
+    state = {"keys": [initial_key], "requests": 0, "status": 200}
 
     class Handler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
@@ -85,7 +85,7 @@ def jwks_server(directory, certificate, initial_key):
             require(self.path == "/jwks", "Unexpected JWKS request path")
             state["requests"] += 1
             body = json.dumps({"keys": state["keys"]}).encode()
-            self.send_response(200)
+            self.send_response(state["status"])
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Connection", "close")
@@ -168,6 +168,8 @@ def main():
                            "--spring.profiles.active=" + ("postgres,secured" if args.database == "postgres" else "secured"),
                            "--recon.security.public-key=", "--recon.security.jwk-set-uri=" + uri,
                            "--recon.security.issuer=" + ISSUER, "--recon.security.audience=" + AUDIENCE]
+                if certificate == "valid":
+                    command += ["--recon.security.jwks-cache-ttl-seconds=5"]
                 if args.database == "h2":
                     command += ["--spring.datasource.url=jdbc:h2:file:./.local/reconledger;DB_CLOSE_ON_EXIT=FALSE",
                                 "--spring.datasource.username=sa", "--spring.datasource.password="]
@@ -212,6 +214,34 @@ def main():
                                 "Rejected removed-key review changed audit")
                         replay = call("/api/batches", auth=auth_b, body=payload, key="untrusted" + run_id)
                         require(replay["id"] == batches[0]["id"], "Rotation changed idempotency ownership")
+                        # Expiry of a known key must refresh even without a new kid.
+                        state["keys"] = [jwk_a]
+                        time.sleep(5.1)  # Actual configured TTL, not a simulated clock.
+                        expired_key = "expiry-" + run_id
+                        before_expiry_fetch = state["requests"]
+                        call("/api/batches", 401, auth_b, payload, expired_key)
+                        require(state["requests"] > before_expiry_fetch, "Expired known key did not refresh")
+                        require(time.time() < expiry - 60, "Token expired before cache-expiry check")
+                        require(call(result_path + "/events", auth=auth_a)["events"] == events,
+                                "Key expiry changed review history")
+                        # Removing a signing key invalidates every token signed by it,
+                        # not an individual user. Recovery must leave rejected keys free.
+                        call("/api/batches", 201, auth_a, payload, expired_key)
+                        state["status"] = 503
+                        warm_fetches = state["requests"]
+                        call(result_path, auth=auth_a)
+                        require(state["requests"] == warm_fetches, "Fresh known key unexpectedly fetched")
+                        time.sleep(5.1)
+                        unavailable_key = "expired-outage-" + run_id
+                        call("/api/batches", 503, auth_a, payload, unavailable_key)
+                        call(result_path + "/reviews", 503, auth_a,
+                             {**review, "targetState": "RESOLVED", "expectedVersion": 1})
+                        state["status"] = 200
+                        call("/api/batches", 201, auth_a, payload, unavailable_key)
+                        require(call(result_path + "/events", auth=auth_a)["events"] == events,
+                                "Expired-cache outage mutated audit")
+                        require(call(result_path, auth=auth_a)["version"] == 1,
+                                "Expired-cache outage mutated review version")
                     observations.append({"certificate": certificate, "http_jwks_requests": state["requests"],
                                          "expected_auth_status": 200 if certificate == "valid" else 503})
                 finally:
@@ -224,6 +254,7 @@ def main():
                         raise RuntimeError("Application required forced shutdown")
                 # Never persist application logs, tokens, private keys or the synthetic database.
         report.write_text(json.dumps({"schema_version": 1, "database": args.database,
+            "valid_phase_cache_ttl_seconds": 5,
             "jar_sha256": hashlib.sha256(JAR.read_bytes()).hexdigest(),
             "python": __import__("platform").python_version(), "openssl": ssl.OPENSSL_VERSION,
             "java": subprocess.run(["java", "-version"], capture_output=True, text=True, check=True).stderr.splitlines()[0],
@@ -231,7 +262,9 @@ def main():
             "checks": ["untrusted chain rejected before HTTP", "trusted chain wrong host rejected before HTTP",
                        "explicit JVM truststore accepts matching host", "TLS-rejected keys later create new batches",
                        "scope rejection", "verified review provenance", "unknown kid rotation without JAR restart",
-                       "removed unexpired key rejected without audit mutation", "idempotency retained after rotation"],
+                       "removed unexpired key rejected without audit mutation", "idempotency retained after rotation",
+                       "known key expires without unknown-kid trigger", "expired-cache outage rejects writes",
+                       "expiry/outage recovery preserves audit and unreserved idempotency keys"],
             "limits": "Local synthetic HTTPS issuer only; no external IdP membership, discovery, revocation or deployment proof."
         }, indent=2) + "\n")
     print(f"Packaged HTTPS JWKS checks passed ({args.database}); receipt: {report.name}")

@@ -87,8 +87,11 @@ public class ApiSecurity {
                           @Value("${recon.security.issuer}") String issuer,
                           @Value("${recon.security.audience}") String audience,
                           @Value("${recon.security.max-concurrent-decodes:32}") int decodeCapacity,
+                          @Value("${recon.security.jwks-cache-ttl-seconds:0}") int cacheTtlSeconds,
                           ResourceLoader resources) throws IOException {
         validateClaimsConfiguration(issuer, audience);
+        Assert.isTrue(cacheTtlSeconds >= 0 && cacheTtlSeconds <= 3600,
+            "recon.security.jwks-cache-ttl-seconds must be 0 (framework default) or 1..3600");
         boolean hasPublicKey = publicKeyLocation != null && !publicKeyLocation.isBlank();
         boolean hasJwks = jwkSetUri != null && !jwkSetUri.isBlank();
         Assert.isTrue(hasPublicKey != hasJwks,
@@ -98,8 +101,10 @@ public class ApiSecurity {
             decoder = pinnedDecoder(resources.getResource(publicKeyLocation));
         } else {
             validateJwkSetUri(jwkSetUri);
-            decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
-                .jwsAlgorithm(SignatureAlgorithm.RS256).restOperations(JwksHttp.create()).build();
+            var builder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
+                .jwsAlgorithm(SignatureAlgorithm.RS256).restOperations(JwksHttp.create());
+            if (cacheTtlSeconds > 0) builder.cache(new JwksCache(jwkSetUri, cacheTtlSeconds));
+            decoder = builder.build();
         }
         configureValidation(decoder, issuer, audience);
         return new JwtDecodeAdmission(decoder, decodeCapacity);

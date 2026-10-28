@@ -1,0 +1,89 @@
+{
+  "date": "2026-10-28",
+  "implementation": "8aa452da8f1a9b6344e39223a7e861534ea0f13c",
+  "run": "https://github.com/harshaattili-human/reconledger/actions/runs/40694890756",
+  "receipts": [
+    {
+      "schema_version": 1,
+      "database": "h2",
+      "valid_phase_cache_ttl_seconds": 5,
+      "jar_sha256": "55c2a47ddb65e24093750262594f0791122413868845e9a3782b144125cb2406",
+      "python": "3.12.3",
+      "openssl": "OpenSSL 3.0.13 30 Jan 2024",
+      "java": "openjdk version \"17.0.21\" 2026-10-20",
+      "observations": [
+        {
+          "certificate": "untrusted",
+          "http_jwks_requests": 0,
+          "expected_auth_status": 503
+        },
+        {
+          "certificate": "wrong-host",
+          "http_jwks_requests": 0,
+          "expected_auth_status": 503
+        },
+        {
+          "certificate": "valid",
+          "http_jwks_requests": 8,
+          "expected_auth_status": 200
+        }
+      ],
+      "checks": [
+        "untrusted chain rejected before HTTP",
+        "trusted chain wrong host rejected before HTTP",
+        "explicit JVM truststore accepts matching host",
+        "TLS-rejected keys later create new batches",
+        "scope rejection",
+        "verified review provenance",
+        "unknown kid rotation without JAR restart",
+        "removed unexpired key rejected without audit mutation",
+        "idempotency retained after rotation",
+        "known key expires without unknown-kid trigger",
+        "expired-cache outage rejects writes",
+        "expiry/outage recovery preserves audit and unreserved idempotency keys"
+      ],
+      "limits": "Local synthetic HTTPS issuer only; no external IdP membership, discovery, revocation or deployment proof."
+    },
+    {
+      "schema_version": 1,
+      "database": "postgres",
+      "valid_phase_cache_ttl_seconds": 5,
+      "jar_sha256": "55c2a47ddb65e24093750262594f0791122413868845e9a3782b144125cb2406",
+      "python": "3.12.3",
+      "openssl": "OpenSSL 3.0.13 30 Jan 2024",
+      "java": "openjdk version \"17.0.21\" 2026-10-20",
+      "observations": [
+        {
+          "certificate": "untrusted",
+          "http_jwks_requests": 0,
+          "expected_auth_status": 503
+        },
+        {
+          "certificate": "wrong-host",
+          "http_jwks_requests": 0,
+          "expected_auth_status": 503
+        },
+        {
+          "certificate": "valid",
+          "http_jwks_requests": 8,
+          "expected_auth_status": 200
+        }
+      ],
+      "checks": [
+        "untrusted chain rejected before HTTP",
+        "trusted chain wrong host rejected before HTTP",
+        "explicit JVM truststore accepts matching host",
+        "TLS-rejected keys later create new batches",
+        "scope rejection",
+        "verified review provenance",
+        "unknown kid rotation without JAR restart",
+        "removed unexpired key rejected without audit mutation",
+        "idempotency retained after rotation",
+        "known key expires without unknown-kid trigger",
+        "expired-cache outage rejects writes",
+        "expiry/outage recovery preserves audit and unreserved idempotency keys"
+      ],
+      "limits": "Local synthetic HTTPS issuer only; no external IdP membership, discovery, revocation or deployment proof."
+    }
+  ]
+}
