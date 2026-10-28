@@ -70,3 +70,66 @@ Primary references: PostgreSQL 16 [CREATE TABLE](https://www.postgresql.org/docs
 
 Interview exercise: why can a temporary-table result change on an ordinary table,
 and why do a faster read plan and low insert-statement time not establish a safe migration?
+
+## Observed results — October 28, 2026
+
+Implementation `89e39d611bfebf4df6abd1576574193cbc7250df` passed all five jobs in
+[run 40702276651](https://github.com/harshaattili-human/reconledger/actions/runs/40702276651).
+The PostgreSQL experiment completed all 64 trials, 384 page observations and
+3,840 timed calls, with application-state and clone-cleanup assertions passing.
+The candidate index plus MCV was selected for the large-tenant rare-XTS first page
+in all 16 corresponding trials; index alone and MCV alone retained the global
+sequence scan. That supports the earlier narrow finding on shared buffers; it does
+not establish a generally beneficial migration.
+
+Ranges below span **four trial medians**, each based on ten timed calls, in ms:
+
+| Tenants / allocation | Baseline rare-XTS first page | Index + MCV rare-XTS first page |
+| --- | ---: | ---: |
+| 3 / blocked | 2.928–4.196 | 0.163–0.260 |
+| 3 / shuffled | 1.734–1.822 | 0.172–0.180 |
+| 200 / blocked | 2.946–3.246 | 0.199–0.212 |
+| 200 / shuffled | 1.709–1.856 | 0.188–0.207 |
+
+In repetition zero, blocked scans removed 39,600 rows and touched 1,355/1,371 shared
+blocks for three/200 tenants; the combination removed zero rows and touched seven.
+Shuffled scans removed 20,329 rows and touched 698/700 blocks versus 97 with the
+combination. These were shared **hits**, with zero shared reads in those plans;
+there is no physical-disk performance claim. Full-match estimates near 10,100 became
+195/204 for an actual total of 200 (the LIMIT returns 101). The ten-call p95 for
+the 200-tenant blocked combination still reached 1.104 ms in one repetition.
+
+The common-USD first page remained a counterexample. For three blocked tenants,
+baseline trial medians were 1.404–1.632 ms versus 1.452–2.834 with the combination;
+its worst ten-call p95 was 3.203 versus 1.997 ms. With 200 shuffled tenants the
+combination's medians were 0.176–0.197 versus 0.149–0.157 ms. Do not summarize the
+rare-page gain as an improvement for all tenant browsing.
+
+The candidate index occupied 1,826,816 bytes per clone. Across index-bearing trials,
+build duration ranged 25.922–175.960 ms. MCV held four entries for three tenants and
+100 for 200 tenants, with 215–1,254 payload bytes; this does not prove coverage for
+arbitrary tenant distributions. Initial ANALYZE ranged 54.906–139.528 ms. The
+1,000-row insert statement ranged 11.292–26.673 ms for baseline and 12.660–116.943 ms
+for the combination. These adverse observations are retained, not attributed to a
+single cause; the experiment does not isolate commit/WAL or production write cost.
+
+The [compressed raw JSON](../reports/ordinary-table-statistics-2026-10-28.json.gz)
+retains every trial, sample, full plan and MCV entry beyond artifact expiry.
+Decompressed SHA-256 is
+`523e7f4987b08e0096b68d3f524d3fb99e0bf52eca453d8adea27c5f99c839c7`.
+Reproduce the full per-trial summary with:
+
+```sh
+python3 scripts/summarize_statistics.py reports/ordinary-table-statistics-2026-10-28.json.gz
+```
+
+Environment: PostgreSQL 16.15, pgJDBC 42.7.14, Java 17.0.21, Linux amd64 on Ubuntu
+24.04; `default_statistics_target=100`, `random_page_cost=4`, plan cache auto, JIT on.
+The raw report preserves other settings. H2 2.3.232 and PostgreSQL each passed the
+same 119 Java cases, zero failures/errors/skips; this one case executes the probe
+only on PostgreSQL. Existing 70 browser executions, package/restart/key/HTTPS/Boot 3
+upgrade, restore and audit checks passed. Java audit inventoried 73 libraries with
+zero advisory entries in the dated snapshot, not a vulnerability-free assertion.
+The candidate remains experimental. Concurrent repository/pool traffic, committed
+write costs, statistics refresh under changing ownership and deployment tradeoffs
+are required before adoption.
