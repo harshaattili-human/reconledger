@@ -28,6 +28,10 @@ Authentication/scope failures retain 401/403. See [configuration, retry semantic
 and limitations](rate-limits.md). Both policies are disabled by default. The tenant
 budget reduces one tenant's burst share but is not fair queuing or a distributed quota.
 
+JSON object field names must occur once within each object, including nested
+records. Duplicate names (even identical values or equivalent escaped names) return
+400 before database writes. See [the parser contract and checks](json-input.md).
+
 ## Request body limit
 
 An independent opt-in [concurrent API cap](concurrency-limits.md) rejects excess

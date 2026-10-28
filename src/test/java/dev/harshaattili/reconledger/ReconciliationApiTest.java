@@ -58,6 +58,18 @@ class ReconciliationApiTest {
             .andExpect(content().json(response.getResponse().getContentAsString()));
     }
 
+    @Test void rejectsDuplicateFieldsInTheDefaultDemoMapper() throws Exception {
+        String key = key();
+        String valid = json.writeValueAsString(sample());
+        String duplicate = "{\"currency\":\"USD\"," + valid.substring(1);
+        mvc.perform(post("/api/batches").header("Idempotency-Key", key)
+            .contentType(MediaType.APPLICATION_JSON).content(duplicate))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.detail").value(org.hamcrest.Matchers.startsWith("Malformed request:")));
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM recon_batch WHERE idempotency_key = ?", Integer.class, key)).isZero();
+        create(key, sample()).andExpect(status().isCreated());
+    }
+
     @Test void identicalRetryReturnsSameBatchAndDoesNotDuplicateRows() throws Exception {
         String key = key();
         var original = body(create(key, sample()).andReturn());

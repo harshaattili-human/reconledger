@@ -98,3 +98,5 @@ unchanged; external issuer revocation and concurrent refresh fairness remain ope
 The [three-engine browser matrix](browser-engines.md) extends existing demo and
 secured workflows to Chromium, Firefox and WebKit at two desktop-context widths.
 This does not substitute for the remaining device/assistive-technology checks.
+
+- [Duplicate JSON object fields](json-input.md) are rejected before reconciliation/review dispatch; business-reference handling and exact-decimal validation remain separate.

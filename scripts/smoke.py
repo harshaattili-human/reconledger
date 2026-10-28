@@ -75,6 +75,49 @@ def main():
         assert status == 201, "Rejected oversized requests must not reserve the key"
         print("Body limit check passed: fixed-length and chunked HTTP rejection, then a safe retry.")
 
+    def check_duplicate_fields():
+        payload = json.loads((ROOT / "examples/mixed-batch.json").read_text())
+        valid = json.dumps(payload)
+        malformed = ['{"currency":"EUR",' + valid[1:]]
+        # Keep a nested duplicate independent of serializer whitespace/key order.
+        marker = '"amount":'
+        position = valid.index(marker)
+        malformed.append(valid[:position] + '"amount":"999.00",' + valid[position:])
+        for index, raw in enumerate(malformed):
+            key = "duplicate-smoke-" + str(uuid.uuid4())
+            connection = http.client.HTTPConnection("127.0.0.1", port, timeout=10)
+            encoded = raw.encode()
+            chunked = index == 1
+            try:
+                body = (encoded[i:i + 17] for i in range(0, len(encoded), 17)) if chunked else encoded
+                connection.request("POST", "/api/batches", body=body, encode_chunked=chunked,
+                    headers={"Content-Type": "application/json", "Idempotency-Key": key})
+                response = connection.getresponse()
+                record_request_id(response.headers)
+                problem = json.loads(response.read())
+                assert response.status == 400 and problem["detail"].startswith("Malformed request:")
+                assert "999.00" not in json.dumps(problem)
+            finally:
+                connection.close()
+            status, batch = call("/api/batches", payload, {"Idempotency-Key": key})
+            assert status == 201, "Duplicate JSON must not reserve the idempotency key"
+            result_id = batch["results"][0]["id"]
+            path = "/api/results/" + result_id
+            review = '{"actor":"demo-check","targetState":"IN_REVIEW","expectedVersion":99,"expectedVersion":0,"note":"Synthetic check"}'
+            request = urllib.request.Request(base + path + "/reviews", data=review.encode(),
+                headers={"Content-Type": "application/json"})
+            try:
+                client.open(request, timeout=5).close()
+                raise AssertionError("Duplicate review version was accepted")
+            except urllib.error.HTTPError as error:
+                with error:
+                    record_request_id(error.headers)
+                    assert error.code == 400 and json.load(error)["detail"].startswith("Malformed request:")
+            _, current = call(path)
+            _, events = call(path + "/events")
+            assert current["version"] == 0 and events["events"] == []
+        print("Duplicate JSON check passed: fixed/chunked root/nested rejection, unused keys and unchanged review/audit.")
+
     with tempfile.TemporaryDirectory(prefix="reconledger-smoke-") as scratch:
         directory = Path(scratch)
         process = None
@@ -120,6 +163,7 @@ def main():
             with log_path.open("w") as log:
                 start(log)
                 check_body_limit()
+                check_duplicate_fields()
                 receipt_path = directory / "receipt.json"
                 subprocess.run([sys.executable, str(ROOT / "scripts/demo.py"), "--base-url", base,
                                 "--output", str(receipt_path)], check=True, timeout=45)
