@@ -371,6 +371,51 @@ class AuthenticatedApiTest {
         return bearer(sign(claims("shared-subject", scopes).claim("tenant_id", tenant), KEY, JWSAlgorithm.RS256));
     }
 
+    @Test void rejectsDuplicateBatchFieldsBeforeReservingAnIdempotencyKey() throws Exception {
+        String writer = token("duplicate-check", "recon:write recon:read");
+        var malformed = List.of(
+            BATCH.replace("\"currency\":\"USD\"", "\"currency\":\"EUR\",\"currency\":\"USD\""),
+            BATCH.replace("\"currency\":\"USD\"", "\"currency\":\"USD\",\"currency\":\"USD\""),
+            BATCH.replace("\"amount\":\"10.00\"", "\"amount\":\"999.00\",\"amount\":\"10.00\""),
+            BATCH.replace("\"amount\":\"10.00\"", "\"amount\":null,\"amount\":\"10.00\""),
+            BATCH.replace("\"amount\":\"10.00\"", "\"amount\":\"999.00\",\"" + "\\u0061mount\":\"10.00\""),
+            BATCH.replace("\"rightRecords\":[]", "\"rightRecords\":[],\"rightRecords\":[]"));
+        for (String payload : malformed) {
+            String key = key();
+            var rejected = call("POST", "/api/batches", payload, writer, key);
+            assertThat(rejected.statusCode()).as("Duplicate JSON must not create a batch").isEqualTo(400);
+            assertThat(body(rejected).get("detail").asText()).startsWith("Malformed request:");
+            assertUnreserved(key);
+            assertThat(call("POST", "/api/batches", BATCH, writer, key).statusCode()).isEqualTo(201);
+        }
+        // Security still runs before JSON parsing.
+        assertThat(call("POST", "/api/batches", malformed.get(0), null, key()).statusCode()).isEqualTo(401);
+        assertThat(call("POST", "/api/batches", malformed.get(0), token("reader", "recon:read"), key())
+            .statusCode()).isEqualTo(403);
+    }
+
+    @Test void rejectsDuplicateReviewFieldsWithoutChangingVersionOrAudit() throws Exception {
+        String authorization = token("duplicate-reviewer", "recon:read recon:review");
+        String id = create().at("/results/0/id").asText();
+        String path = "/api/results/" + id;
+        var malformed = List.of(
+            REVIEW.replace("\"expectedVersion\":0", "\"expectedVersion\":99,\"expectedVersion\":0"),
+            REVIEW.replace("\"targetState\":\"IN_REVIEW\"", "\"targetState\":\"OPEN\",\"targetState\":\"IN_REVIEW\""),
+            REVIEW.replace("\"note\":", "\"note\":\"discarded synthetic value\",\"note\":"),
+            REVIEW.replace("{", "{\"actor\":\"spoofed\",\"actor\":null,"));
+        for (String payload : malformed) {
+            var rejected = call("POST", path + "/reviews", payload, authorization, null);
+            assertThat(rejected.statusCode()).isEqualTo(400);
+            assertThat(body(rejected).get("detail").asText()).startsWith("Malformed request:");
+            assertThat(body(call("GET", path, null, authorization, null)).get("version").asInt()).isZero();
+            assertThat(body(call("GET", path + "/events", null, authorization, null)).get("events")).isEmpty();
+        }
+        assertThat(call("POST", path + "/reviews", REVIEW, authorization, null).statusCode()).isEqualTo(200);
+        var events = body(call("GET", path + "/events", null, authorization, null)).get("events");
+        assertThat(events.size()).isEqualTo(1);
+        assertThat(events.get(0).get("actor").asText()).isEqualTo("duplicate-reviewer");
+    }
+
     private JsonNode create() throws Exception {
         var response = call("POST", "/api/batches", BATCH, token("creator", "recon:write"), key());
         assertThat(response.statusCode()).isEqualTo(201);
