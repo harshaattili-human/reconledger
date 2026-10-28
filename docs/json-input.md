@@ -45,11 +45,11 @@ Existing fixtures with field names repeated across separate records remain valid
 
 Test-only commit `849fdc8a740a463ce58f1cf9bc251c4083d6ce3f` exposed the current
 behavior in [run 40706869507](https://github.com/harshaattili-human/reconledger/actions/runs/40706869507).
-H2 job `122881240054` failed the three new assertions: demo and secured batch
+H2 job `122881240054` and PostgreSQL job `122881240556` failed the three new assertions: demo and secured batch
 creation returned 201, and the secured review returned 200, where 400 was required.
 Each loop stopped at its first failure; this does not establish every variant's
-baseline behavior. The remaining 119 cases passed in that job. Revised hosted
-execution is pending. Local whitespace and smoke-script compilation passed; the
+baseline behavior. The remaining 119 cases passed on each engine. Local whitespace and smoke-script
+compilation passed; the
 Boot parent is not cached locally, so full Java/database execution uses hosted CI.
 
 Implementation follows the [Boot mapper customization extension](https://docs.spring.io/spring-boot/4.0/api/java/org/springframework/boot/jackson/autoconfigure/JsonMapperBuilderCustomizer.html)
@@ -58,3 +58,22 @@ identity policy, migration or dependency changes are required.
 
 Optional interview exercise: why can accepting the last duplicate value produce
 different interpretations between a validator, signature layer and business parser?
+
+
+Implementation `45ade85cf1c1a62112625804b9c2e6e36362c70b` passed all five jobs in
+[run 40707446705](https://github.com/harshaattili-human/reconledger/actions/runs/40707446705).
+H2 `122883259496` and PostgreSQL `122883259463` each passed the same 122 Java
+cases with zero failures, errors or skips, including all variants in the three new
+cases. These are 122 cases on two engines, not 244 distinct cases. Both default
+packaged checks passed the new fixed/chunked duplicate-field workflow and matched
+21 response IDs to redacted completion events across restart. Existing secured
+packages, pinned-key and HTTPS JWKS checks, retained Boot 3 upgrade and PostgreSQL
+restore `122883260010` also passed.
+
+Browser `122883259307` passed the existing 36 demo, 24 secured and ten repeated
+Chromium access-rejection executions (70 executions, not 70 independent workflows).
+Audit `122883259742` inventoried 73 packaged Java libraries with zero advisory
+entries in the dated snapshot; this does not establish vulnerability freedom.
+Java 17.0.21, Boot 4.0.8, H2 2.3.232 and PostgreSQL 16.15 ran on Ubuntu 24.04.
+No dependency, schema, identity or query-plan change was needed. Final-head checks
+are linked from [PR 36](https://github.com/harshaattili-human/reconledger/pull/36).
