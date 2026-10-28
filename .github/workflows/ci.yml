@@ -72,7 +72,7 @@ jobs:
       - run: cat target/upgrade-h2.json
   verify-postgres:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     services:
       postgres:
         image: postgres:16
@@ -110,6 +110,13 @@ jobs:
         run: cat target/tenant-browse-characterization.json
       - name: Show PostgreSQL tenant statistics experiment
         run: cat target/tenant-statistics.json
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ordinary-table-statistics
+          path: target/tenant-runtime-statistics.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Exercise PostgreSQL profile and process restart
         run: python3 scripts/smoke.py --database postgres
       - name: Exercise secured PostgreSQL JAR and pinned-key replacement

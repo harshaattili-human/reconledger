@@ -85,7 +85,11 @@ The [joint-statistics experiment](tenant-statistics.md) now compares index/MCV/b
 across blocked and shuffled allocations. Only the combination changed the large
 rare-currency scan; the common-currency blocked scan remained. Verify the candidate
 on ordinary tables with repeated trials and maintenance/write-cost checks before
-promoting it. No new index or statistics migration has been released.
+promoting it. The [ordinary-table follow-up](ordinary-table-statistics.md) now defines
+fresh logged clones, three/200-tenant fixtures, four counterbalanced configurations,
+shared-buffer plans and incremental insert/ANALYZE observations. It remains a
+single-connection experiment, not concurrent production evidence. No new index or
+statistics migration has been released.
 
 An opt-in [explicit JWKS cache age](jwks-cache-expiry.md) now has controlled-clock
 decoder checks and a real-TTL packaged HTTPS workflow. Default caching remains
