@@ -8,9 +8,10 @@ security and controller layers cannot accidentally omit the header.
 
 The rule protects responses that can contain source records, discrepancy evidence,
 review notes, reviewer provenance or tenant-specific metadata. It also keeps error
-representations under the same simple contract. The actuator health endpoint and
-packaged review assets are outside the API prefix and remain cache-neutral; the
-nearby `/apiary` path is not treated as an API route.
+representations under the same simple contract. The actuator health endpoint,
+packaged review assets and nearby `/apiary` path are not selected by this filter.
+Spring Security may still add its existing cache-prevention headers to those
+responses; this change neither removes nor makes claims about them.
 
 `no-store` is an HTTP storage directive. It does not erase browser memory, control
 screenshots, secure logs, encrypt transport, revoke tokens, or prevent an authorized
@@ -19,7 +20,7 @@ The loopback demo still has no authentication and must not hold real records.
 
 Unit checks cover exact prefix matching and early header application. The shared
 H2/PostgreSQL API suite requires the header on create, detail and 404 responses and
-requires health to remain unaffected. Secured embedded-Tomcat checks cover security
+requires health behavior to remain otherwise unchanged. Secured embedded-Tomcat checks cover security
 responses separately.
 
 ```sh

@@ -20,7 +20,8 @@ event; it is not an idempotency key or authorization credential. See the
 
 Every `/api` response also includes `Cache-Control: no-store`, including successful
 reads/writes, validation errors and authentication/scope failures. Health and static
-review assets are outside this [response-storage policy](response-caching.md).
+review assets are outside the API-prefix [response-storage policy](response-caching.md);
+their existing framework cache headers are unchanged.
 
 ## Optional request rate limit
 

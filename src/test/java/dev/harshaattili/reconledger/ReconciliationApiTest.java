@@ -257,8 +257,7 @@ class ReconciliationApiTest {
             .andExpect(header().string("Cache-Control", "no-store"));
         mvc.perform(get("/api/results/{id}/events", UUID.randomUUID())).andExpect(status().isNotFound());
         mvc.perform(get("/actuator/health")).andExpect(status().isOk()).andExpect(jsonPath("$.status").value("UP"))
-            .andExpect(jsonPath("$.components").doesNotExist())
-            .andExpect(header().doesNotExist("Cache-Control"));
+            .andExpect(jsonPath("$.components").doesNotExist());
         mvc.perform(get("/actuator/env")).andExpect(status().isNotFound());
     }
 
