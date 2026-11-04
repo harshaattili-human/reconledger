@@ -32,12 +32,29 @@ class RequestDiagnosticsFilterTest {
             String requestId = response.getHeader(RequestDiagnosticsFilter.HEADER);
             assertThat(requestId).matches("[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}")
                 .isNotEqualTo("caller-selected-id");
+            assertThat(response.getHeader("Cache-Control")).isEqualTo("no-store");
             assertThat(MDC.get(RequestDiagnosticsFilter.MDC_KEY)).isNull();
             assertThat(logs.appender.list).hasSize(1);
             assertThat(logs.appender.list.get(0).getFormattedMessage())
                 .contains("request_id=" + requestId, "method=GET", "route=/api/batches/{id}",
                     "status=404", "outcome=client_error")
                 .doesNotContain("private-batch-id", "private-token", "caller-selected-id");
+        }
+    }
+
+    @Test void leavesHealthAndAssetsCacheNeutralWithoutTrustingApiPrefixes() throws Exception {
+        var filter = new RequestDiagnosticsFilter();
+        for (String path : java.util.List.of("/actuator/health", "/review/review.js", "/apiary")) {
+            var request = new MockHttpServletRequest("GET", path);
+            var response = new MockHttpServletResponse();
+            filter.doFilter(request, response, (incoming, outgoing) -> { });
+            assertThat(response.getHeader("Cache-Control")).as(path).isNull();
+        }
+        for (String path : java.util.List.of("/api", "/api/batches", "/api/unknown")) {
+            var request = new MockHttpServletRequest("GET", path);
+            var response = new MockHttpServletResponse();
+            filter.doFilter(request, response, (incoming, outgoing) -> { });
+            assertThat(response.getHeader("Cache-Control")).as(path).isEqualTo("no-store");
         }
     }
 

@@ -75,10 +75,12 @@ class AuthenticatedApiTest {
         var health = call("GET", "/actuator/health", null, null, null);
         assertThat(health.statusCode()).isEqualTo(200);
         assertThat(body(health)).isEqualTo(json.readTree("{\"status\":\"UP\"}"));
+        assertThat(health.headers().firstValue("Cache-Control")).isEmpty();
         for (String path : List.of("/api/batches", "/api/batches/unknown", "/api/results/unknown",
                                    "/api/results/unknown/events")) {
             var denied = call("GET", path, null, null, null);
             assertThat(denied.statusCode()).as(path).isEqualTo(401);
+            assertThat(denied.headers().firstValue("Cache-Control")).contains("no-store");
             assertThat(denied.headers().firstValue("WWW-Authenticate").orElse("")).startsWith("Bearer");
         }
         String key = key();

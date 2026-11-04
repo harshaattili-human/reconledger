@@ -33,6 +33,10 @@ final class RequestDiagnosticsFilter extends OncePerRequestFilter {
         long started = System.nanoTime();
         Throwable failure = null;
         response.setHeader(HEADER, requestId);
+        // API payloads can contain source records, review notes and identity
+        // provenance. Apply this before security so 401/403 responses share the
+        // same storage policy; health and packaged assets remain outside it.
+        if (isApiPath(request.getRequestURI())) response.setHeader("Cache-Control", "no-store");
         MDC.put(MDC_KEY, requestId);
         try {
             chain.doFilter(request, response);
@@ -48,6 +52,10 @@ final class RequestDiagnosticsFilter extends OncePerRequestFilter {
             if (previousRequestId == null) MDC.remove(MDC_KEY);
             else MDC.put(MDC_KEY, previousRequestId);
         }
+    }
+
+    private static boolean isApiPath(String path) {
+        return "/api".equals(path) || (path != null && path.startsWith("/api/"));
     }
 
     private static String safeMethod(String method) {

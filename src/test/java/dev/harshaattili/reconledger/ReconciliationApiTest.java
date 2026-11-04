@@ -49,12 +49,14 @@ class ReconciliationApiTest {
 
     @Test void createsAndFetchesBatchWithSourceTraceability() throws Exception {
         var response = create(key(), sample()).andExpect(status().isCreated())
+            .andExpect(header().string("Cache-Control", "no-store"))
             .andExpect(header().string("Idempotency-Replayed", "false"))
             .andExpect(jsonPath("$.counts.AMOUNT_MISMATCH").value(1))
             .andExpect(jsonPath("$.results[0].reviewState").value("OPEN"))
             .andExpect(jsonPath("$.results[0].leftRecords[0].recordId").value("l1"))
             .andReturn();
         mvc.perform(get(response.getResponse().getHeader("Location"))).andExpect(status().isOk())
+            .andExpect(header().string("Cache-Control", "no-store"))
             .andExpect(content().json(response.getResponse().getContentAsString()));
     }
 
@@ -251,10 +253,12 @@ class ReconciliationApiTest {
     }
 
     @Test void returnsNotFoundAndExposesOnlyBasicHealth() throws Exception {
-        mvc.perform(get("/api/batches/{id}", UUID.randomUUID())).andExpect(status().isNotFound());
+        mvc.perform(get("/api/batches/{id}", UUID.randomUUID())).andExpect(status().isNotFound())
+            .andExpect(header().string("Cache-Control", "no-store"));
         mvc.perform(get("/api/results/{id}/events", UUID.randomUUID())).andExpect(status().isNotFound());
         mvc.perform(get("/actuator/health")).andExpect(status().isOk()).andExpect(jsonPath("$.status").value("UP"))
-            .andExpect(jsonPath("$.components").doesNotExist());
+            .andExpect(jsonPath("$.components").doesNotExist())
+            .andExpect(header().doesNotExist("Cache-Control"));
         mvc.perform(get("/actuator/env")).andExpect(status().isNotFound());
     }
 

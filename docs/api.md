@@ -18,6 +18,10 @@ The ID correlates the response with the service's minimal route-template complet
 event; it is not an idempotency key or authorization credential. See the
 [diagnostic field and redaction contract](request-diagnostics.md).
 
+Every `/api` response also includes `Cache-Control: no-store`, including successful
+reads/writes, validation errors and authentication/scope failures. Health and static
+review assets are outside this [response-storage policy](response-caching.md).
+
 ## Optional request rate limit
 
 When enabled, mapped API requests share a process-wide token bucket. An additional
