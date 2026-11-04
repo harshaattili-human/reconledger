@@ -1,5 +1,10 @@
 # Request diagnostics
 
+The same highest-precedence filter applies the API's
+[response storage policy](response-caching.md) before authentication. Correlation
+and caching directives are separate contracts: request IDs aid support, while
+`no-store` tells HTTP caches not to retain API representations.
+
 Every response that reaches the application filter carries a server-generated
 `X-Request-ID`. The same opaque UUID
 appears in one completion event after the request finishes:

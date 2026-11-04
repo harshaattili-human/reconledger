@@ -33,6 +33,8 @@ replace issuer membership verification or tamper-resistant audit storage.
    remain unverified. [Request diagnostics](request-diagnostics.md) now correlate
    responses and route-template completion events without logging input values;
    log transport, retention, integrity and distributed tracing remain deployment work.
+   API responses now share a [no-store policy](response-caching.md); client/device
+   storage controls and transport security remain deployment responsibilities.
 3. Verify manual assistive-technology behavior, physical devices and external issuer login for the
    [review workspace](secured-review-interface.md). The opt-in secured screen accepts
    existing tokens; it does not implement provider login. Keep source corrections

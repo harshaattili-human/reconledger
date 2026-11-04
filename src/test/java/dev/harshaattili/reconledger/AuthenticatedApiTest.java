@@ -79,6 +79,7 @@ class AuthenticatedApiTest {
                                    "/api/results/unknown/events")) {
             var denied = call("GET", path, null, null, null);
             assertThat(denied.statusCode()).as(path).isEqualTo(401);
+            assertThat(denied.headers().firstValue("Cache-Control")).contains("no-store");
             assertThat(denied.headers().firstValue("WWW-Authenticate").orElse("")).startsWith("Bearer");
         }
         String key = key();

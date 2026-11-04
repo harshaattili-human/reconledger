@@ -101,6 +101,7 @@ additional index was rejected after it failed to fix the measured PostgreSQL sca
 - Paginated batch summaries with exact business-date and currency filters.
 - A packaged local review screen with source comparison, notes and audit paging.
 - [Request correlation](docs/request-diagnostics.md) without logging input values or identities.
+- A uniform [no-store policy](docs/response-caching.md) for API success and error responses.
 - Flyway schema migrations, JDBC persistence and a local health endpoint.
 
 Resolving an exception records a human-entered review decision. It does **not**
