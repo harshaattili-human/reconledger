@@ -236,4 +236,240 @@ class AuthenticatedApiTest {
             .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("exactly one");
         for (int capacity : new int[]{0, -1, 1001}) {
             assertThatThrownBy(() -> config.jwtDecoder(PUBLIC_KEY.toUri().toString(), "",
-                ISSUER, AUDIENCE, capacity, 0, resources)).isInstanceOf(IllegalArgumentExcn5ëËh‘éì¶»§q«^u…ÕÑ¡½É¥é…Ñ¥½¸°MÑÉ¥¹œ­•ä¤Ñ¡É½ÝÌá•ÁÑ¥½¸ì(€€€€€€€Ù…ÈÉ•ÅÕ•ÍÐ€ô!ÑÑÁI•ÅÕ•ÍÐ¹¹•Ý	Õ¥±‘•È¡ÕÉ¤¡Á…Ñ ¤¤¹Ñ¥µ•½ÕÐ¡ÕÉ…Ñ¥½¸¹½™M•½¹‘Ì ÄÀ¤¤(€€€€€€€€€€€€¹¡•…‘•È ‰½¹Ñ•¹ÐµQåÁ”ˆ°€‰…ÁÁ±¥…Ñ¥½¸½©Í½¸ˆ¤ì(€€€€€€€¥˜€¡…ÕÑ¡½É¥é…Ñ¥½¸€„ô¹Õ±°¤É•ÅÕ•ÍÐ¹¡•…‘•È ‰ÕÑ¡½É¥é…Ñ¥½¸ˆ°…ÕÑ¡½É¥é…Ñ¥½¸¤ì(€€€€€€€¥˜€¡­•ä€„ô¹Õ±°¤É•ÅÕ•ÍÐ¹¡•…‘•È ‰%‘•µÁ½Ñ•¹äµ-•äˆ°­•ä¤ì(€€€€€€€É•ÅÕ•ÍÐ¹µ•Ñ¡½¡µ•Ñ¡½°‰½‘ä€ôô¹Õ±°€ü!ÑÑÁI•ÅÕ•ÍÐ¹	½‘åAÕ‰±¥Í¡•ÉÌ¹¹½	½‘ä ¤€è!ÑÑÁI•ÅÕ•ÍÐ¹	½‘åAÕ‰±¥Í¡•ÉÌ¹½™MÑÉ¥¹œ¡‰½‘ä¤¤ì(€€€€€€€É•ÑÕÉ¸±¥•¹Ð¹Í•¹¡É•ÅÕ•ÍÐ¹‰Õ¥± ¤°!ÑÑÁI•ÍÁ½¹Í”¹	½‘å!…¹‘±•ÉÌ¹½™MÑÉ¥¹œ ¤¤ì(€€€ô((€€€ÁÉ¥Ù…Ñ”UI$ÕÉ¤¡MÑÉ¥¹œÁ…Ñ ¤ìÉ•ÑÕÉ¸UI$¹É•…Ñ” ‰¡ÑÑÀè¼¼ÄÈÜ¸À¸À¸Äèˆ€¬Á½ÉÐ€¬Á…Ñ ¤ìô(€€€ÁÉ¥Ù…Ñ”)Í½¹9½‘”‰½‘ä¡!ÑÑÁI•ÍÁ½¹Í”ñMÑÉ¥¹œøÉ•ÍÁ½¹Í”¤Ñ¡É½ÝÌá•ÁÑ¥½¸ìÉ•ÑÕÉ¸©Í½¸¹É•…‘QÉ•”¡É•ÍÁ½¹Í”¹‰½‘ä ¤¤ìô(€€€ÁÉ¥Ù…Ñ”ÍÑ…Ñ¥ŒMÑÉ¥¹œÉ•ÅÕ•ÍÑ%¡!ÑÑÁI•ÍÁ½¹Í”ðüøÉ•ÍÁ½¹Í”¤ì(€€€€€€€MÑÉ¥¹œÙ…±Õ”€ôÉ•ÍÁ½¹Í”¹¡•…‘•ÉÌ ¤¹™¥ÉÍÑY…±Õ” ‰`µI•ÅÕ•ÍÐµ%ˆ¤¹½É±Í•Q¡É½Ü ¤ì(€€€€€€€…ÍÍ•ÉÑQ¡…Ð¡Ù…±Õ”¤¹µ…Ñ¡•Ì ‰lÀ´å„µ™uìáôµlÀ´å„µ™uìÑô´ÑlÀ´å„µ™uìÍôµlàå…‰ulÀ´å„µ™uìÍôµlÀ´å„µ™uìÄÉôˆ¤ì(€€€€€€€É•ÑÕÉ¸Ù…±Õ”ì(€€€ô(€€€ÁÉ¥Ù…Ñ”ÍÑ…Ñ¥ŒMÑÉ¥¹œ­•ä ¤ìÉ•ÑÕÉ¸€‰Í•ÕÉ¥Ñä´ˆ€¬UU%¹É…¹‘½µUU% ¤ìô(€€€ÁÉ¥Ù…Ñ”ÍÑ…Ñ¥ŒMÑÉ¥¹œ‰•…É•È¡MÑÉ¥¹œÉ…Ü¤ìÉ•ÑÕÉ¸€‰	•…É•È€ˆ€¬É…Üìô(€€€ÁÉ¥Ù…Ñ”ÍÑ…Ñ¥ŒMÑÉ¥¹œÑ½­•¸¡MÑÉ¥¹œÍÕ‰©•Ð°MÑÉ¥¹œÍ½Á•Ì¤Ñ¡É½ÝÌá•ÁÑ¥½¸ì(€€€€€€€É•ÑÕÉ¸‰•…É•È¡Í¥¸¡±…¥µÌ¡ÍÕ‰©•Ð°Í½Á•Ì¤°-d°)]M±½É¥Ñ¡´¹ILÈÔØ¤¤ì(€€€ô(€€€ÁÉ¥Ù…Ñ”ÍÑ…Ñ¥Œ)]Q±…¥µÍM•Ð¹	Õ¥±‘•È±…¥µÌ¡MÑÉ¥¹œÍÕ‰©•Ð°MÑÉ¥¹œÍ½Á•Ì¤ì(€€€€€€€É•ÑÕÉ¸¹•Ü)]Q±…¥µÍM•Ð¹	Õ¥±‘•È ¤¹¥ÍÍÕ•È¡%MMUH¤¹…Õ‘¥•¹”¡U%9¤¹ÍÕ‰©•Ð¡ÍÕ‰©•Ð¤(€€€€€€€€€€€€¹•áÁ¥É…Ñ¥½¹Q¥µ”¡…Ñ”¹™É½´¡%¹ÍÑ…¹Ð¹¹½Ü ¤¹Á±ÕÍM•½¹‘Ì ÌÀÀ¤¤¤¹±…¥´ ‰Í½Á”ˆ°Í½Á•Ì¤¹±…¥´ ‰Ñ•¹…¹Ñ}¥ˆ°€‰…ÕÑ µÑ•ÍÐˆ¤ì(€€€ô(€€€ÁÉ¥Ù…Ñ”ÍÑ…Ñ¥ŒMÑÉ¥¹œÍ¥¸¡)]Q±…¥µÍM•Ð¹	Õ¥±‘•È±…¥µÌ°-•åA…¥È­•ä°)]M±½É¥Ñ¡´…±½É¥Ñ¡´¤Ñ¡É½ÝÌá•ÁÑ¥½¸ì(€€€€€€€Ù…ÈÑ½­•¸€ô¹•ÜM¥¹•‘)]P¡¹•Ü)]M!•…‘•È¡…±½É¥Ñ¡´¤°±…¥µÌ¹‰Õ¥± ¤¤ì(€€€€€€€Ñ½­•¸¹Í¥¸¡¹•ÜIMMMM¥¹•È¡­•ä¹•ÑAÉ¥Ù…Ñ” ¤¤¤ì(€€€€€€€É•ÑÕÉ¸Ñ½­•¸¹Í•É¥…±¥é” ¤ì(€€€ô(€€€ÁÉ¥Ù…Ñ”ÍÑ…Ñ¥Œ-•åA…¥È­•åA…¥È ¤ì(€€€€€€€ÑÉäì(€€€€€€€€€€€Ù…È•¹•É…Ñ½È€ô-•åA…¥É•¹•É…Ñ½È¹•Ñ%¹ÍÑ…¹” ‰IMˆ¤ì(€€€€€€€€€€€•¹•É…Ñ½È¹¥¹¥Ñ¥…±¥é” ÈÀÐà¤ì(€€€€€€€€€€€É•ÑÕÉ¸•¹•É…Ñ½È¹•¹•É…Ñ•-•åA…¥È ¤ì(€€€€€€€ô…Ñ €¡á•ÁÑ¥½¸™…¥±ÕÉ”¤ìÑ¡É½Ü¹•Ü%±±•…±MÑ…Ñ•á•ÁÑ¥½¸¡™…¥±ÕÉ”¤ìô(€€€ô(€€€ÁÉ¥Ù…Ñ”ÍÑ…Ñ¥ŒA…Ñ ÁÕ‰±¥-•å¥±” ¤ì(€€€€€€€ÑÉäì(€€€€€€€€€€€A…Ñ Á…Ñ €ô¥±•Ì¹É•…Ñ•Q•µÁ¥±” ‰É•½¸µÁÕ‰±¥ŒµÑ•ÍÐ´ˆ°€ˆ¹Á•´ˆ¤ì(€€€€€€€€€€€MÑÉ¥¹œ•¹½‘•€ô	…Í”ØÐ¹•Ñ5¥µ•¹½‘•È ØÐ°¹•Ü‰åÑ•muìq¸ô¤¹•¹½‘•Q½MÑÉ¥¹œ¡-d¹•ÑAÕ‰±¥Œ ¤¹•Ñ¹½‘• ¤¤ì(€€€€€€€€€€€¥±•Ì¹ÝÉ¥Ñ•MÑÉ¥¹œ¡Á…Ñ °€ˆ´´´´µ	%8AU	1%-d´´´´µq¸ˆ€¬•¹½‘•€¬€‰q¸´´´´µ9AU	1%-d´´´´µq¸ˆ¤ì(€€€€€€€€€€€É•ÑÕÉ¸Á…Ñ ì(€€€€€€€ô…Ñ €¡á•ÁÑ¥½¸™…¥±ÕÉ”¤ìÑ¡É½Ü¹•Ü%±±•…±MÑ…Ñ•á•ÁÑ¥½¸¡™…¥±ÕÉ”¤ìô(€€€ô)ô
+                ISSUER, AUDIENCE, capacity, 0, resources)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("max-concurrent-decodes");
+        }
+        for (int ttl : new int[]{-1, 3601}) {
+            assertThatThrownBy(() -> config.jwtDecoder("", "https://issuer.example.invalid/jwks",
+                ISSUER, AUDIENCE, 8, ttl, resources)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("jwks-cache-ttl-seconds");
+        }
+        for (String uri : List.of("http://issuer.example.invalid/jwks", "ftp://127.0.0.1/jwks",
+                "https://user@issuer.example.invalid/jwks", "https://issuer.example.invalid/jwks#fragment")) {
+            assertThatThrownBy(() -> config.jwtDecoder("", uri, ISSUER, AUDIENCE, 8, 0, resources))
+                .as(uri).isInstanceOf(IllegalArgumentException.class);
+        }
+    }
+
+    @Test void requiresAnIssuerSuppliedTenantAndIgnoresTenantHeaders() throws Exception {
+        String key = key();
+        for (Object tenant : List.of("", "demo", "Tenant-A", "../other", "x".repeat(65), 42, List.of("tenant-a"))) {
+            String jwt = bearer(sign(claims("reader", "recon:write").claim("tenant_id", tenant), KEY, JWSAlgorithm.RS256));
+            assertThat(call("POST", "/api/batches", BATCH, jwt, key).statusCode()).isEqualTo(401);
+        }
+        String missing = bearer(sign(claims("reader", "recon:write").claim("tenant_id", null), KEY, JWSAlgorithm.RS256));
+        var request = HttpRequest.newBuilder(uri("/api/batches")).header("Authorization", missing)
+            .header("X-Tenant-Id", "tenant-a").GET().build();
+        assertThat(client.send(request, HttpResponse.BodyHandlers.ofString()).statusCode()).isEqualTo(401);
+        assertUnreserved(key);
+        String injected = BATCH.replace("\"currency\":\"USD\"", "\"currency\":\"USD\",\"tenant_id\":\"other\"");
+        assertThat(call("POST", "/api/batches", injected, token("writer", "recon:write"), key).statusCode()).isEqualTo(400);
+        assertUnreserved(key);
+    }
+
+    @Test void isolatesDetailAuditReviewAndFilteredPagesEvenWithKnownForeignIds() throws Exception {
+        String a = "a-" + UUID.randomUUID();
+        String b = "b-" + UUID.randomUUID();
+        String scopes = "recon:read recon:write recon:review";
+        String tokenA = tenantToken(a, scopes);
+        String tokenB = tenantToken(b, scopes);
+        var first = body(call("POST", "/api/batches", BATCH, tokenA, key()));
+        var foreign = body(call("POST", "/api/batches", BATCH, tokenB, key()));
+        var last = body(call("POST", "/api/batches", BATCH, tokenA, key()));
+        String batchId = first.get("id").asText();
+        String id = first.at("/results/0/id").asText();
+        String foreignId = foreign.at("/results/0/id").asText();
+        for (String path : List.of("/api/batches/" + batchId, "/api/results/" + id, "/api/results/" + id + "/events")) {
+            assertThat(call("GET", path, null, tokenB, null).statusCode()).isEqualTo(404);
+            assertThat(call("GET", path, null, tokenA, null).statusCode()).isEqualTo(200);
+        }
+        assertThat(call("POST", "/api/results/" + id + "/reviews", REVIEW, tokenB, null).statusCode()).isEqualTo(404);
+        assertThat(body(call("GET", "/api/results/" + id, null, tokenA, null)).get("version").asInt()).isZero();
+        assertThat(body(call("GET", "/api/results/" + id + "/events", null, tokenA, null)).get("events")).isEmpty();
+        String query = "/api/batches?limit=1&businessDate=2026-10-11&currency=USD";
+        var page = body(call("GET", query, null, tokenA, null));
+        assertThat(page.at("/batches/0/id").asText()).isEqualTo(last.get("id").asText());
+        var next = body(call("GET", query + "&beforeSequence=" + page.get("nextBeforeSequence").asLong(), null, tokenA, null));
+        assertThat(next.at("/batches/0/id").asText()).isEqualTo(batchId);
+        assertThat(next.get("nextBeforeSequence").isNull()).isTrue();
+        var forged = HttpRequest.newBuilder(uri("/api/batches/" + batchId)).header("Authorization", tokenB)
+            .header("X-Tenant-Id", a).GET().build();
+        assertThat(client.send(forged, HttpResponse.BodyHandlers.ofString()).statusCode()).isEqualTo(404);
+        assertThat(call("POST", "/api/results/" + id + "/reviews", REVIEW, tokenA, null).statusCode()).isEqualTo(200);
+        assertThat(body(call("GET", "/api/results/" + foreignId, null, tokenB, null)).get("version").asInt()).isZero();
+        assertThat(body(call("GET", "/api/results/" + id + "/events", null, tokenA, null)).at("/events/0/actor").asText())
+            .isEqualTo("shared-subject");
+    }
+
+    @Test void concurrentRetriesDeduplicateWithinEachTenantButAllowTheSameKeyAcrossTenants() throws Exception {
+        String a = "a-" + UUID.randomUUID();
+        String b = "b-" + UUID.randomUUID();
+        String tokenA = tenantToken(a, "recon:read recon:write");
+        String tokenB = tenantToken(b, "recon:read recon:write");
+        String key = key();
+        String changed = BATCH.replace("10.00", "11.00");
+        var executor = java.util.concurrent.Executors.newFixedThreadPool(6);
+        var start = new java.util.concurrent.CountDownLatch(1);
+        var futures = new java.util.ArrayList<java.util.concurrent.Future<HttpResponse<String>>>();
+        try {
+            for (int index = 0; index < 6; index++) {
+                boolean firstTenant = index % 2 == 0;
+                futures.add(executor.submit(() -> {
+                    start.await();
+                    return call("POST", "/api/batches", firstTenant ? BATCH : changed, firstTenant ? tokenA : tokenB, key);
+                }));
+            }
+            start.countDown();
+            var idsA = new java.util.HashSet<String>();
+            var idsB = new java.util.HashSet<String>();
+            int created = 0;
+            for (int index = 0; index < futures.size(); index++) {
+                var response = futures.get(index).get(20, java.util.concurrent.TimeUnit.SECONDS);
+                assertThat(response.statusCode()).isIn(200, 201);
+                if (response.statusCode() == 201) created++;
+                (index % 2 == 0 ? idsA : idsB).add(body(response).get("id").asText());
+            }
+            assertThat(created).isEqualTo(2);
+            assertThat(idsA).hasSize(1).doesNotContainAnyElementsOf(idsB);
+            assertThat(idsB).hasSize(1);
+            assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM recon_batch WHERE idempotency_key = ?", Integer.class, key))
+                .isEqualTo(2);
+            assertThat(call("POST", "/api/batches", changed, tokenA, key).statusCode()).isEqualTo(409);
+            assertThat(call("POST", "/api/batches", BATCH, tokenB, key).statusCode()).isEqualTo(409);
+        } finally {
+            start.countDown();
+            executor.shutdownNow();
+        }
+    }
+
+    @Test void securedRepositoryDoesNotFallBackToDemoWithoutARequestIdentity() {
+        assertThatThrownBy(() -> repository.batches(null, 1, null, null))
+            .isInstanceOfSatisfying(ApiException.class,
+                failure -> assertThat(failure.status()).isEqualTo(org.springframework.http.HttpStatus.UNAUTHORIZED));
+    }
+
+    @Test void reviewContextUsesVerifiedIdentityAndReadScopeWithoutCreatingSession() throws Exception {
+        String path = "/api/review-session";
+        assertThat(call("GET", path, null, null, null).statusCode()).isEqualTo(401);
+        assertThat(call("GET", path, null, token("writer", "recon:write"), null).statusCode()).isEqualTo(403);
+        var read = call("GET", path, null, token("reader", "recon:read"), null);
+        assertThat(read.statusCode()).isEqualTo(200);
+        assertThat(read.headers().firstValue("Cache-Control").orElse("")).contains("no-store");
+        assertThat(read.headers().allValues("Set-Cookie")).isEmpty();
+        assertThat(body(read).get("secured").asBoolean()).isTrue();
+        assertThat(body(read).get("subject").asText()).isEqualTo("reader");
+        assertThat(body(read).get("issuer").asText()).isEqualTo(ISSUER);
+        assertThat(body(read).get("tenant").asText()).isEqualTo("auth-test");
+        assertThat(body(read).get("canReview").asBoolean()).isFalse();
+        var reviewer = call("GET", path, null, tenantToken("other-tenant", "recon:read recon:review"), null);
+        assertThat(body(reviewer).get("tenant").asText()).isEqualTo("other-tenant");
+        assertThat(body(reviewer).get("canReview").asBoolean()).isTrue();
+        assertThat(body(reviewer).size()).isEqualTo(5);
+        assertThat(call("POST", path, "{}", token("reader", "recon:read"), null).statusCode()).isEqualTo(403);
+    }
+
+    private static String tenantToken(String tenant, String scopes) throws Exception {
+        return bearer(sign(claims("shared-subject", scopes).claim("tenant_id", tenant), KEY, JWSAlgorithm.RS256));
+    }
+
+    @Test void rejectsDuplicateBatchFieldsBeforeReservingAnIdempotencyKey() throws Exception {
+        String writer = token("duplicate-check", "recon:write recon:read");
+        var malformed = List.of(
+            BATCH.replace("\"currency\":\"USD\"", "\"currency\":\"EUR\",\"currency\":\"USD\""),
+            BATCH.replace("\"currency\":\"USD\"", "\"currency\":\"USD\",\"currency\":\"USD\""),
+            BATCH.replace("\"amount\":\"10.00\"", "\"amount\":\"999.00\",\"amount\":\"10.00\""),
+            BATCH.replace("\"amount\":\"10.00\"", "\"amount\":null,\"amount\":\"10.00\""),
+            BATCH.replace("\"amount\":\"10.00\"", "\"amount\":\"999.00\",\"" + "\\u0061mount\":\"10.00\""),
+            BATCH.replace("\"rightRecords\":[]", "\"rightRecords\":[],\"rightRecords\":[]"));
+        for (String payload : malformed) {
+            String key = key();
+            var rejected = call("POST", "/api/batches", payload, writer, key);
+            assertThat(rejected.statusCode()).as("Duplicate JSON must not create a batch").isEqualTo(400);
+            assertThat(body(rejected).get("detail").asText()).startsWith("Malformed request:");
+            assertUnreserved(key);
+            assertThat(call("POST", "/api/batches", BATCH, writer, key).statusCode()).isEqualTo(201);
+        }
+        // Security still runs before JSON parsing.
+        assertThat(call("POST", "/api/batches", malformed.get(0), null, key()).statusCode()).isEqualTo(401);
+        assertThat(call("POST", "/api/batches", malformed.get(0), token("reader", "recon:read"), key())
+            .statusCode()).isEqualTo(403);
+    }
+
+    @Test void rejectsDuplicateReviewFieldsWithoutChangingVersionOrAudit() throws Exception {
+        String authorization = token("duplicate-reviewer", "recon:read recon:review");
+        String id = create().at("/results/0/id").asText();
+        String path = "/api/results/" + id;
+        var malformed = List.of(
+            REVIEW.replace("\"expectedVersion\":0", "\"expectedVersion\":99,\"expectedVersion\":0"),
+            REVIEW.replace("\"targetState\":\"IN_REVIEW\"", "\"targetState\":\"OPEN\",\"targetState\":\"IN_REVIEW\""),
+            REVIEW.replace("\"note\":", "\"note\":\"discarded synthetic value\",\"note\":"),
+            REVIEW.replace("{", "{\"actor\":\"spoofed\",\"actor\":null,"));
+        for (String payload : malformed) {
+            var rejected = call("POST", path + "/reviews", payload, authorization, null);
+            assertThat(rejected.statusCode()).isEqualTo(400);
+            assertThat(body(rejected).get("detail").asText()).startsWith("Malformed request:");
+            assertThat(body(call("GET", path, null, authorization, null)).get("version").asInt()).isZero();
+            assertThat(body(call("GET", path + "/events", null, authorization, null)).get("events")).isEmpty();
+        }
+        assertThat(call("POST", path + "/reviews", REVIEW, authorization, null).statusCode()).isEqualTo(200);
+        var events = body(call("GET", path + "/events", null, authorization, null)).get("events");
+        assertThat(events.size()).isEqualTo(1);
+        assertThat(events.get(0).get("actor").asText()).isEqualTo("duplicate-reviewer");
+    }
+
+    private JsonNode create() throws Exception {
+        var response = call("POST", "/api/batches", BATCH, token("creator", "recon:write"), key());
+        assertThat(response.statusCode()).isEqualTo(201);
+        return body(response);
+    }
+
+    private void assertUnreserved(String key) {
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM recon_batch WHERE idempotency_key = ?", Integer.class, key)).isZero();
+    }
+
+    private HttpResponse<String> call(String method, String path, String body, String authorization, String key) throws Exception {
+        var request = HttpRequest.newBuilder(uri(path)).timeout(Duration.ofSeconds(10))
+            .header("Content-Type", "application/json");
+        if (authorization != null) request.header("Authorization", authorization);
+        if (key != null) request.header("Idempotency-Key", key);
+        request.method(method, body == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(body));
+        return client.send(request.build(), HttpResponse.BodyHandlers.ofString());
+    }
+
+    private URI uri(String path) { return URI.create("http://127.0.0.1:" + port + path); }
+    private JsonNode body(HttpResponse<String> response) throws Exception { return json.readTree(response.body()); }
+    private static String requestId(HttpResponse<?> response) {
+        String value = response.headers().firstValue("X-Request-ID").orElseThrow();
+        assertThat(value).matches("[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}");
+        return value;
+    }
+    private static String key() { return "security-" + UUID.randomUUID(); }
+    private static String bearer(String raw) { return "Bearer " + raw; }
+    private static String token(String subject, String scopes) throws Exception {
+        return bearer(sign(claims(subject, scopes), KEY, JWSAlgorithm.RS256));
+    }
+    private static JWTClaimsSet.Builder claims(String subject, String scopes) {
+        return new JWTClaimsSet.Builder().issuer(ISSUER).audience(AUDIENCE).subject(subject)
+            .expirationTime(Date.from(Instant.now().plusSeconds(300))).claim("scope", scopes).claim("tenant_id", "auth-test");
+    }
+    private static String sign(JWTClaimsSet.Builder claims, KeyPair key, JWSAlgorithm algorithm) throws Exception {
+        var token = new SignedJWT(new JWSHeader(algorithm), claims.build());
+        token.sign(new RSASSASigner(key.getPrivate()));
+        return token.serialize();
+    }
+    private static KeyPair keyPair() {
+        try {
+            var generator = KeyPairGenerator.getInstance("RSA");
+            generator.initialize(2048);
+            return generator.generateKeyPair();
+        } catch (Exception failure) { throw new IllegalStateException(failure); }
+    }
+    private static Path publicKeyFile() {
+        try {
+            Path path = Files.createTempFile("recon-public-test-", ".pem");
+            String encoded = Base64.getMimeEncoder(64, new byte[]{'\n'}).encodeToString(KEY.getPublic().getEncoded());
+            Files.writeString(path, "-----BEGIN PUBLIC KEY-----\n" + encoded + "\n-----END PUBLIC KEY-----\n");
+            return path;
+        } catch (Exception failure) { throw new IllegalStateException(failure); }
+    }
+}
