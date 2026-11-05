@@ -185,3 +185,24 @@ those separate arithmetic and saturation responsibilities.
 
 Exercise: why can restarting restore budget while still preserving a rejected
 review's unchanged version and a previously successful request's idempotency key?
+
+### Packaged verification — November 5, 2026
+
+Implementation `9f89133a9447bb0d794cec7def23db400aa662ab` passed all five jobs in
+[run 42049241043](https://github.com/harshaattili-human/reconledger/actions/runs/42049241043).
+H2 job `127320539123` and PostgreSQL job `127320538947` each passed the same 123
+Java cases with zero failures/errors/skips, plus the extended secured JAR phase
+both on ordinary startup and after the Boot 3 retained-data upgrade. These phases
+add packaged workflows, not JUnit cases. Existing default package, pinned-key,
+HTTPS JWKS and PostgreSQL restore checks also passed.
+
+Browser job `127320538915` passed 36 demo and 24 secured executions across three
+engines, plus ten repeated Chromium executions. Audit job `127320538621`
+inventoried 73 packaged libraries with zero advisory entries in its snapshot;
+this is not a vulnerability-free claim. Hosted Java was 17.0.21, with Boot 4.0.8,
+H2 2.3.232 and PostgreSQL 16.15 on Ubuntu 24.04.
+
+Local Python syntax, CLI loading, documentation links and whitespace checks passed.
+Local offline Maven could not resolve its uncached Boot 4.0.8 parent, so no local
+Java or database execution is claimed. Runtime policy, schema, identity, query
+planning and data fixtures were unchanged.
