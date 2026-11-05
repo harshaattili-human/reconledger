@@ -152,3 +152,8 @@ Reference: Spring's [interceptor lifecycle](https://docs.spring.io/spring-framew
 
 Interview exercise: why should a concurrency slot survive a database exception but
 not survive completion of its error response, and why is a rate token not refunded?
+
+The [enabled packaged rate rehearsal](rate-limits.md#enabled-executable-jar-rehearsal)
+now also runs with one concurrent handler slot. Sequential success and 429 paths
+must release it for later requests. Saturation and per-tenant concurrency ceilings
+remain covered by embedded HTTP tests, not this packaged phase.

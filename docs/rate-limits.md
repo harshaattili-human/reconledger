@@ -152,3 +152,36 @@ its exact-head CI result is retained in [PR 20](https://github.com/harshaattili-
 Interview exercise: why should a tenant rejection happen before the process bucket,
 why is a depleted tenant bucket not evicted under tracking pressure, and what fairness
 guarantee is still missing?
+
+## Enabled executable-JAR rehearsal
+
+The existing `python3 scripts/secured_smoke.py` (and `--database postgres`)
+now adds two secured launches after its default-mode checks. Both enable a process
+burst of four, a per-tenant burst of two, one token per 60 seconds, at most two
+tracked tenants, and one concurrent handler slot. The same phase also runs after
+the optional Boot 3 retained-data upgrade, using only the current JAR.
+
+Missing credentials and insufficient scopes retain 401/403 before and after
+exhaustion. Two idempotent replays consume tenant A's burst; a rejected review
+returns 429. Tenant B can still perform its two replays, then its review and new
+creation are rejected. Public health remains available. After a process restart,
+A's two reads confirm the exact retained review version/state and audit events;
+B's rejected creation key produces a new batch and its replay returns that same
+batch. Both tenants then receive 429 again. Error responses must retain problem
+JSON, no-store and an integer Retry-After from one through 60 seconds.
+
+The success receipt records the settings and completed checks alongside the JAR
+hash and database profile. The runner strips inherited admission environment
+variables so its earlier default-mode phase stays disabled. Temporary synthetic
+signing keys and tokens retain the existing private-file/no-artifact handling.
+
+This exercises actual packaged configuration, security/MVC ordering, per-tenant
+burst isolation, no mutation on rejection, and burst reset with retained data.
+The one-slot concurrency cap is enabled to detect leaks after sequential responses;
+this phase does not saturate it or establish tenant concurrency fairness. It does
+not wait for real refill, exercise bounded-map eviction, establish throughput, or
+verify external issuer membership. Controlled-clock and embedded HTTP tests retain
+those separate arithmetic and saturation responsibilities.
+
+Exercise: why can restarting restore budget while still preserving a rejected
+review's unchanged version and a previously successful request's idempotency key?
