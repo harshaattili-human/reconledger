@@ -157,6 +157,23 @@ class ReconciliationApiTest {
         assertThat(stored.results().get(2).leftRecords()).extracting(LedgerRecord::recordId).containsExactly("B", "a");
     }
 
+    @Test void demoActorRejectsInvalidTextAndRetainsUnicode() throws Exception {
+        String id = exceptionId();
+        for (String escaped : List.of("\\ud800", "\\udfff", "\\u0000")) {
+            String payload = "{\"targetState\":\"IN_REVIEW\",\"expectedVersion\":0,"
+                + "\"actor\":\"synthetic-marker-" + escaped + "\",\"note\":\"Synthetic evidence\"}";
+            mvc.perform(post("/api/results/{id}/reviews", id).contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isBadRequest());
+            mvc.perform(get("/api/results/{id}", id)).andExpect(jsonPath("$.version").value(0));
+            mvc.perform(get("/api/results/{id}/events", id)).andExpect(jsonPath("$.events.length()").value(0));
+        }
+        String actor = "Renée \ud83d\ude80";
+        mvc.perform(post("/api/results/{id}/reviews", id).contentType(MediaType.APPLICATION_JSON)
+            .content(json.writeValueAsString(new ReviewInput(ReviewState.IN_REVIEW, 0, actor, "Synthetic evidence"))))
+            .andExpect(status().isOk());
+        mvc.perform(get("/api/results/{id}/events", id)).andExpect(jsonPath("$.events[0].actor").value(actor));
+    }
+
     @Test void reviewLifecycleRecordsEveryTransitionAndReopeningClearsResolution() throws Exception {
         String id = exceptionId();
         review(id, ReviewState.IN_REVIEW, 0, "Investigating source file").andExpect(status().isOk())
