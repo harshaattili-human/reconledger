@@ -87,6 +87,13 @@ def main():
         with response:
             raw = response.read()
             require(response.status == expected, f"{request.get_method()} {path}: expected {expected}, got {response.status}")
+            if expected == 429:
+                retry = response.headers.get("Retry-After", "")
+                require(retry.isascii() and retry.isdecimal() and 1 <= int(retry) <= 60,
+                        "Rate rejection needs a bounded integer Retry-After")
+                require(response.headers.get("Cache-Control") == "no-store", "Rate rejection can be cached")
+                require(response.headers.get_content_type() == "application/problem+json",
+                        "Rate rejection must retain problem details")
             if expected == 401:
                 require(response.headers.get("WWW-Authenticate", "").startswith("Bearer"), "Missing bearer challenge")
             return json.loads(raw) if raw else None
@@ -99,12 +106,12 @@ def main():
         public_file.write_bytes(first_public)
         # Isolate profile/trust selection from the invoking shell. Explicit DB variables remain.
         env = {k: v for k, v in os.environ.items()
-               if not k.startswith(("SPRING_", "RECON_SECURITY_"))
+               if not k.startswith(("SPRING_", "RECON_SECURITY_", "RECON_RATE_LIMIT_", "RECON_CONCURRENCY_LIMIT_"))
                and k not in {"JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS"}}
         process = None
         log_path = directory / "application.log"
 
-        def command(secured=True, jar=JAR):
+        def command(secured=True, jar=JAR, admission=False):
             profiles = ("postgres," if args.database == "postgres" else "") + ("secured" if secured else "default")
             result = ["java", "-jar", str(jar), f"--server.port={port}", "--server.address=127.0.0.1",
                       "--spring.profiles.active=" + profiles]
@@ -114,11 +121,21 @@ def main():
             if secured:
                 result += ["--recon.security.public-key=" + public_file.as_uri(),
                            "--recon.security.issuer=" + ISSUER, "--recon.security.audience=" + AUDIENCE]
+            if admission:
+                result += ["--recon.rate-limit.enabled=true", "--recon.rate-limit.capacity=4",
+                           "--recon.rate-limit.refill-millis=60000",
+                           "--recon.rate-limit.per-tenant-enabled=true",
+                           "--recon.rate-limit.per-tenant-capacity=2",
+                           "--recon.rate-limit.per-tenant-refill-millis=60000",
+                           "--recon.rate-limit.max-tracked-tenants=2",
+                           "--recon.concurrency-limit.enabled=true",
+                           "--recon.concurrency-limit.capacity=1",
+                           "--recon.concurrency-limit.per-tenant-capacity=1"]
             return result
 
-        def start(log, secured=True, jar=JAR):
+        def start(log, secured=True, jar=JAR, admission=False):
             nonlocal process
-            process = subprocess.Popen(command(secured, jar), cwd=directory, env=env,
+            process = subprocess.Popen(command(secured, jar, admission), cwd=directory, env=env,
                                        stdout=log, stderr=subprocess.STDOUT)
             deadline = time.monotonic() + 45
             while time.monotonic() < deadline:
@@ -234,12 +251,51 @@ def main():
                 require(demo["id"] not in {b["id"] for b in batches}, "Demo reused a private tenant key")
                 stop()
                 print("Demo profile check passed: private tenant IDs stay inaccessible; the same key creates a demo batch.")
+
+                # Enable the actual packaged policies only after the existing
+                # default-mode and retained-data checks. No test clock is injected.
+                start(log, admission=True)
+                call("/api/batches", 401)
+                current_read_only = token(second_key, tenants[0], expiry, "recon:read")
+                call("/api/batches", 403, current_read_only, payload, key)
+                for auth, batch in zip(new_tokens, batches):
+                    for _ in range(2):
+                        replay = call("/api/batches", bearer=auth, body=payload, key=key)
+                        require(replay["id"] == batch["id"], "Budgeted replay created another batch")
+                    call(result_path + "/reviews", 429, auth,
+                         {**review, "targetState": "IN_REVIEW", "expectedVersion": 2})
+                rejected_key = "budget-rejected-" + run_id
+                call("/api/batches", 429, new_tokens[1], payload, rejected_key)
+                call("/api/batches", 401)
+                call("/api/batches", 403, current_read_only, payload, key)
+                require(call("/actuator/health") == {"status": "UP"}, "Health spent or required a rate token")
+                stop()
+
+                start(log, admission=True)
+                current = call(result_path, bearer=new_tokens[0])
+                require(current["version"] == 2 and current["reviewState"] == "RESOLVED",
+                        "Rate-rejected review changed retained state")
+                retained_events = call(events_path, bearer=new_tokens[0])["events"]
+                require(retained_events == events + resumed["events"], "Rate-rejected review changed audit")
+                created = call("/api/batches", 201, new_tokens[1], payload, rejected_key)
+                replay = call("/api/batches", bearer=new_tokens[1], body=payload, key=rejected_key)
+                require(created["id"] == replay["id"] and created["id"] != batches[1]["id"],
+                        "Rejected creation consumed its key or successful replay duplicated it")
+                for auth in new_tokens:
+                    call("/api/batches", 429, auth)
+                stop()
+                print("Packaged tenant budgets passed: security precedence, isolated bursts, unchanged writes and restart reset.")
             report.write_text(json.dumps({"database_profile": args.database, "jar_sha256": hashlib.sha256(JAR.read_bytes()).hexdigest(),
                 "seed_jar_sha256": hashlib.sha256(seed_jar.read_bytes()).hexdigest(),
                 "cross_version_restart": bool(args.seed_jar),
+                "admission_settings": {"process_capacity": 4, "tenant_capacity": 2,
+                    "refill_millis": 60000, "max_tracked_tenants": 2, "concurrency_capacity": 1},
                 "openssl": openssl("version").decode().strip(), "python": sys.version.split()[0],
                 "checks": ["blank-audience-startup-rejected", "scopes-and-tenant-boundaries", "authenticated-review",
-                           "pinned-key-replacement-on-restart", "retained-evidence-idempotency-audit-cursor", "demo-profile-isolation"],
+                           "pinned-key-replacement-on-restart", "retained-evidence-idempotency-audit-cursor", "demo-profile-isolation",
+                           "enabled-tenant-rate-bursts-and-security-precedence",
+                           "rate-rejected-review-and-create-unchanged",
+                           "rate-burst-reset-after-restart-with-concurrency-enabled"],
                 "limitations": "Synthetic local signer; no external issuer, automatic rotation, revocation service or database restart."}, indent=2) + "\n")
             print(f"Secured packaged smoke passed ({args.database}); report: {report.relative_to(ROOT)}")
         except Exception:

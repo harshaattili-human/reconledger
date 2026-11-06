@@ -102,3 +102,8 @@ secured workflows to Chromium, Firefox and WebKit at two desktop-context widths.
 This does not substitute for the remaining device/assistive-technology checks.
 
 - [Duplicate JSON object fields](json-input.md) are rejected before reconciliation/review dispatch; business-reference handling and exact-decimal validation remain separate.
+
+The [enabled packaged budget rehearsal](rate-limits.md#enabled-executable-jar-rehearsal)
+now checks tenant bursts, security precedence, rejected writes and restart reset on
+both database profiles. Fair scheduling, edge upload controls and external issuer
+membership remain open.
