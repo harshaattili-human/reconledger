@@ -107,3 +107,7 @@ The [enabled packaged budget rehearsal](rate-limits.md#enabled-executable-jar-re
 now checks tenant bursts, security precedence, rejected writes and restart reset on
 both database profiles. Fair scheduling, edge upload controls and external issuer
 membership remain open.
+
+[Review text validation](review-text.md) rejects NUL and malformed surrogate
+sequences before writes while preserving valid Unicode; identity-provider text and
+retained-data policy remain separate concerns.

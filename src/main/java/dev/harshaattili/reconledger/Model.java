@@ -42,8 +42,8 @@ public final class Model {
     public record BatchPage(List<BatchSummary> batches, Long nextBeforeSequence) {}
 
     public record ReviewInput(@NotNull ReviewState targetState, @NotNull @Min(0) Integer expectedVersion,
-                               @Size(max = 80) String actor,
-                               @NotBlank @Size(max = 500) String note) {}
+                               @ReviewText @Size(max = 80) String actor,
+                               @ReviewText @NotBlank @Size(max = 500) String note) {}
 
     public enum ActorSource { LEGACY_UNKNOWN, DEMO_LABEL, VERIFIED_JWT }
 

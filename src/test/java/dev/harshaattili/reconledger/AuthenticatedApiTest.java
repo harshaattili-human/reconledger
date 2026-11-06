@@ -417,6 +417,31 @@ class AuthenticatedApiTest {
         assertThat(events.get(0).get("actor").asText()).isEqualTo("duplicate-reviewer");
     }
 
+    @Test void rejectsUnrepresentableReviewTextAndPreservesValidUnicode() throws Exception {
+        String authorization = token("unicode-reviewer", "recon:read recon:review");
+        String id = create().at("/results/0/id").asText();
+        String path = "/api/results/" + id;
+        for (String escaped : List.of("\\ud800", "\\udfff", "\\ud800x", "\\ud800\\ud800", "\\u0000")) {
+            String payload = REVIEW.replace("Checking synthetic evidence.", "synthetic-marker-" + escaped);
+            var rejected = call("POST", path + "/reviews", payload, authorization, null);
+            assertThat(rejected.statusCode()).isEqualTo(400);
+            assertThat(rejected.body()).doesNotContain("synthetic-marker-");
+            assertThat(body(call("GET", path, null, authorization, null)).get("version").asInt()).isZero();
+            assertThat(body(call("GET", path + "/events", null, authorization, null)).get("events")).isEmpty();
+        }
+        String note = "Café e\u0301 \ud83d\ude80\nSynthetic evidence checked.";
+        String payload = REVIEW.replace("Checking synthetic evidence.",
+            "Café e\\u0301 \\ud83d\\ude80\\nSynthetic evidence checked.");
+        assertThat(call("POST", path + "/reviews", payload, authorization, null).statusCode()).isEqualTo(200);
+        var events = body(call("GET", path + "/events", null, authorization, null)).get("events");
+        assertThat(events.size()).isEqualTo(1);
+        assertThat(events.get(0).get("note").asText()).isEqualTo(note);
+        // Resolution text uses the same input contract and must round-trip too.
+        payload = payload.replace("IN_REVIEW", "RESOLVED").replace("\"expectedVersion\":0", "\"expectedVersion\":1");
+        assertThat(call("POST", path + "/reviews", payload, authorization, null).statusCode()).isEqualTo(200);
+        assertThat(body(call("GET", path, null, authorization, null)).get("resolutionNote").asText()).isEqualTo(note);
+    }
+
     private JsonNode create() throws Exception {
         var response = call("POST", "/api/batches", BATCH, token("creator", "recon:write"), key());
         assertThat(response.statusCode()).isEqualTo(201);
