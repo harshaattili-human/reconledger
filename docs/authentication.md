@@ -48,7 +48,10 @@ retained tenant data and manual pinned-key replacement on restart.
 
 Only RS256 signatures are accepted. Tokens must have a matching `iss`, an `aud`
 containing the configured audience, an unexpired `exp`, and a nonblank `sub` of at
-most 80 Java characters with no surrounding whitespace. The `tenant_id` must follow
+most 80 Java UTF-16 code units with no surrounding whitespace. Subjects and the
+configured issuer must contain Unicode scalar values without NUL. Invalid subjects
+return 401 before data access; invalid issuer configuration prevents startup. Valid
+identity text is preserved exactly, never repaired or normalized. The `tenant_id` must follow
 the [tenant contract](tenants.md); old tokens without it now return 401. Spring also validates
 `nbf` when present, with its default 60-second clock skew. Use stable opaque subject
 IDs; a display name is not a durable identity. The configured issuer defines the

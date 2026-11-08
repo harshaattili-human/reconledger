@@ -20,16 +20,7 @@ public @interface ReviewText {
 
     final class Validator implements ConstraintValidator<ReviewText, String> {
         @Override public boolean isValid(String value, ConstraintValidatorContext context) {
-            // Requiredness and length remain separate constraints.
-            if (value == null) return true;
-            for (int i = 0; i < value.length(); i++) {
-                char current = value.charAt(i);
-                if (current == 0 || Character.isLowSurrogate(current)) return false;
-                if (Character.isHighSurrogate(current)) {
-                    if (++i == value.length() || !Character.isLowSurrogate(value.charAt(i))) return false;
-                }
-            }
-            return true;
+            return StoredText.valid(value);
         }
     }
 }

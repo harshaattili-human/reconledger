@@ -131,6 +131,7 @@ public class ApiSecurity {
     private void validateClaimsConfiguration(String issuer, String audience) {
         Assert.hasText(issuer, "recon.security.issuer must not be blank");
         Assert.isTrue(issuer.length() <= 2048, "recon.security.issuer must be at most 2048 characters");
+        Assert.isTrue(StoredText.valid(issuer), "recon.security.issuer must contain Unicode scalar values without NUL");
         Assert.hasText(audience, "recon.security.audience must not be blank");
     }
 
@@ -141,7 +142,7 @@ public class ApiSecurity {
                 var audiences = token.getAudience();
                 if (token.getExpiresAt() == null || audiences == null || !audiences.contains(audience)
                     || subject == null || subject.isBlank() || subject.length() > 80
-                    || !subject.equals(subject.strip())
+                    || !subject.equals(subject.strip()) || !StoredText.valid(subject)
                     || !TenantAccess.validClaim(token.getClaims().get("tenant_id"))) {
                     return OAuth2TokenValidatorResult.failure(new OAuth2Error("invalid_token",
                         "A valid audience, expiry, subject and tenant are required", null));
