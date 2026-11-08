@@ -66,8 +66,12 @@ A synthetic embedded-Tomcat case signs literal JSON escapes with JCA RS256, chec
 five malformed subjects against reads, batch creation and review, then checks
 unchanged keys/version/audit and exact valid subject readback in session and audit.
 A configuration case rejects four invalid issuer suffixes before key loading.
-These add two Java cases; hosted results are recorded in the pull request. Existing
-packaged workflows use their prior identities. No external issuer, historical-data
+These add two Java cases; hosted results are recorded in the pull request. The
+secured executable-JAR workflow now signs the same five invalid subject forms with
+OpenSSL after restarting the current JAR, checks 401 and unchanged version/audit,
+then round-trips a combining/emoji subject through session and a persisted review.
+This also runs after the older Boot 3 seed JAR is replaced, without requiring the
+older binary to implement the new contract. No external issuer, historical-data
 migration or new database constraint is claimed.
 
 Reproduce with `./mvnw verify` on H2 and the documented disposable PostgreSQL
