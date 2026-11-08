@@ -14,9 +14,9 @@ UTF-16 code units, so a supplementary character consumes two units. NUL is rejec
 consistently on H2 and PostgreSQL rather than allowing database-specific outcomes.
 
 This contract applies to JSON review `note` and `actor` fields. Secured mode still
-rejects supplied actor labels and derives identity from the verified JWT. This
-increment does not change token/issuer parsing, migrate existing data, constrain
-internal trusted ReviewCommand callers or promise rendering of every Unicode
+rejects supplied actor labels and derives identity from the verified JWT. The subsequent identity boundary below validates subjects and configured issuers.
+Neither change migrates existing data, constrains
+internal trusted ReviewCommand callers or promises rendering of every Unicode
 character. No schema, migration or dependency change is required.
 
 ## Verification
@@ -51,3 +51,32 @@ Existing browser `127965171602`, PostgreSQL restore `127965171322`, packaged
 application workflows and Java audit `127965171427` also passed. The new Unicode
 payloads are exercised by the Java cases, not by separate packaged/browser fixtures.
 Final-head checks are linked from [PR 39](https://github.com/harshaattili-human/reconledger/pull/39).
+
+## Verified identity boundary
+
+The same scalar-value predicate now rejects malformed UTF-16 and NUL in JWT
+subjects during claim validation, before an authenticated SecurityContext reaches
+read or write handlers. Configured issuers fail startup on those values before
+trust material loads. Pinned-key and JWKS decoders share this validation. Existing
+subject length, whitespace, issuer equality, scopes and tenant rules remain intact.
+Valid combining sequences and supplementary characters retain their exact identity;
+normalization or replacement could conflate different subjects and is not used.
+
+A synthetic embedded-Tomcat case signs literal JSON escapes with JCA RS256, checks
+five malformed subjects against reads, batch creation and review, then checks
+unchanged keys/version/audit and exact valid subject readback in session and audit.
+A configuration case rejects four invalid issuer suffixes before key loading.
+These add two Java cases; hosted results are recorded in the pull request. The
+secured executable-JAR workflow now signs the same five invalid subject forms with
+OpenSSL after restarting the current JAR, checks 401 and unchanged version/audit,
+then round-trips a combining/emoji subject through session and a persisted review.
+This also runs after the older Boot 3 seed JAR is replaced, without requiring the
+older binary to implement the new contract. No external issuer, historical-data
+migration or new database constraint is claimed.
+
+Reproduce with `./mvnw verify` on H2 and the documented disposable PostgreSQL
+profile. Local whitespace checks passed; Maven execution requires the unavailable
+cached Boot parent or dependency access.
+
+Exercise: why should an authentication boundary reject an invalid identity instead
+of replacing malformed characters before writing an audit event?

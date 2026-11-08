@@ -442,6 +442,58 @@ class AuthenticatedApiTest {
         assertThat(body(call("GET", path, null, authorization, null)).get("resolutionNote").asText()).isEqualTo(note);
     }
 
+    @Test void rejectsMalformedSignedSubjectsBeforeReadsAndWrites() throws Exception {
+        String id = create().at("/results/0/id").asText();
+        String path = "/api/results/" + id;
+        String reader = token("identity-inspector", "recon:read");
+        for (String escaped : List.of("\\ud800", "\\udfff", "\\ud800x", "\\ud800\\ud800", "\\u0000")) {
+            String authorization = escapedSubjectToken("identity-marker-" + escaped);
+            String key = key();
+            for (String endpoint : List.of("/api/review-session", path)) {
+                var denied = call("GET", endpoint, null, authorization, null);
+                assertThat(denied.statusCode()).isEqualTo(401);
+                assertThat(denied.body()).doesNotContain("identity-marker-");
+                assertThat(denied.headers().firstValue("Cache-Control")).contains("no-store");
+            }
+            assertThat(call("POST", "/api/batches", BATCH, authorization, key).statusCode()).isEqualTo(401);
+            assertThat(call("POST", path + "/reviews", REVIEW, authorization, null).statusCode()).isEqualTo(401);
+            assertUnreserved(key);
+            assertThat(body(call("GET", path, null, reader, null)).get("version").asInt()).isZero();
+            assertThat(body(call("GET", path + "/events", null, reader, null)).get("events")).isEmpty();
+        }
+        String expected = "identity-e\u0301-\ud83d\ude80";
+        String valid = escapedSubjectToken("identity-e\\u0301-\\ud83d\\ude80");
+        assertThat(body(call("GET", "/api/review-session", null, valid, null)).get("subject").asText()).isEqualTo(expected);
+        assertThat(call("POST", path + "/reviews", REVIEW, valid, null).statusCode()).isEqualTo(200);
+        var event = body(call("GET", path + "/events", null, reader, null)).get("events").get(0);
+        assertThat(event.get("actor").asText()).isEqualTo(expected);
+        assertThat(event.get("actorIssuer").asText()).isEqualTo(ISSUER);
+    }
+
+    @Test void rejectsUnrepresentableConfiguredIssuersBeforeLoadingTrust() {
+        var config = new ApiSecurity();
+        var badKey = new ByteArrayResource(new byte[0]);
+        for (String suffix : List.of("\u0000", "\ud800", "\udfff", "\ud800x")) {
+            assertThatThrownBy(() -> config.jwtDecoder(badKey, ISSUER + suffix, AUDIENCE))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Unicode scalar values");
+        }
+    }
+
+    private static String escapedSubjectToken(String escaped) throws Exception {
+        // Sign literal ASCII JSON escapes: a client UTF-8 encoder must not repair the subject.
+        String payload = claims("subject-placeholder", "recon:read recon:write recon:review").build().toString()
+            .replace("subject-placeholder", escaped);
+        var encoder = Base64.getUrlEncoder().withoutPadding();
+        String header = encoder.encodeToString("{\"alg\":\"RS256\"}".getBytes(StandardCharsets.US_ASCII));
+        String encoded = encoder.encodeToString(payload.getBytes(StandardCharsets.UTF_8));
+        assertThat(new String(Base64.getUrlDecoder().decode(encoded), StandardCharsets.UTF_8)).contains(escaped);
+        String signingInput = header + "." + encoded;
+        var signer = java.security.Signature.getInstance("SHA256withRSA");
+        signer.initSign(KEY.getPrivate());
+        signer.update(signingInput.getBytes(StandardCharsets.US_ASCII));
+        return bearer(signingInput + "." + encoder.encodeToString(signer.sign()));
+    }
+
     private JsonNode create() throws Exception {
         var response = call("POST", "/api/batches", BATCH, token("creator", "recon:write"), key());
         assertThat(response.statusCode()).isEqualTo(201);

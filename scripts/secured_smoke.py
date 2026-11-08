@@ -39,12 +39,12 @@ def key_pair(directory, name):
     return private, openssl("pkey", "-in", private, "-pubout")
 
 
-def token(private, tenant, expiry, scope=SCOPES):
+def token(private, tenant, expiry, scope=SCOPES, subject="synthetic-reviewer"):
     def encode(value):
         return base64.urlsafe_b64encode(value).rstrip(b"=")
     header = encode(b'{"alg":"RS256","typ":"JWT"}')
-    claims = encode(json.dumps({"iss": ISSUER, "aud": AUDIENCE, "sub": "synthetic-reviewer",
-                               "tenant_id": tenant, "scope": scope, "exp": expiry}).encode())
+    claims = encode(json.dumps({"iss": ISSUER, "aud": AUDIENCE, "sub": subject,
+                               "tenant_id": tenant, "scope": scope, "exp": expiry}, ensure_ascii=True).encode("ascii"))
     signed = header + b"." + claims
     signature = openssl("dgst", "-sha256", "-sign", private, data=signed)
     return (signed + b"." + encode(signature)).decode()
@@ -230,12 +230,26 @@ def main():
                 require(current["version"] == 1 and current["reviewState"] == "IN_REVIEW", "Review state not retained")
                 call(result_path, 404, new_tokens[1])
                 call(events_path, 404, new_tokens[1])
-                resolved = call(result_path + "/reviews", bearer=new_tokens[0],
+                # Check only the current JAR, including after an older seed JAR restart.
+                for suffix in ("\ud800", "\udfff", "\ud800x", "\ud800\ud800", "\x00"):
+                    invalid_identity = token(second_key, tenants[0], expiry, subject="identity-marker-" + suffix)
+                    call("/api/review-session", 401, invalid_identity)
+                    call(result_path + "/reviews", 401, invalid_identity,
+                         {**review, "targetState": "RESOLVED", "expectedVersion": 1})
+                require(call(result_path, bearer=new_tokens[0])["version"] == 1,
+                        "Invalid identity changed review version")
+                require(call(events_path, bearer=new_tokens[0])["events"] == events,
+                        "Invalid identity changed audit")
+                unicode_subject = "identity-e\u0301-\U0001f680"
+                unicode_token = token(second_key, tenants[0], expiry, subject=unicode_subject)
+                require(call("/api/review-session", bearer=unicode_token)["subject"] == unicode_subject,
+                        "Valid identity changed in session response")
+                resolved = call(result_path + "/reviews", bearer=unicode_token,
                                 body={**review, "targetState": "RESOLVED", "expectedVersion": 1})
                 require(resolved["version"] == 2, "New-key review did not commit")
                 resumed = call(events_path + f"?afterSequence={events[0]['sequence']}", bearer=new_tokens[0])
                 require(len(resumed["events"]) == 1 and resumed["events"][0]["resultingVersion"] == 2
-                        and resumed["events"][0]["actor"] == "synthetic-reviewer"
+                        and resumed["events"][0]["actor"] == unicode_subject
                         and resumed["events"][0]["actorSource"] == "VERIFIED_JWT"
                         and resumed["events"][0]["actorIssuer"] == ISSUER
                         and resumed["nextAfterSequence"] is None, "Audit cursor did not resume")
@@ -292,7 +306,8 @@ def main():
                     "refill_millis": 60000, "max_tracked_tenants": 2, "concurrency_capacity": 1},
                 "openssl": openssl("version").decode().strip(), "python": sys.version.split()[0],
                 "checks": ["blank-audience-startup-rejected", "scopes-and-tenant-boundaries", "authenticated-review",
-                           "pinned-key-replacement-on-restart", "retained-evidence-idempotency-audit-cursor", "demo-profile-isolation",
+                           "pinned-key-replacement-on-restart", "invalid-subject-rejected-without-review-mutation",
+                           "unicode-subject-session-and-audit-roundtrip", "retained-evidence-idempotency-audit-cursor", "demo-profile-isolation",
                            "enabled-tenant-rate-bursts-and-security-precedence",
                            "rate-rejected-review-and-create-unchanged",
                            "rate-burst-reset-after-restart-with-concurrency-enabled"],

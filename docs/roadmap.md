@@ -109,5 +109,6 @@ both database profiles. Fair scheduling, edge upload controls and external issue
 membership remain open.
 
 [Review text validation](review-text.md) rejects NUL and malformed surrogate
-sequences before writes while preserving valid Unicode; identity-provider text and
+sequences before writes while preserving valid Unicode. Verified subjects and
+configured issuers now share that text boundary; external issuer membership and
 retained-data policy remain separate concerns.
