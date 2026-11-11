@@ -58,6 +58,30 @@ class RequestDiagnosticsFilterTest {
         }
     }
 
+    @Test void selectsContextRelativeAndContainerDecodedApiPaths() throws Exception {
+        var filter = new RequestDiagnosticsFilter();
+        for (String context : java.util.List.of("", "/ledger", "/apiary")) {
+            for (String path : java.util.List.of("/api", "/api/batches", "/%61pi/batches")) {
+                var request = new MockHttpServletRequest("GET", context + path);
+                request.setContextPath(context);
+                request.setServletPath(path.replace("%61", "a"));
+                var response = new MockHttpServletResponse();
+                filter.doFilter(request, response, (incoming, outgoing) -> {
+                    assertThat(response.getHeader("Cache-Control")).isEqualTo("no-store");
+                });
+            }
+        }
+        // An API-looking context must not turn health/assets into API routes.
+        for (String path : java.util.List.of("/actuator/health", "/review/review.js", "/apiary")) {
+            var request = new MockHttpServletRequest("GET", "/api" + path);
+            request.setContextPath("/api");
+            request.setServletPath(path);
+            var response = new MockHttpServletResponse();
+            filter.doFilter(request, response, (incoming, outgoing) -> { });
+            assertThat(response.getHeader("Cache-Control")).as(path).isNull();
+        }
+    }
+
     @Test void recordsEscapedFailuresAndRestoresAnExistingDiagnosticContext() {
         try (var logs = new LogCapture()) {
             var request = new MockHttpServletRequest("UNTRUSTED", "/private/path");
