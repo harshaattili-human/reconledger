@@ -186,7 +186,10 @@ jobs:
           sudo python3 - <<'PYTHON'
           from pathlib import Path
           import re
-          for path in (Path("/etc/apt/sources.list"), Path("/etc/apt/sources.list.d/ubuntu.sources")):
+          source_dir = Path("/etc/apt/sources.list.d")
+          paths = [Path("/etc/apt/sources.list"), *sorted(source_dir.glob("*.list")),
+                   *sorted(source_dir.glob("*.sources"))]
+          for path in paths:
               if not path.exists():
                   continue
               original = path.read_text()

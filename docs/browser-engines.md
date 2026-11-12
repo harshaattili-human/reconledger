@@ -104,3 +104,12 @@ job limit, so a failed download is reported before consuming the entire job. All
 three engines and existing test expectations remain enabled. This changes only
 the disposable CI runner, not application packaging or operator machines. Hosted
 verification of this correction is recorded in PR #41.
+
+The first correction run, [43236082900](https://github.com/harshaattili-human/reconledger/actions/runs/43236082900),
+passed all five jobs, including 36 demo, 24 secured and 10 repeated browser
+executions. However, its diagnostic output recorded zero URI replacements and APT
+still used Azure successfully. This was a recovered mirror, not evidence that the
+replacement had worked: the initial script assumed two source filenames. The
+follow-up searches all active `.list` and `.sources` files in `sources.list.d`,
+still replacing only the exact Azure URI. Retain this distinction when reproducing
+the installation fix.
