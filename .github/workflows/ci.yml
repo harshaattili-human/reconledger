@@ -181,25 +181,6 @@ jobs:
         run: ./mvnw --batch-mode --no-transfer-progress -DskipTests package
       - run: npm ci
         working-directory: browser-tests
-      - name: Use the Ubuntu HTTPS archive for browser dependencies
-        run: |
-          sudo python3 - <<'PYTHON'
-          from pathlib import Path
-          import re
-          source_dir = Path("/etc/apt/sources.list.d")
-          paths = [Path("/etc/apt/sources.list"), *sorted(source_dir.glob("*.list")),
-                   *sorted(source_dir.glob("*.sources"))]
-          for path in paths:
-              if not path.exists():
-                  continue
-              original = path.read_text()
-              updated, count = re.subn(
-                  r"http://azure\.archive\.ubuntu\.com/ubuntu(?=/|\s|$)",
-                  "https://archive.ubuntu.com/ubuntu", original)
-              if count:
-                  path.write_text(updated)
-              print(f"{path}: replaced {count} Azure mirror URI(s)")
-          PYTHON
       - name: Install all three browser engines and dependencies
         timeout-minutes: 6
         run: npx playwright install --with-deps chromium firefox webkit

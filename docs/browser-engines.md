@@ -89,27 +89,23 @@ Playwright discovery could not run because the package was absent from the offli
 cache; Maven's Boot parent was likewise uncached. Browser/JAR/database execution
 and screenshot evidence therefore came from the hosted run.
 
-## Runner package mirror failure (November 12, 2026)
+## Runner package download failure (November 12, 2026)
 
 Both browser attempts in [run 43040827441](https://github.com/harshaattili-human/reconledger/actions/runs/43040827441)
-expired during Playwright's operating-system dependency installation. The logs
-show repeated failed downloads from the runner's HTTP Azure Ubuntu mirror; no
-browser workflow ran. The Java/database, packaged, restore and audit jobs passed.
+expired during Playwright's operating-system dependency installation. Logs show
+repeated failed downloads from the runner's HTTP Azure Ubuntu mirror; no browser
+workflow ran. The Java/database, packaged, restore and audit jobs passed.
 
-The browser job now replaces that exact mirror URI in the runner's Ubuntu source
-files with `https://archive.ubuntu.com/ubuntu`. Suites, components, signing keys
-and APT signature checks remain unchanged. Other repositories are untouched.
-Installation has a six-minute step deadline within the existing fifteen-minute
-job limit, so a failed download is reported before consuming the entire job. All
-three engines and existing test expectations remain enabled. This changes only
-the disposable CI runner, not application packaging or operator machines. Hosted
-verification of this correction is recorded in PR #41.
+Runs [43236082900](https://github.com/harshaattili-human/reconledger/actions/runs/43236082900)
+and [43237064256](https://github.com/harshaattili-human/reconledger/actions/runs/43237064256)
+subsequently passed all 36 demo, 24 secured and 10 repeated browser executions.
+Trial source-file URI rewrites reported zero replacements in both runs, so the
+successful downloads demonstrate recovery, not an effective mirror change. The
+unused rewrite was removed; the exact source indirection was not established.
 
-The first correction run, [43236082900](https://github.com/harshaattili-human/reconledger/actions/runs/43236082900),
-passed all five jobs, including 36 demo, 24 secured and 10 repeated browser
-executions. However, its diagnostic output recorded zero URI replacements and APT
-still used Azure successfully. This was a recovered mirror, not evidence that the
-replacement had worked: the initial script assumed two source filenames. The
-follow-up searches all active `.list` and `.sources` files in `sources.list.d`,
-still replacing only the exact Azure URI. Retain this distinction when reproducing
-the installation fix.
+Installation now has a six-minute step deadline within the existing fifteen-minute
+job limit. A download stall fails this step before consuming the full job budget.
+All three engines, dependency signature checks and existing expectations remain
+enabled. This is bounded failure reporting, not a permanent network fix. Final-head
+verification is recorded in PR #41. No application packaging or runtime policy
+changes follow from this CI adjustment.
