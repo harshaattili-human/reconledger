@@ -62,3 +62,30 @@ Local whitespace, diff and documentation checks passed. Maven execution was host
 because the current workspace lacked the cached Spring Boot parent and could not
 resolve Maven Central. No schema, tenant boundary, identity rule, review behavior or
 synthetic dataset changed.
+
+## Context-relative selection
+
+The filter now selects `/api` relative to the servlet context, rather than matching
+only the raw request URI. With `server.servlet.context-path=/ledger`, requests such
+as `/ledger/api/batches` receive the same explicit policy. It also checks the
+container-decoded servlet path, so an accepted encoded spelling such as `%61pi`
+does not omit the header. The filter does not perform its own URL decoding or
+change Spring Security's request matching/firewall rules. This covers the shipped
+DispatcherServlet mapping; it is not a general custom servlet-mapping policy.
+
+A unit case checks root/non-root contexts, early header application, decoded paths,
+and an API-looking context whose health/assets must remain outside this rule.
+Two secured embedded-Tomcat cases launch with `/ledger`, use ephemeral RSA tokens,
+and check 200/201/400/401/403/404/409, replay, an encoded path and health. The default
+root-context suite remains in place. These are synthetic HTTP contract checks;
+the browser workspace and packaged scripts are not claimed context-path compatible.
+
+Reproduce with `./mvnw -Dtest=RequestDiagnosticsFilterTest,ContextPathCachingHttpTest test`
+on each documented database profile. Local offline Maven stopped at the uncached
+Boot parent before compilation; hosted results are recorded in the pull request.
+No schema, identity, tenant or reconciliation rule changes.
+
+Reference: [Jakarta Servlet 6.1 request path elements](https://jakarta.ee/specifications/servlet/6.1/jakarta-servlet-spec-6.1.pdf), section 3.6.
+
+Exercise: why can a raw-URI prefix check disagree with the route handled by the
+application, and why should a response policy avoid inventing another URL decoder?

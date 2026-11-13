@@ -36,7 +36,7 @@ final class RequestDiagnosticsFilter extends OncePerRequestFilter {
         // API payloads can contain source records, review notes and identity
         // provenance. Apply this before security so 401/403 responses share the
         // same storage policy; health and packaged assets remain outside it.
-        if (isApiPath(request.getRequestURI())) response.setHeader("Cache-Control", "no-store");
+        if (isApiRequest(request)) response.setHeader("Cache-Control", "no-store");
         MDC.put(MDC_KEY, requestId);
         try {
             chain.doFilter(request, response);
@@ -52,6 +52,16 @@ final class RequestDiagnosticsFilter extends OncePerRequestFilter {
             if (previousRequestId == null) MDC.remove(MDC_KEY);
             else MDC.put(MDC_KEY, previousRequestId);
         }
+    }
+
+    private static boolean isApiRequest(HttpServletRequest request) {
+        // Servlet paths exclude the context and reflect container decoding. Keep
+        // the raw context-relative check too, including requests rejected before MVC.
+        String uri = request.getRequestURI();
+        String context = request.getContextPath();
+        String relative = uri != null && context != null && uri.startsWith(context)
+            ? uri.substring(context.length()) : uri;
+        return isApiPath(relative) || isApiPath(request.getServletPath());
     }
 
     private static boolean isApiPath(String path) {

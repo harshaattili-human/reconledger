@@ -88,3 +88,24 @@ Local JavaScript syntax and six-project/fixture-date enumeration passed. Local
 Playwright discovery could not run because the package was absent from the offline
 cache; Maven's Boot parent was likewise uncached. Browser/JAR/database execution
 and screenshot evidence therefore came from the hosted run.
+
+## Runner package download failure (November 12, 2026)
+
+Both browser attempts in [run 43040827441](https://github.com/harshaattili-human/reconledger/actions/runs/43040827441)
+expired during Playwright's operating-system dependency installation. Logs show
+repeated failed downloads from the runner's HTTP Azure Ubuntu mirror; no browser
+workflow ran. The Java/database, packaged, restore and audit jobs passed.
+
+Runs [43236082900](https://github.com/harshaattili-human/reconledger/actions/runs/43236082900)
+and [43237064256](https://github.com/harshaattili-human/reconledger/actions/runs/43237064256)
+subsequently passed all 36 demo, 24 secured and 10 repeated browser executions.
+Trial source-file URI rewrites reported zero replacements in both runs, so the
+successful downloads demonstrate recovery, not an effective mirror change. The
+unused rewrite was removed; the exact source indirection was not established.
+
+Installation now has a six-minute step deadline within the existing fifteen-minute
+job limit. A download stall fails this step before consuming the full job budget.
+All three engines, dependency signature checks and existing expectations remain
+enabled. This is bounded failure reporting, not a permanent network fix. Final-head
+verification is recorded in PR #41. No application packaging or runtime policy
+changes follow from this CI adjustment.

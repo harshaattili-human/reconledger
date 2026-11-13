@@ -181,7 +181,9 @@ jobs:
         run: ./mvnw --batch-mode --no-transfer-progress -DskipTests package
       - run: npm ci
         working-directory: browser-tests
-      - run: npx playwright install --with-deps chromium firefox webkit
+      - name: Install all three browser engines and dependencies
+        timeout-minutes: 6
+        run: npx playwright install --with-deps chromium firefox webkit
         working-directory: browser-tests
       - name: Exercise review workflows against the executable JAR
         run: npm test
