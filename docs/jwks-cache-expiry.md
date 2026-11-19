@@ -81,3 +81,25 @@ retain JAR hashes, environments, TTL and declared checks. Java 17.0.21, Python
 73 packaged libraries with zero advisory entries in that snapshot; this is not
 vulnerability-free or external-issuer deployment evidence. Local syntax/whitespace
 checks passed; Java/database execution remained hosted.
+
+## Concurrent expiry regression
+
+`JwksCacheDecoderTest.concurrentExpiredKnownKeyDecodesWaitForOneRefresh` warms a
+real Nimbus decoder against a synthetic loopback HTTP key endpoint, advances the
+controlled monotonic clock exactly to the configured expiry, and releases eight
+ready executor callers together. The endpoint holds the refresh response behind a
+latch. Every caller must remain incomplete while that response is held; after
+release all eight must verify successfully with exactly one additional HTTP fetch.
+A subsequent decode must reuse the refreshed cache without another fetch.
+
+This checks known-key expiry coalescing and absence of stale completion in this
+fixture. It does not establish fairness, a maximum waiting duration, unknown-key
+storm behavior, external issuer availability, or a load/throughput result. The
+fixture uses one shared decoder and the explicit cache-age mode; default framework
+caching and separate processes are outside it. Signing keys and tokens stay in
+memory. No runtime policy changes.
+
+Reproduce with `./mvnw -Dtest=JwksCacheDecoderTest test`. On November 19, 2026,
+local execution was blocked before compilation by Maven Central DNS resolution
+and an uncached Spring Boot parent. Hosted CI results must be checked before
+claiming this regression passes.

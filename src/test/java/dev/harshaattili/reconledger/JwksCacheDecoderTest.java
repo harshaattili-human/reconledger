@@ -12,7 +12,7 @@ import java.security.*;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Instant;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.jwt.*;
@@ -75,6 +75,65 @@ class JwksCacheDecoderTest {
             status.set(200);
             assertThat(decoder.decode(tokenB).getSubject()).isEqualTo("synthetic");
         } finally { server.stop(0); }
+    }
+
+    @Test void concurrentExpiredKnownKeyDecodesWaitForOneRefresh() throws Exception {
+        var signingKey = key();
+        var fetches = new AtomicInteger();
+        var refreshEntered = new CountDownLatch(1);
+        var releaseRefresh = new CountDownLatch(1);
+        var callersReady = new CountDownLatch(8);
+        var start = new CountDownLatch(1);
+        var pool = Executors.newFixedThreadPool(8);
+        var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/jwks", exchange -> {
+            int request = fetches.incrementAndGet();
+            try {
+                if (request > 1) {
+                    refreshEntered.countDown();
+                    if (!releaseRefresh.await(5, TimeUnit.SECONDS)) return;
+                }
+                byte[] bytes = jwks("same-key", signingKey).getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(200, bytes.length);
+                try (var out = exchange.getResponseBody()) { out.write(bytes); }
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+            } finally { exchange.close(); }
+        });
+        server.start();
+        try {
+            String uri = "http://127.0.0.1:" + server.getAddress().getPort() + "/jwks";
+            var now = new AtomicLong();
+            var decoder = NimbusJwtDecoder.withJwkSetUri(uri).restOperations(JwksHttp.create())
+                .cache(new JwksCache(uri, 300, now::get)).build();
+            String token = token("same-key", signingKey);
+            assertThat(decoder.decode(token).getSubject()).isEqualTo("synthetic");
+            assertThat(fetches.get()).isEqualTo(1);
+            now.set(TimeUnit.SECONDS.toNanos(300));
+            var futures = new java.util.ArrayList<Future<String>>();
+            for (int i = 0; i < 8; i++) futures.add(pool.submit(() -> {
+                callersReady.countDown();
+                assertThat(start.await(5, TimeUnit.SECONDS)).isTrue();
+                return decoder.decode(token).getSubject();
+            }));
+            assertThat(callersReady.await(5, TimeUnit.SECONDS)).isTrue();
+            start.countDown();
+            assertThat(refreshEntered.await(5, TimeUnit.SECONDS)).isTrue();
+            // The endpoint has received the refresh but cannot return keys yet.
+            // No caller may complete from the expired snapshot.
+            for (var future : futures) assertThat(future.isDone()).isFalse();
+            releaseRefresh.countDown();
+            for (var future : futures) assertThat(future.get(5, TimeUnit.SECONDS)).isEqualTo("synthetic");
+            assertThat(fetches.get()).isEqualTo(2);
+            assertThat(decoder.decode(token).getSubject()).isEqualTo("synthetic");
+            assertThat(fetches.get()).isEqualTo(2);
+        } finally {
+            start.countDown();
+            releaseRefresh.countDown();
+            pool.shutdownNow();
+            assertThat(pool.awaitTermination(5, TimeUnit.SECONDS)).isTrue();
+            server.stop(0);
+        }
     }
 
     private static KeyPair key() throws Exception {
