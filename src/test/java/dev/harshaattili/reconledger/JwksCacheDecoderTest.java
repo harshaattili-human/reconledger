@@ -136,6 +136,47 @@ class JwksCacheDecoderTest {
         }
     }
 
+    @Test void repeatedUnknownKeyRequestsRefetchWhileKnownKeysReuseTheResult() throws Exception {
+        var known = key();
+        var unknown = key();
+        var fetches = new AtomicInteger();
+        var body = new AtomicReference<>(jwks("known", known));
+        var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/jwks", exchange -> {
+            fetches.incrementAndGet();
+            byte[] bytes = body.get().getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(200, bytes.length);
+            try (var out = exchange.getResponseBody()) { out.write(bytes); }
+            finally { exchange.close(); }
+        });
+        server.start();
+        try {
+            String uri = "http://127.0.0.1:" + server.getAddress().getPort() + "/jwks";
+            var now = new AtomicLong();
+            var decoder = new JwtDecodeAdmission(NimbusJwtDecoder.withJwkSetUri(uri)
+                .restOperations(JwksHttp.create()).cache(new JwksCache(uri, 300, now::get)).build(), 1);
+            String valid = token("known", known);
+            String missing = token("missing", unknown);
+            assertThat(decoder.decode(valid).getSubject()).isEqualTo("synthetic");
+            assertThat(fetches.get()).isEqualTo(1);
+            // The clock never advances: these are unknown-kid refreshes, not TTL expiry.
+            // Capacity one bounds simultaneous decodes but cannot throttle serial requests.
+            for (int i = 0; i < 8; i++) {
+                int before = fetches.get();
+                assertThatThrownBy(() -> decoder.decode(missing)).isInstanceOf(BadJwtException.class);
+                assertThat(fetches.get()).isEqualTo(before + 1);
+                assertThat(decoder.decode(valid).getSubject()).isEqualTo("synthetic");
+                assertThat(fetches.get()).isEqualTo(before + 1);
+            }
+            // A newly published key with that previously missing ID remains discoverable.
+            body.set(jwks("missing", unknown));
+            assertThat(decoder.decode(missing).getSubject()).isEqualTo("synthetic");
+            assertThat(fetches.get()).isEqualTo(10);
+            assertThat(decoder.decode(missing).getSubject()).isEqualTo("synthetic");
+            assertThat(fetches.get()).isEqualTo(10);
+        } finally { server.stop(0); }
+    }
+
     private static KeyPair key() throws Exception {
         var generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);
