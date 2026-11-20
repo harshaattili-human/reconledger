@@ -103,3 +103,21 @@ Reproduce with `./mvnw -Dtest=JwksCacheDecoderTest test`. On November 19, 2026,
 local execution was blocked before compilation by Maven Central DNS resolution
 and an uncached Spring Boot parent. Hosted CI results must be checked before
 claiming this regression passes.
+
+## Unknown-key refresh pressure
+
+The real-decoder regression
+`repeatedUnknownKeyRequestsRefetchWhileKnownKeysReuseTheResult` holds the cache
+clock fixed, warms a known key, then submits the same unknown-key token eight
+times sequentially through decoder admission capacity one. It requires one fetch
+per rejection while known-key requests reuse each successfully fetched set. Finally
+the fixture publishes the missing key and checks discovery and subsequent reuse.
+This distinguishes unknown-key refresh from TTL expiry and preserves rotation.
+
+This is a synthetic behavioral characterization, not a throughput benchmark or
+external issuer test. The expected ten fetches are one warmup, eight missing-key
+refreshes and one rotation refresh. Concurrency admission alone cannot bound the
+rate of sequential refreshes. An issuer-fetch budget would need an explicit
+rotation-delay policy and separate testing before adoption; no such policy is
+introduced here. Reproduce with `./mvnw -Dtest=JwksCacheDecoderTest test`.
+Hosted verification is required; local Maven resolution has been unavailable.
