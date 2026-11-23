@@ -177,6 +177,45 @@ class JwksCacheDecoderTest {
         } finally { server.stop(0); }
     }
 
+    @Test void reusedKeyIdRequiresExpiryAndRejectsOldMaterialAfterRefresh() throws Exception {
+        var oldKey = key();
+        var replacement = key();
+        var body = new AtomicReference<>(jwks("stable-id", oldKey));
+        var fetches = new AtomicInteger();
+        var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/jwks", exchange -> {
+            fetches.incrementAndGet();
+            byte[] bytes = body.get().getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(200, bytes.length);
+            try (var out = exchange.getResponseBody()) { out.write(bytes); }
+            finally { exchange.close(); }
+        });
+        server.start();
+        try {
+            String uri = "http://127.0.0.1:" + server.getAddress().getPort() + "/jwks";
+            var now = new AtomicLong();
+            var decoder = NimbusJwtDecoder.withJwkSetUri(uri).restOperations(JwksHttp.create())
+                .cache(new JwksCache(uri, 300, now::get)).build();
+            String oldToken = token("stable-id", oldKey);
+            String newToken = token("stable-id", replacement);
+            assertThat(decoder.decode(oldToken).getSubject()).isEqualTo("synthetic");
+            assertThat(fetches.get()).isEqualTo(1);
+            body.set(jwks("stable-id", replacement));
+            now.set(TimeUnit.SECONDS.toNanos(300) - 1);
+            for (int i = 0; i < 3; i++) {
+                assertThatThrownBy(() -> decoder.decode(newToken)).isInstanceOf(BadJwtException.class);
+                assertThat(decoder.decode(oldToken).getSubject()).isEqualTo("synthetic");
+                assertThat(fetches.get()).isEqualTo(1);
+            }
+            now.incrementAndGet();
+            assertThat(decoder.decode(newToken).getSubject()).isEqualTo("synthetic");
+            assertThat(fetches.get()).isEqualTo(2);
+            assertThatThrownBy(() -> decoder.decode(oldToken)).isInstanceOf(BadJwtException.class);
+            assertThat(decoder.decode(newToken).getSubject()).isEqualTo("synthetic");
+            assertThat(fetches.get()).isEqualTo(2);
+        } finally { server.stop(0); }
+    }
+
     private static KeyPair key() throws Exception {
         var generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);
