@@ -121,3 +121,22 @@ rate of sequential refreshes. An issuer-fetch budget would need an explicit
 rotation-delay policy and separate testing before adoption; no such policy is
 introduced here. Reproduce with `./mvnw -Dtest=JwksCacheDecoderTest test`.
 Hosted verification is required; local Maven resolution has been unavailable.
+
+## Replacement material under the same key ID
+
+`reusedKeyIdRequiresExpiryAndRejectsOldMaterialAfterRefresh` distinguishes a known
+key with an invalid signature from an unknown key ID. The loopback fixture warms
+one RSA key, then publishes different RSA material under the same ID. At one
+nanosecond before the controlled 300-second cache boundary, three replacement-token
+decodes must reject without a fetch, while old tokens remain accepted. At the exact
+boundary the replacement token must cause one fetch and succeed. Old tokens must
+then reject without refetching, and replacement tokens must reuse the new set.
+Both tokens remain within their JWT wall-clock expiry throughout the fixture.
+
+This is an explicit-cache, single-decoder behavioral contract, not external issuer
+or elapsed-time evidence. It demonstrates why unknown-key refresh coverage alone
+cannot establish same-ID rotation behavior. No runtime policy changes, issuer-fetch
+budget, background refresh or user revocation are introduced. A future fetch budget
+must account for both paths rather than assuming every signature failure fetches.
+Reproduce with `./mvnw -Dtest=JwksCacheDecoderTest test`; hosted results belong in the
+pull request because local Maven dependencies have been unavailable.
