@@ -88,10 +88,13 @@ public class ApiSecurity {
                           @Value("${recon.security.audience}") String audience,
                           @Value("${recon.security.max-concurrent-decodes:32}") int decodeCapacity,
                           @Value("${recon.security.jwks-cache-ttl-seconds:0}") int cacheTtlSeconds,
+                          @Value("${recon.security.jwks-min-fetch-interval-millis:0}") int fetchIntervalMillis,
                           ResourceLoader resources) throws IOException {
         validateClaimsConfiguration(issuer, audience);
         Assert.isTrue(cacheTtlSeconds >= 0 && cacheTtlSeconds <= 3600,
             "recon.security.jwks-cache-ttl-seconds must be 0 (framework default) or 1..3600");
+        Assert.isTrue(fetchIntervalMillis >= 0 && fetchIntervalMillis <= 60_000,
+            "recon.security.jwks-min-fetch-interval-millis must be 0..60000");
         boolean hasPublicKey = publicKeyLocation != null && !publicKeyLocation.isBlank();
         boolean hasJwks = jwkSetUri != null && !jwkSetUri.isBlank();
         Assert.isTrue(hasPublicKey != hasJwks,
@@ -102,7 +105,7 @@ public class ApiSecurity {
         } else {
             validateJwkSetUri(jwkSetUri);
             var builder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
-                .jwsAlgorithm(SignatureAlgorithm.RS256).restOperations(JwksHttp.create());
+                .jwsAlgorithm(SignatureAlgorithm.RS256).restOperations(JwksHttp.create(fetchIntervalMillis, System::nanoTime));
             if (cacheTtlSeconds > 0) builder.cache(new JwksCache(jwkSetUri, cacheTtlSeconds));
             decoder = builder.build();
         }

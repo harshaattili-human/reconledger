@@ -36,6 +36,11 @@ final class JwksHttp {
     private JwksHttp() {}
 
     static RestOperations create() {
+        return create(0, System::nanoTime);
+    }
+
+    static RestOperations create(int intervalMillis, java.util.function.LongSupplier clock) {
+        var interval = new JwksFetchInterval(intervalMillis, clock);
         Duration budget = Duration.ofMillis(TIMEOUT_MILLIS);
         long budgetNanos = budget.toNanos();
         var client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1)
@@ -49,6 +54,7 @@ final class JwksHttp {
                     throw new IOException("JWKS request bodies are not supported");
                 }
                 @Override protected ClientHttpResponse executeInternal(HttpHeaders headers) throws IOException {
+                    interval.acquire();
                     return fetch(client, uri, budgetNanos);
                 }
             };

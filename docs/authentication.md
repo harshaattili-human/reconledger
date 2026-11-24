@@ -169,3 +169,7 @@ is separate from the later MVC concurrency and rate budgets.
 JWKS mode optionally accepts [an explicit cache lifetime](jwks-cache-expiry.md)
 through `recon.security.jwks-cache-ttl-seconds`. The default 0 preserves Nimbus
 caching; the opt-in policy deliberately rejects expired keys during an outage.
+
+The optional [JWKS fetch interval](jwks-fetch-interval.md) bounds sequential issuer
+request attempts per decoder. It defaults off and trades rotation/outage availability
+for fewer outbound attempts; it does not provide fairness or user revocation.
