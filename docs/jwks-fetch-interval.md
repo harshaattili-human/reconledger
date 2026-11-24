@@ -42,7 +42,7 @@ established by this control.
 ## Verification
 
 ```sh
-./mvnw -Dtest=JwksFetchIntervalTest,JwksCacheDecoderTest,AuthenticatedApiTest test
+./mvnw -Dtest=JwksFetchIntervalTest,JwksCacheDecoderTest,JwksFetchIntervalHttpTest,AuthenticatedApiTest test
 ./mvnw verify
 ```
 
@@ -56,9 +56,15 @@ successful recovery. Four outbound requests are expected per policy: warmup,
 rotation, failed fetch and recovery. This is a correctness fixture, not a timing or
 load measurement. No keys or tokens are persisted.
 
+A secured embedded-Tomcat test enables the real 60-second setting, verifies three
+unknown-key POSTs return the sanitized 503/no-store contract without a challenge
+or retry header, checks that no idempotency key is reserved, and confirms the
+default cached known key still reads without another fetch. Controlled-clock
+decoder cases above cover recovery without sleeping through the production interval.
+
 Configuration bounds are covered in the secured API configuration test. Existing
 packaged HTTPS and API workflows run with the interval disabled; enabled behavior
-is verified at the real-decoder/transport layer, not by an enabled packaged launch
+is verified at the real-decoder/transport and embedded HTTP layers, not by an enabled packaged launch
 or external identity provider. Local Maven execution on November 24, 2026 was
 blocked before compilation by an uncached Boot parent. Hosted results are recorded
 in the pull request after execution.
