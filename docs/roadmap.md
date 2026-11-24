@@ -112,3 +112,7 @@ membership remain open.
 sequences before writes while preserving valid Unicode. Verified subjects and
 configured issuers now share that text boundary; external issuer membership and
 retained-data policy remain separate concerns.
+
+The optional [JWKS fetch interval](jwks-fetch-interval.md) bounds sequential issuer
+request attempts per decoder. It defaults off and trades rotation/outage availability
+for fewer outbound attempts; it does not provide fairness or user revocation.

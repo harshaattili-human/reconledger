@@ -140,3 +140,7 @@ budget, background refresh or user revocation are introduced. A future fetch bud
 must account for both paths rather than assuming every signature failure fetches.
 Reproduce with `./mvnw -Dtest=JwksCacheDecoderTest test`; hosted results belong in the
 pull request because local Maven dependencies have been unavailable.
+
+An opt-in [minimum fetch interval](jwks-fetch-interval.md) now addresses sequential
+refresh pressure. Its documented custom-cache availability tradeoff applies here;
+the default interval remains disabled.

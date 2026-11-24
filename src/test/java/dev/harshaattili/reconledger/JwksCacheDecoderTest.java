@@ -216,6 +216,63 @@ class JwksCacheDecoderTest {
         } finally { server.stop(0); }
     }
 
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(booleans = {false, true})
+    void fetchIntervalBoundsUnknownKeysAndFailuresWithExplicitRecovery(boolean explicitCache) throws Exception {
+        var known = key();
+        var replacement = key();
+        var body = new AtomicReference<>(jwks("known", known));
+        var status = new AtomicInteger(200);
+        var fetches = new AtomicInteger();
+        var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/jwks", exchange -> {
+            fetches.incrementAndGet();
+            byte[] bytes = body.get().getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(status.get(), bytes.length);
+            try (var out = exchange.getResponseBody()) { out.write(bytes); }
+            finally { exchange.close(); }
+        });
+        server.start();
+        try {
+            String uri = "http://127.0.0.1:" + server.getAddress().getPort() + "/jwks";
+            var now = new AtomicLong();
+            var builder = NimbusJwtDecoder.withJwkSetUri(uri)
+                .restOperations(JwksHttp.create(1000, now::get));
+            if (explicitCache) builder.cache(new JwksCache(uri, 300, now::get));
+            var decoder = builder.build();
+            String valid = token("known", known), rotated = token("new", replacement);
+            assertThat(decoder.decode(valid).getSubject()).isEqualTo("synthetic");
+            for (int i = 0; i < 8; i++) {
+                assertThatThrownBy(() -> decoder.decode(rotated)).isInstanceOf(JwtException.class)
+                    .isNotInstanceOf(BadJwtException.class);
+            }
+            assertThat(fetches.get()).isEqualTo(1);
+            // Custom cache is invalidated before a blocked unknown-key refresh.
+            if (explicitCache) assertThatThrownBy(() -> decoder.decode(valid))
+                .isInstanceOf(JwtException.class).isNotInstanceOf(BadJwtException.class);
+            else assertThat(decoder.decode(valid).getSubject()).isEqualTo("synthetic");
+            body.set(jwks("new", replacement));
+            now.set(TimeUnit.SECONDS.toNanos(1) - 1);
+            assertThatThrownBy(() -> decoder.decode(rotated)).isInstanceOf(JwtException.class);
+            now.incrementAndGet();
+            assertThat(decoder.decode(rotated).getSubject()).isEqualTo("synthetic");
+            assertThat(fetches.get()).isEqualTo(2);
+            assertThat(decoder.decode(rotated).getSubject()).isEqualTo("synthetic");
+            now.addAndGet(TimeUnit.SECONDS.toNanos(1));
+            status.set(503);
+            assertThatThrownBy(() -> decoder.decode(valid)).isInstanceOf(JwtException.class);
+            assertThat(fetches.get()).isEqualTo(3);
+            status.set(200);
+            body.set(jwks("known", known));
+            for (int i = 0; i < 8; i++)
+                assertThatThrownBy(() -> decoder.decode(valid)).isInstanceOf(JwtException.class);
+            assertThat(fetches.get()).isEqualTo(3); // Failed attempts spend the interval too.
+            now.addAndGet(TimeUnit.SECONDS.toNanos(1));
+            assertThat(decoder.decode(valid).getSubject()).isEqualTo("synthetic");
+            assertThat(fetches.get()).isEqualTo(4);
+        } finally { server.stop(0); }
+    }
+
     private static KeyPair key() throws Exception {
         var generator = KeyPairGenerator.getInstance("RSA");
         generator.initialize(2048);
