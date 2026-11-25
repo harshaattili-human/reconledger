@@ -62,13 +62,35 @@ or retry header, checks that no idempotency key is reserved, and confirms the
 default cached known key still reads without another fetch. Controlled-clock
 decoder cases above cover recovery without sleeping through the production interval.
 
-Configuration bounds are covered in the secured API configuration test. Existing
-packaged HTTPS and API workflows run with the interval disabled; enabled behavior
-is verified at the real-decoder/transport and embedded HTTP layers, not by an enabled packaged launch
-or external identity provider. Local Maven execution on November 24, 2026 was
+Configuration bounds are covered in the secured API configuration test. The
+[packaged HTTPS rehearsal](jwks-https-package.md#enabled-fetch-interval) now includes
+enabled phases under both cache policies. This remains a local synthetic issuer,
+not external identity-provider verification. Local Maven execution on November 24, 2026 was
 blocked before compilation by an uncached Boot parent. Hosted results are recorded
 in the pull request after execution.
 
 Interview exercise: why can blocking an unknown-key fetch make a previously valid
 known-key token temporarily unavailable, and why must failed attempts spend the
 same issuer budget as successful ones?
+
+
+## Executable-JAR interval rehearsal
+
+`python3 scripts/jwks_smoke.py --database h2` (or `--database postgres` with a
+configured disposable database) also runs the enabled interval. Each cache policy
+starts a fresh JVM with a 10,000 ms interval and a matching certificate trusted by
+an explicit temporary JVM truststore. It warms key A, creates a synthetic batch
+and review, publishes B, and submits three B creates plus one B review within the
+interval. All must receive sanitized 503/no-store with no issuer fetch. A known-A
+read must succeed with framework caching or return 503 with the explicit cache.
+Health remains public. The fixture fails if it misses the ten-second window.
+
+After waiting 10.1 seconds following that phase, it makes one create with the same
+previously rejected idempotency key. A 201 and exactly one additional HTTPS fetch
+establish recovery without a JVM restart. The old review version and complete audit
+must remain unchanged; an explicit replay returns the same batch, then one review
+advances the version and audit. The script never automatically retries a POST.
+Receipts retain the policy, configured interval, observed blocked-phase duration,
+fetch counts and final version. These durations are fixture checks, not latency or
+throughput measurements. Exact nanosecond boundaries remain controlled-clock unit
+evidence. Restart reset, fairness and an external issuer remain outside this phase.

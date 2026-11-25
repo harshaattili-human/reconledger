@@ -108,6 +108,56 @@ def jwks_server(directory, certificate, initial_key):
         require(not thread.is_alive(), "HTTPS fixture did not shut down")
 
 
+def check_fetch_interval(call, state, auth_a, auth_b, jwk_b, payload, run_id, explicit_cache):
+    """Real elapsed-time rehearsal; no injected application clock or POST retries."""
+    interval_seconds = 10
+    started = time.monotonic()
+    batch = call("/api/batches", 201, auth_a, payload, "interval-seed-" + run_id)
+    result = next(row for row in batch["results"] if row["reference"] == "INV-101")
+    path = "/api/results/" + result["id"]
+    review = {"targetState": "IN_REVIEW", "expectedVersion": 0, "note": "Synthetic interval check."}
+    require(call(path + "/reviews", auth=auth_a, body=review)["version"] == 1,
+            "Initial interval review failed")
+    events = call(path + "/events", auth=auth_a)["events"]
+    require(len(events) == 1, "Unexpected initial interval audit")
+    require(state["requests"] == 1, "Warmup must fetch exactly once")
+    state["keys"] = [jwk_b]
+    pending = "interval-pending-" + run_id
+    for _ in range(3):
+        call("/api/batches", 503, auth_b, payload, pending)
+    resolution = {**review, "targetState": "RESOLVED", "expectedVersion": 1}
+    call(path + "/reviews", 503, auth_b, resolution)
+    require(call("/actuator/health") == {"status": "UP"}, "Health unavailable during interval")
+    if explicit_cache:
+        call(path, 503, auth_a)
+    else:
+        require(call(path, auth=auth_a)["version"] == 1, "Cached key lost continuity")
+    # Fail rather than claiming interval rejection if this host missed the window.
+    blocked_window = time.monotonic() - started
+    require(blocked_window < interval_seconds, "Fixture exceeded configured rejection window")
+    require(state["requests"] == 1, "Blocked requests reached the HTTPS issuer")
+    # Deliberate wait after the blocked phase; not polling/retrying a write.
+    time.sleep(interval_seconds + .1)
+    recovered = call("/api/batches", 201, auth_b, payload, pending)
+    require(state["requests"] == 2, "Recovery must fetch the rotated set once")
+    require(call(path + "/events", auth=auth_b)["events"] == events,
+            "Rejected interval review changed audit")
+    require(call(path, auth=auth_b)["version"] == 1, "Rejected interval review changed version")
+    replay = call("/api/batches", auth=auth_b, body=payload, key=pending)
+    require(replay["id"] == recovered["id"], "Recovery idempotency changed")
+    require(call(path + "/reviews", auth=auth_b, body=resolution)["version"] == 2,
+            "Recovered review failed")
+    require(len(call(path + "/events", auth=auth_b)["events"]) == 2, "Recovered audit missing")
+    require(state["requests"] == 2, "Fresh rotated key unexpectedly refetched")
+    return {"cache_policy": "explicit-300-seconds" if explicit_cache else "framework-default",
+            "fetch_interval_millis": interval_seconds * 1000,
+            "blocked_phase_elapsed_seconds": blocked_window,
+            "http_jwks_requests": state["requests"],
+            "blocked_create_requests": 3, "blocked_review_requests": 1,
+            "known_key_status_during_interval": 503 if explicit_cache else 200,
+            "recovered_create_status": 201, "final_review_version": 2}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--database", choices=["h2", "postgres"], default="h2")
@@ -134,8 +184,9 @@ def main():
         auth_b = token(second, "key-b", tenant, expiry)
         env = {k: v for k, v in os.environ.items() if not k.startswith(("SPRING_", "RECON_SECURITY_"))
                and k not in {"JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS"}}
-        for certificate in ("untrusted", "wrong-host", "valid"):
-            with jwks_server(directory, certificate, jwk_a) as (uri, state), tempfile.TemporaryFile(mode="w+") as log:
+        for certificate in ("untrusted", "wrong-host", "valid", "interval-default", "interval-explicit"):
+            interval_phase = certificate.startswith("interval-")
+            with jwks_server(directory, "valid" if interval_phase else certificate, jwk_a) as (uri, state), tempfile.TemporaryFile(mode="w+") as log:
                 with socket.socket() as reserved:
                     reserved.bind(("127.0.0.1", 0))
                     port = reserved.getsockname()[1]
@@ -160,7 +211,11 @@ def main():
                             require(response.headers.get("WWW-Authenticate") is None and
                                     response.headers.get("Retry-After") is None, "Unexpected retry/auth challenge")
                         raw = response.read()
-                        return json.loads(raw) if raw else None
+                        parsed = json.loads(raw) if raw else None
+                        if expected == 503:
+                            require(parsed == {"title": "Token verification unavailable", "status": 503},
+                                    "Unsanitized verification failure")
+                        return parsed
 
                 command = ["java", f"-Djavax.net.ssl.trustStore={truststore}",
                            "-Djavax.net.ssl.trustStoreType=PKCS12", "-Djavax.net.ssl.trustStorePassword=disposable-trust",
@@ -170,6 +225,10 @@ def main():
                            "--recon.security.issuer=" + ISSUER, "--recon.security.audience=" + AUDIENCE]
                 if certificate == "valid":
                     command += ["--recon.security.jwks-cache-ttl-seconds=5"]
+                if interval_phase:
+                    command += ["--recon.security.jwks-min-fetch-interval-millis=10000",
+                                "--recon.security.jwks-cache-ttl-seconds=" +
+                                ("300" if certificate == "interval-explicit" else "0")]
                 if args.database == "h2":
                     command += ["--spring.datasource.url=jdbc:h2:file:./.local/reconledger;DB_CLOSE_ON_EXIT=FALSE",
                                 "--spring.datasource.username=sa", "--spring.datasource.password="]
@@ -185,7 +244,11 @@ def main():
                             require(time.monotonic() < deadline, "Application readiness timeout")
                             time.sleep(.1)
                     call("/api/batches", 401)
-                    if certificate != "valid":
+                    if interval_phase:
+                        observation = check_fetch_interval(call, state, auth_a, auth_b, jwk_b,
+                            payload, certificate + run_id, certificate == "interval-explicit")
+                        observations.append({"phase": certificate, **observation})
+                    elif certificate != "valid":
                         call("/api/batches", 503, auth_a, payload, certificate + run_id)
                         require(state["requests"] == 0, "Rejected certificate reached HTTP handler")
                     else:
@@ -242,8 +305,9 @@ def main():
                                 "Expired-cache outage mutated audit")
                         require(call(result_path, auth=auth_a)["version"] == 1,
                                 "Expired-cache outage mutated review version")
-                    observations.append({"certificate": certificate, "http_jwks_requests": state["requests"],
-                                         "expected_auth_status": 200 if certificate == "valid" else 503})
+                    if not interval_phase:
+                        observations.append({"certificate": certificate, "http_jwks_requests": state["requests"],
+                                             "expected_auth_status": 200 if certificate == "valid" else 503})
                 finally:
                     process.terminate()
                     try:
@@ -264,7 +328,10 @@ def main():
                        "scope rejection", "verified review provenance", "unknown kid rotation without JAR restart",
                        "removed unexpired key rejected without audit mutation", "idempotency retained after rotation",
                        "known key expires without unknown-kid trigger", "expired-cache outage rejects writes",
-                       "expiry/outage recovery preserves audit and unreserved idempotency keys"],
+                       "expiry/outage recovery preserves audit and unreserved idempotency keys",
+                       "enabled fetch interval blocks HTTPS requests under both cache policies",
+                       "blocked interval writes preserve keys and review audit",
+                       "real interval elapses then rotated key creates and reviews without restart"],
             "limits": "Local synthetic HTTPS issuer only; no external IdP membership, discovery, revocation or deployment proof."
         }, indent=2) + "\n")
     print(f"Packaged HTTPS JWKS checks passed ({args.database}); receipt: {report.name}")
