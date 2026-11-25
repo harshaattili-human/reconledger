@@ -72,3 +72,21 @@ OpenSSL 3.0.13 and Ubuntu 24.04 were used. No runtime policy or migration change
 Interview exercise: why can a valid JWT signature still be unsafe if the client
 accepts a JWKS certificate for the wrong host, and why does removing a key from the
 server not immediately remove it from a client's cache?
+
+
+## Enabled fetch interval
+
+Two additional fresh-JVM phases enable a 10,000 ms minimum fetch interval, first
+with framework caching and then with the explicit 300-second cache lifetime. They
+use the matching-host certificate and the same disposable database. The
+[interval protocol](jwks-fetch-interval.md#executable-jar-interval-rehearsal) checks
+blocked issuer requests, sanitized create/review rejection, policy-specific cached
+key availability, unchanged audit and real-time rotation recovery. Each phase must
+observe exactly two HTTPS requests: warmup and recovery. Receipts include separate
+phase observations. Existing certificate rejection and five-second TTL phases keep
+the interval disabled. No runtime or migration changes are part of this extension.
+
+Local Python syntax, whitespace and documentation links were checked on November
+25, 2026. Packaged execution requires Java and the built JAR; hosted H2/PostgreSQL
+results are recorded in the pull request after execution. The script adds process
+checks, not JUnit cases, and retains no private keys, tokens or application logs.
