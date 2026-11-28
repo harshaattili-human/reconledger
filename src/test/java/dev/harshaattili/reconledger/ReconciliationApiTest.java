@@ -415,9 +415,10 @@ class ReconciliationApiTest {
                     .andExpect(jsonPath("$.businessDate").value(date)).andReturn());
                 String id = created.get("id").asText();
                 // Check stored SQL DATE through the driver's typed calendar mapping.
-                assertThat(jdbc.queryForObject("SELECT business_date FROM recon_batch WHERE id = ?",
-                    (rs, row) -> rs.getObject(1, java.time.LocalDate.class), id))
-                    .isEqualTo(input.businessDate());
+                java.time.LocalDate storedDate = jdbc.queryForObject(
+                    "SELECT business_date FROM recon_batch WHERE id = ?",
+                    (rs, row) -> rs.getObject(1, java.time.LocalDate.class), id);
+                assertThat(storedDate).isEqualTo(input.businessDate());
                 for (String readZone : List.of(zone, "UTC")) {
                     TimeZone.setDefault(TimeZone.getTimeZone(readZone));
                     mvc.perform(get("/api/batches/{id}", id)).andExpect(status().isOk())

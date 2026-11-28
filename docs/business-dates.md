@@ -55,3 +55,8 @@ POM; only the standalone Java conversion probe and static checks ran locally.
 Optional exercise: why can a date filter fail even when the database stores the
 correct date, and why is setting the server timezone to UTC insufficient to solve
 all legacy calendar conversions?
+
+Initial hosted run [46154845464](https://github.com/harshaattili-human/reconledger/actions/runs/46154845464)
+failed test compilation: passing the generic JDBC query result directly into
+AssertJ left overload resolution ambiguous. The fixture now assigns the result to
+an explicit LocalDate before asserting it; the runtime change was not altered.
