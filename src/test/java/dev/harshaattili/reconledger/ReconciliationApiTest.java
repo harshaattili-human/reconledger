@@ -394,6 +394,58 @@ class ReconciliationApiTest {
         assertThat(page.get("nextAfterSequence").isNull()).isTrue();
     }
 
+    @Test void businessDatesSurviveGregorianCutoverWithoutCalendarConversion() throws Exception {
+        assertBusinessDatesRoundTrip("UTC", List.of("1582-10-04", "1582-10-10", "1582-10-15"));
+    }
+
+    @Test void businessDatesSurviveSkippedCivilDayAndTimezoneChange() throws Exception {
+        assertBusinessDatesRoundTrip("Pacific/Apia", List.of("2011-12-29", "2011-12-30", "2011-12-31"));
+    }
+
+    private void assertBusinessDatesRoundTrip(String zone, List<String> dates) throws Exception {
+        TimeZone previous = TimeZone.getDefault();
+        try {
+            TimeZone.setDefault(TimeZone.getTimeZone(zone));
+            for (String date : dates) {
+                var original = sample();
+                var input = new BatchInput(java.time.LocalDate.parse(date), "XTS",
+                    original.leftRecords(), original.rightRecords());
+                String key = key();
+                var created = body(create(key, input).andExpect(status().isCreated())
+                    .andExpect(jsonPath("$.businessDate").value(date)).andReturn());
+                String id = created.get("id").asText();
+                // Check stored SQL DATE through the driver's typed calendar mapping.
+                java.time.LocalDate storedDate = jdbc.queryForObject(
+                    "SELECT business_date FROM recon_batch WHERE id = ?",
+                    (rs, row) -> rs.getObject(1, java.time.LocalDate.class), id);
+                assertThat(storedDate).isEqualTo(input.businessDate());
+                for (String readZone : List.of(zone, "UTC")) {
+                    TimeZone.setDefault(TimeZone.getTimeZone(readZone));
+                    mvc.perform(get("/api/batches/{id}", id)).andExpect(status().isOk())
+                        .andExpect(jsonPath("$.businessDate").value(date));
+                    create(key, input).andExpect(status().isOk())
+                        .andExpect(header().string("Idempotency-Replayed", "true"))
+                        .andExpect(jsonPath("$.id").value(id))
+                        .andExpect(jsonPath("$.businessDate").value(date));
+                    for (boolean currencyFilter : List.of(false, true)) {
+                        var request = get("/api/batches").param("businessDate", date).param("limit", "100");
+                        if (currencyFilter) request.param("currency", "XTS");
+                        var page = body(mvc.perform(request).andExpect(status().isOk()).andReturn());
+                        boolean found = false;
+                        for (var batch : page.get("batches")) {
+                            assertThat(batch.get("businessDate").asText()).isEqualTo(date);
+                            if (batch.get("id").asText().equals(id)) found = true;
+                        }
+                        assertThat(found).as("date filter finds %s in %s", date, readZone).isTrue();
+                    }
+                }
+                TimeZone.setDefault(TimeZone.getTimeZone(zone));
+            }
+        } finally {
+            TimeZone.setDefault(previous);
+        }
+    }
+
     private org.springframework.test.web.servlet.ResultActions create(String key, BatchInput input) throws Exception {
         return mvc.perform(post("/api/batches").header("Idempotency-Key", key).contentType(MediaType.APPLICATION_JSON)
             .content(json.writeValueAsString(input)));

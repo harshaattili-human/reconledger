@@ -242,3 +242,7 @@ array containing all events. Callers must now read `response.events` and follow
 
 `GET /actuator/health` reports `{"status":"UP"}` when healthy. Internal component
 details and other actuator endpoints are not exposed by the default configuration.
+
+Business dates use [typed JDBC calendar values](business-dates.md) for reads and
+filters, preserving the date across JVM timezone changes without converting it
+through a legacy date/time representation.

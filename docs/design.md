@@ -163,3 +163,7 @@ Explain why a lookup followed by an insert is insufficient for idempotency. Poin
 the unique constraint and the losing transaction's recovery path. Then trace how the tenant
 predicate is retained during losing-insert recovery and why a request body must not
 be allowed to select ownership.
+
+Business dates use [typed JDBC calendar values](business-dates.md) for reads and
+filters, preserving the date across JVM timezone changes without converting it
+through a legacy date/time representation.

@@ -69,7 +69,8 @@ public class LedgerRepository {
         }
         if (businessDate != null) {
             sql.append(" AND business_date = ?");
-            parameters.add(java.sql.Date.valueOf(businessDate));
+            // DATE is a calendar value, not an instant in the JVM default timezone.
+            parameters.add(businessDate);
         }
         if (currency != null) {
             sql.append(" AND currency = ?");
@@ -83,7 +84,7 @@ public class LedgerRepository {
                 statement.setObject(index + 1, parameters.get(index));
             }
         }, (rs, n) -> new BatchSummary(rs.getString("id"),
-            rs.getLong("list_sequence"), rs.getDate("business_date").toLocalDate(),
+            rs.getLong("list_sequence"), rs.getObject("business_date", LocalDate.class),
             rs.getString("currency"), rs.getString("created_at")));
         boolean hasMore = rows.size() > limit;
         var batches = List.copyOf(rows.subList(0, Math.min(rows.size(), limit)));
@@ -105,7 +106,7 @@ public class LedgerRepository {
 
     public BatchView getBatch(String id) {
         var header = jdbc.query("SELECT business_date, currency, created_at FROM recon_batch WHERE id = ? AND tenant_id = ?",
-            (rs, n) -> new BatchView(id, rs.getDate("business_date").toLocalDate(), rs.getString("currency"),
+            (rs, n) -> new BatchView(id, rs.getObject("business_date", LocalDate.class), rs.getString("currency"),
                 rs.getString("created_at"), Map.of(), List.of()), id, tenant.current()).stream().findFirst()
             .orElseThrow(() -> ApiException.notFound("Batch not found."));
         var sources = jdbc.query("SELECT source_side, record_id, reference, amount FROM source_record WHERE batch_id = ?",
